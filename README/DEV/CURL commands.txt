@@ -1,0 +1,11 @@
+Curl: used to issue http request [install using sudo apt-get install curl]
+
+GET Request is pretty straight forward since we dont put anythig to its body
+And the beast part is our app almost always use get requests. 
+
+ex: curl "http://localhost:8080/Capture_Server/Resolver?requesttype=debug"
+
+-----------------------------------------------------------------------------
+Initiate server
+1) Register the websocket servlet(s)
+curl "http://localhost:8080/Capture_Server/Resolver?requesttype=admin&adminname=malithmp&password=meh&action=registerservlet&URL=https://www.google.ca/"

@@ -73,11 +73,12 @@ class ServletInfo{
 	//		Their load
 	//		Their URI if they are not local. Null if they are local
 
+	int load;
+	String url;
 	public ServletInfo(String url){
 		this.url=url;
 	}
-	int load;
-	String url;
+	
 }
 
 // TODO create mapping between geographical area ----->  arena so we can dynamically create arenas
