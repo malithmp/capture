@@ -1,0 +1,6 @@
+Git ignore file: 
+	create a file named .gitignore 
+	List all the files/folders you want to ignore in the .gitignore file
+	do git rm -r --cached <filename> to force remove them
+	commit the .gitignore file as well
+
