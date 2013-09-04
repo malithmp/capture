@@ -1,0 +1,36 @@
+SERVLETS:
+	http://oreilly.com/catalog/jservlet/chapter/ch03.html#25917
+
+Servlet3 Async Request handling:
+	https://gist.github.com/keesun/1621658
+	http://www.youtube.com/watch?v=-SxcD8sxY94 (async)
+	http://www.javaworld.com/javaworld/jw-02-2009/jw-02-servlet3.html?page=3
+
+Servlet Synchronization:
+	http://www.ibm.com/developerworks/websphere/library/bestpractices/avoiding_or_minimizing_synchronization_in_servlets.html
+
+Servlet Clustering:
+	http://madbean.com/2003/mb2003-36/
+
+WebSockets+Servlet:
+	http://www.javatpoint.com/requestdispatcher
+	http://svn.apache.org/viewvc/tomcat/tc7.0.x/trunk/webapps/examples/WEB-INF/classes/websocket/chat/ChatAnnotation.java?view=co
+
+Writing Scalable Code:
+	http://www.codeproject.com/Articles/151520/Write-Scalable-Code
+
+
+Hosting servlet;
+	http://www.eatj.com/
+
+SSL/HTTPS Client:
+	http://www.youtube.com/watch?v=RZ1bzailqls
+
+SSL/TLS Certificates free:
+	http://www.startssl.com/
+
+Android SSL/HTTPS:
+	http://developer.android.com/training/articles/security-ssl.html
+
+Clientside code with jwebsockets
+http://technology.amis.nl/2012/01/15/stand-alone-java-client-for-jwebsocket-server-communicating-from-java-client-to-web-clients-and-vice-versa-over-websockets/

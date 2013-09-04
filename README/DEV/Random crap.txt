@@ -1,0 +1,13 @@
+HTTP GET request example
+	- http://localhost:8080/Capture_Server/Resolver?a=sds&b=sad&c=cat&c=dog&one=two
+		a   = "sds"
+		b   = "sad"
+		c   = {"cat","dog"}
+		one = "two"
+
+	- All these parameters go in the header of the request. Must not try to put it in the body even though it is possible.
+	  It is against the convention
+	  Resolved in the server with the following code
+	  Map<String, String[]> parameters =request.getParameterMap();
+		System.out.println(parameters.get("c")[1]);
+		System.out.println(parameters.get("c")[0]);

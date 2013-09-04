@@ -1,0 +1,5 @@
+1) Resolver instance must be started
+2) Websocket Backend servlets must be started
+3) Websocket Backend servlets must be registered on the frontend
+	- Use admin mode to register the backend(s) to frontend
+	- Use admin mode to interconnect front end resolvers (if multiple instances are present)

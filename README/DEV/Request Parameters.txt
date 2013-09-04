@@ -1,0 +1,55 @@
+HTTP REQUEST PARAMETER TREE
+parameter names are marked inside * *. The following block contains possible values
+RETURN indecates the response from the server to a request with a complete parameter set
+
+*requesttype*{
+	user{
+		*loggedin*{
+			true{
+				*token*
+				*locationX*
+				*locationY*
+				*locationAcc*	// location accuracy +/- or %
+				*arena*
+				
+				RETURN:{
+					URL to websocket servlet for future communication
+				}
+			}
+			
+			false{
+				*username*
+				*password*
+				
+				RETURN:{
+					user_token for future communications
+				}
+			}
+	}
+	
+	general{
+		// TODO 
+	}
+	
+	debug{
+		*adminname*
+		*password*
+		*action*
+		endpoint{
+			RETURN : up and running // endpoint to test if the server is up
+		}
+	}
+	
+	admin{
+		*adminname*
+		*password*
+		*action*{
+			registerservlet{
+				*URL*
+				RETURN : status 
+			}
+			
+			
+		}
+	}
+}
