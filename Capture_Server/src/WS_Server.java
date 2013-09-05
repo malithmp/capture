@@ -21,6 +21,8 @@ public class WS_Server extends WebSocketServlet {
 	private static final long serialVersionUID = 1L;
 	public static final ArrayList<EchoSocket> connections = new ArrayList<EchoSocket>();
 	public static int i=0;
+	
+	// LIST OF ALL THE DATABASES / OR ANY DATASTRUCTURES
 	@Override
 	protected StreamInbound createWebSocketInbound(String string, HttpServletRequest hsr) {
 		EchoSocket echosocket = new EchoSocket();

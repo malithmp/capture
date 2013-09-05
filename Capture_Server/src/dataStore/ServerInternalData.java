@@ -3,9 +3,6 @@ package dataStore;
 import java.util.ArrayList;
 import java.util.Hashtable;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 public class ServerInternalData {
 	// ALL ACCESS IS SYNCRONIZED!
 
@@ -14,12 +11,12 @@ public class ServerInternalData {
 
 	// 	Contains mapping information about which arena is served by which servlet
 	// 	arenaID -----> servletInfo
-	Hashtable<Integer,ServletInfo> arenaServletMap;
+	Hashtable<String,ServletInfo> arenaServletMap;
 	// The above said two data structures are pointing to the same servletInfo instances!!
 
 
 	public ServerInternalData(){
-		arenaServletMap = new Hashtable<Integer,ServletInfo>();
+		arenaServletMap = new Hashtable<String,ServletInfo>();
 		servletPool = new ArrayList<ServletInfo>();
 		System.out.println("WARNING: UNIMPLEMENTED ITEM : Register own server instance in the ServerInternalData store");
 	}
@@ -44,11 +41,32 @@ public class ServerInternalData {
 		}
 	}
 
-	public synchronized boolean makeArenaServletMapping(){
+	public synchronized boolean registerArena(String arenaID,String URL,Object DATA/*TODO data of the map*/){
 		// Add a mapping between an arena and a servlet
 		// First Check if arena is present
+		if(arenaServletMap.get(URL)==null){
+			// there is a mapping ==> there is an arena. Dotn want a duplicate
+			return false;
+		}
+		
 		// Then Check if the servlet is present
-		// TODO
+		ServletInfo targetServlet=null; 		// assume the worst
+		boolean status = false;
+		for(int i=0;i<servletPool.size();i++){
+			targetServlet=servletPool.get(i);
+			if(targetServlet.url.equals(URL)){
+				status = true;
+				break;
+			}
+		}
+		if(status==false){
+			// servlet is not present.. break the process
+			return false;
+		}
+		
+		// TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO Send the database to the websocket servlet
+		// add the mapping
+		arenaServletMap.put(arenaID, targetServlet);
 		return true;
 	}
 	
@@ -61,15 +79,20 @@ public class ServerInternalData {
 		// Remove the god damn mapping!
 	}
 
-	void closeArena(){
+	void unregisterArena(){
 		// Arena is not active anymore. Remove mapping
 		// i.e remove entry (TODO does that sevlet call this function or does this function ask the servelt to forget about that arena?)
+	}
+	
+	void remapArena(){
+		// Move arena from one servlet to another
+		// TODO DO THIS LAST
 	}
 
 }
 
 class ServletInfo{
-	// Contains Information about other servlet instances as a Table
+	// Contains Information about other servlet instances as a TablearenaID
 	//		Their load
 	//		Their URI if they are not local. Null if they are local
 

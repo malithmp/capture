@@ -101,8 +101,7 @@ public class Resolver extends HttpServlet {
 			PrintWriter pw = response.getWriter();
 			pw.println("<html><h1> How about No! </h1><p>Protocol Error: requesttype invalid!</p></html>");
 			System.out.println("Invalid Protocol Request Detected!"+parameters.get("requesttype"));
-		}
-
+		} 
 		// response.setContentType("text/html");
 		// System.out.println("Got:"+request.getQueryString()+"::"+request.getParameter("cat")+"::"+request.getParameter("bleh"));
 		// PrintWriter pw = response.getWriter();
@@ -129,7 +128,7 @@ public class Resolver extends HttpServlet {
 		// TODO: if we are planning on using websockets, 
 		// 		 Do websockety stuff
 		// TODO: if we are sending data directly from here
-		// 	 	 Check the time and see if the local data (for that query) is expired
+		// 	 	 Check the time and see if the localmax size of http post  data (for that query) is expired
 		// 		 If data is not expired, send it to them
 		System.out.println("WARNING: NOT IMPLEMENTED!");
 	}
@@ -188,9 +187,15 @@ public class Resolver extends HttpServlet {
 				}
 			}
 		}
+		else if(parameters.get("action")[0].equals("mapservlet")){
+			//TODO reigster (arenaID) (servletURL)
+		}
+		else if(parameters.get("action")[0].equals("registerarena")){
+			//TODO MOVE THIS TO THE DOPOST PART SINCE THIS CONTAINS BINARY DATA 
+			//TODO add the data to the secified websocket servlet
+			//TODO add the name to the frontend
+		}
 		
-		//else if(){
-		//}
 		return;
 	}
 }
