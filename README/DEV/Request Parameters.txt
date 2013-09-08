@@ -49,6 +49,16 @@ RETURN indecates the response from the server to a request with a complete param
 				RETURN : status 
 			}
 			
+			maparenaservlet{		// map arena to servlet
+				*arena*				// name of the arena (ID)
+				*servlet*			// URL of servlet
+				RETURN: status
+			}
+			
+			registerarena{			// register arena name on server
+				*arena*
+				RETURN: status
+			}
 			
 		}
 	}

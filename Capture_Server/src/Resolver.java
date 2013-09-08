@@ -187,15 +187,57 @@ public class Resolver extends HttpServlet {
 				}
 			}
 		}
-		else if(parameters.get("action")[0].equals("mapservlet")){
-			//TODO reigster (arenaID) (servletURL)
-		}
+		
 		else if(parameters.get("action")[0].equals("registerarena")){
-			//TODO MOVE THIS TO THE DOPOST PART SINCE THIS CONTAINS BINARY DATA 
-			//TODO add the data to the secified websocket servlet
-			//TODO add the name to the frontend
+			//Arena names are added at the time it was uploaded to the server
+			System.out.println("WARNING!:sendMapToServlet() must be called before this!");
+			System.out.println("WARNING!:Assiming map is sent to servlet");
+			boolean status = serverinternaldata.registerNewArena(parameters.get("arena")[0]);
+			
+			if(status){ // Let the admin know everything went well
+				try {
+					PrintWriter pw = response.getWriter();
+					pw.println("status=true");
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				
+			}
+			else{
+				try {
+					PrintWriter pw = response.getWriter();
+					pw.println("status=false");
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		else if(parameters.get("action")[0].equals("maparenaservlet")){
+			//TODO reigster (arenaID) (servletURL)
+			serverinternaldata.mapArenaServlet(parameters.get("arena")[0], parameters.get("servlet")[0]);
 		}
 		
 		return;
+	}
+	
+	public boolean sendMapToServlet(String targetURL,Object mapOfArena){
+		// This must be implemented once everything is done. 
+		// This will send map data to the servlet
+		// Websocket Servlets can accept http POST requests to we can send the map to them using HTTP 
+		// Then once this is done, we know that the servlet is capable of serving the arena 
+		System.out.println("WARNING: NOT IMPLEMENTED");
+		System.out.println("Dummy function pretends to send the file to the websocket sevlet, but in reality its already there!");
+		System.out.println("WS Servlets must only get their map data from this method!");
+		return true;
+	}
+	
+	public void tempinit(){
+		// TODO: DEBUG
+		// DEBUG INITIALIZATION FUNCTION
+		// MUST BE REMOVED FROM THE FINAL VERSION
+		// LOAD DUMMY MAP, SEND DUMMY MAP TO SERVLET, AND ALL STUFF REQUIRE TO GET US OFF THE GROUND!
+		// TODO: DEBUG END	
+		System.out.println("WARNING! temporary initialization function being called. This must be removed!");
 	}
 }

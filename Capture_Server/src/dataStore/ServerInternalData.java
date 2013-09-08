@@ -9,6 +9,9 @@ public class ServerInternalData {
 	// 	Contains Information about other servlet instances as a Table
 	ArrayList<ServletInfo> servletPool;
 
+	// Contains Information about all the arenas being served
+	ArrayList<String> arenaPool;
+	
 	// 	Contains mapping information about which arena is served by which servlet
 	// 	arenaID -----> servletInfo
 	Hashtable<String,ServletInfo> arenaServletMap;
@@ -17,12 +20,13 @@ public class ServerInternalData {
 
 	public ServerInternalData(){
 		arenaServletMap = new Hashtable<String,ServletInfo>();
+		arenaPool = new ArrayList<String>();
 		servletPool = new ArrayList<ServletInfo>();
 		System.out.println("WARNING: UNIMPLEMENTED ITEM : Register own server instance in the ServerInternalData store");
 	}
 
 	public synchronized boolean registerNewServlet(String URL){
-		// Add new servlet (possible on a different computer/network or about this instance itself) information to this servlet instance
+		// Add new servlet (possibly on a different computer/network or about this instance itself) information to this servlet instance
 		// First Check if this servlet is already in the pool
 		boolean hasDuplicate=false;
 		for(int i=0; ((i<servletPool.size())&&(!hasDuplicate));i++){
@@ -41,7 +45,26 @@ public class ServerInternalData {
 		}
 	}
 
-	public synchronized boolean registerArena(String arenaID,String URL,Object DATA/*TODO data of the map*/){
+	public synchronized boolean registerNewArena(String arenaName){
+		// Check if this arena is already registered
+		boolean hasDuplicate=false;
+		for(int i=0; ((i<arenaPool.size())&&(!hasDuplicate));i++){
+			hasDuplicate |= arenaPool.equals(arenaName);
+		}
+
+		if(!hasDuplicate){
+			// Add that bitch to the list
+			arenaPool.add(arenaName);
+			return true;
+		}
+		else{
+			// This servlet is already registered
+			System.out.println("Error! : Trying to add a duplicate arena to the pool");
+			return false;
+		}
+	}
+	
+	public synchronized boolean mapArenaServlet(String arenaID,String URL){
 		// Add a mapping between an arena and a servlet
 		// First Check if arena is present
 		if(arenaServletMap.get(URL)==null){
