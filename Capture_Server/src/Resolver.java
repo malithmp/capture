@@ -36,7 +36,7 @@ public class Resolver extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// Check if the request is for user connection/ debugger/admin request or General viewer request
-		// If user connection (a user needs to play the game)serverinternaldata
+		// If user connection (a user needs to play the game)serverinternaldparameters.get("URL")[0]ata
 		// 		Authenticate and send back a token
 		// 		Get Location and Arena requested by the user
 		// 		Verify if the request can be completed (Current Location is too far away from the arena.. user is out of range)
@@ -55,7 +55,8 @@ public class Resolver extends HttpServlet {
 		
 		// Convert the request parameters to a map so its easier for the back end
 		Map<String, String[]> parameters =request.getParameterMap();
-		
+
+
 		//Match request type
 		if(parameters==null || !parameters.containsKey("requesttype")){
 			// invalid request. Does not adhere to protocol. kindly ask them to GTFO!
@@ -85,7 +86,7 @@ public class Resolver extends HttpServlet {
 		else if(parameters.get("requesttype")[0].equals("debug")){
 			// A debugger connection. // This must be authenticated as it has access to basically everything!!! 
 			// We put this option 3rd since its much less likely request to happen
-			//TODO:: AUTHENTICATE THIS SHIT!
+			//TODO:: AUTHENTICATE THIS SHIT		import net.sf.json.JSONObjecgett;!
 			handleDebugger(parameters,response);
 			System.out.println("WARNING: DEBUG MODE NOT IMPLEMENTED!");
 		}
@@ -94,7 +95,7 @@ public class Resolver extends HttpServlet {
 			// We put this option last since its the least likely request to happen
 			//TODO:: AUTHENTICATE THIS SHIT!
 			handleAdmin(parameters,response);
-			System.out.println("WARNING: ADMIN MODE NOT IMPLEMENTED!");
+			System.out.println("WARNING: ADMIN MODE NOT FULLY IMPLEMENTED!");
 		}
 		else{
 			// Again. invalid request. kindly ask them to GTFO!
@@ -112,9 +113,9 @@ public class Resolver extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		
+		System.out.println("got post");
 	}
-	//---------------INIT-----------------
+	//---------------INIT-------WARNING!:----------
 	private void initdata(){
 		serverinternaldata = new ServerInternalData();
 	}
@@ -164,8 +165,9 @@ public class Resolver extends HttpServlet {
 		//TODO Authenticate!!!!!!!
 		System.out.println("WARNING: Admin not authenticated");
 		System.out.println("adminname:"+parameters.get("adminname")[0]+" password:" + parameters.get("password")[0]);
-		System.out.println(parameters.get("URL")[0]);
+		
 		//Admin task implementation
+		
 		if(parameters.get("action")[0].equals("registerservlet")){
 			// Read the servlet URL and add it to the serverinternaldata data structure
 			boolean status = serverinternaldata.registerNewServlet(parameters.get("URL")[0]);
@@ -189,9 +191,10 @@ public class Resolver extends HttpServlet {
 		}
 		
 		else if(parameters.get("action")[0].equals("registerarena")){
-			//Arena names are added at the time it was uploaded to the server
-			System.out.println("WARNING!:sendMapToServlet() must be called before this!");
-			System.out.println("WARNING!:Assiming map is sent to servlet");
+			//Arena names are added at the time it was uploaded to the server (using a POST request)
+			System.out.println();
+			System.out.println("WARNING:sendMapToServlet() must be called before this!");
+			System.out.println("WARNING:Assined map must be sent to the arena");
 			boolean status = serverinternaldata.registerNewArena(parameters.get("arena")[0]);
 			
 			if(status){ // Let the admin know everything went well
@@ -212,10 +215,35 @@ public class Resolver extends HttpServlet {
 				}
 			}
 		}
-		
 		else if(parameters.get("action")[0].equals("maparenaservlet")){
 			//TODO reigster (arenaID) (servletURL)
 			serverinternaldata.mapArenaServlet(parameters.get("arena")[0], parameters.get("servlet")[0]);
+		}
+		else if(parameters.get("action")[0].equals("tempInit")){
+			boolean status = true;
+			//TODO debug call to initialize dummy maps and arenas
+			// this will bypass most of the hassles during the starting the server
+			System.out.println("WARNING!: DEBUG ONLY FUNCTION CALLED!: tempInit");
+			// Assume websocket servlet is already up and runnint
+			String websocketUrl = "http://localhost:8080/Capture_Server/WS";
+			System.out.println("\tWARNING: Assuming webosocket servlet is up and the url is: "+websocketUrl);
+			
+			// Assume the map has been transfered to resolver temporary map area
+			System.out.println("\tWARNING:<<<<<<<<<<<<<<<<<<<<<<<<00000sadasjhasshdksadkjas k");
+			// Send that to the websocket servlet
+			
+			
+			String arenaname = "home";
+			System.out.println("\tWARNING: Assuming websocket servlet has the arena/map preloaded and has the name: "+arenaname);
+			// Register the arena (in this servlet)
+			status &= serverinternaldata.registerNewArena(arenaname);
+			System.out.println("\tWARNING:registerNewArena:"+status);
+			// Register the websocket servlet
+			status &= serverinternaldata.registerNewServlet(websocketUrl);
+			System.out.println("\tWARNING:registerNewServlet:"+status);
+			// Map the arena to the servlet
+			status &= serverinternaldata.mapArenaServlet(arenaname, websocketUrl);
+			System.out.println("\tWARNING:mapArenaServlet:"+status);
 		}
 		
 		return;

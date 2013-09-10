@@ -1,10 +1,13 @@
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.util.ArrayList;
 
+import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
@@ -62,6 +65,17 @@ public class WS_Server extends WebSocketServlet {
 		}
 
 	}
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		// YES WEBSOCKETS CAN HAVE GET,POST,DELETE and PUT (A.K.A REST API) toO!
+		try {
+			PrintWriter pw = response.getWriter();
+			pw.println("websocket servlet here.. SUP? ");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
 
 	class Runnn implements Runnable{
 		String name;
