@@ -17,11 +17,20 @@ public class ServerInternalData {
 	Hashtable<String,ServletInfo> arenaServletMap;
 	// The above said two data structures are pointing to the same servletInfo instances!!
 
-
+	// TODO: Design the map!!
+	// TODO: MAKE SURE THAT THIS LIST IS SMALL AS POSSIBLE.. MAPS CAN BE HUGE AND SERVERS DONT GIVE ALL THAT MUCH RAM TO SERVLETS!
+	// Keeps all the arenas(The actual map details..this is the actual shit!) that are not yet been assigned to a websocket servlet
+	// Reasons could be one of the following
+	// Admin just uploaded the arenaMap to the resolver and did not assign it to a websocket servelt yet
+	// A websocket servlet was stopped by and admin and the arenaMap was take back from it
+	// A map is being reassigned from one ws servlet to another. the Resolver will be the middle man
+	ArrayList<Object> arenaMaps;
+	
 	public ServerInternalData(){
 		arenaServletMap = new Hashtable<String,ServletInfo>();
 		arenaPool = new ArrayList<String>();
 		servletPool = new ArrayList<ServletInfo>();
+		arenaMaps = new ArrayList<Object>();
 		System.out.println("WARNING: UNIMPLEMENTED ITEM : Register own server instance in the ServerInternalData store");
 	}
 
@@ -64,10 +73,11 @@ public class ServerInternalData {
 		}
 	}
 	
-	public synchronized boolean mapArenaServlet(String arenaID,String URL){
+	public synchronized boolean mapArenaServlet(String arenaName,String URL){
 		// Add a mapping between an arena and a servlet
+		
 		// First Check if arena is present
-		if(arenaServletMap.get(URL)==null){
+		if(arenaServletMap.get(URL)!=null){
 			// there is a mapping ==> there is an arena. Dotn want a duplicate
 			return false;
 		}
@@ -88,8 +98,9 @@ public class ServerInternalData {
 		}
 		
 		// TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO Send the database to the websocket servlet
+		System.out.println("WARNING!: Add mapping");
 		// add the mapping
-		arenaServletMap.put(arenaID, targetServlet);
+		arenaServletMap.put(arenaName, targetServlet);
 		return true;
 	}
 	

@@ -100,8 +100,8 @@ class TalkToServerAndUpdateMap implements Runnable{
 			//HttpMethods.get(new String[][] {{"a","aa"},{"key","ermergerd..kehs"},{"bleh","yum"},{"b","bb"}});
 			String gson = test_temp_gsonTest();
 			HttpMethods.post(new String[][]{{"requesttype","admin"}},gson);
-			PrintWriter out = new PrintWriter("filename.txt");
-			out.println(gson);
+			//PrintWriter out = new PrintWriter("filename.txt");
+			//out.println(gson);
 			System.out.println(gson.hashCode());
 			
 		} catch (Exception e) {

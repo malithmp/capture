@@ -47,7 +47,8 @@ HTTP GET
 		*adminname*
 		*password*
 		*action*{
-			registerservlet{
+			registerservlet{	// Add websocket urls so the resolver knows about the worker servlets
+				*name*
 				*URL*
 				RETURN : status 
 			}
@@ -60,6 +61,9 @@ HTTP GET
 			
 			registerarena{			// register arena name on server
 				*arena*
+				RETURN: status
+			}
+			tempinit{				// Endpoint for Debug purpose only, used to initialize dummy maps and arenas
 				RETURN: status
 			}
 			
@@ -79,4 +83,3 @@ HTTP POST
 	servlet{
 	}
 }
-
