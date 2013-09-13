@@ -5,6 +5,10 @@ import java.util.Hashtable;
 
 public class ServerInternalData {
 	// ALL ACCESS IS SYNCRONIZED!
+	
+	// Login data of administrators usernames and password hashes
+	public static final String[] adminnames={"admin1","admin2","admin3"};
+	public static final String[] adminpasshash={"hash1","hash2","hash3"};
 
 	// 	Contains Information about other servlet instances as a Table
 	ArrayList<ServletInfo> servletPool;
@@ -16,6 +20,11 @@ public class ServerInternalData {
 	// 	arenaID -----> servletInfo
 	Hashtable<String,ServletInfo> arenaServletMap;
 	// The above said two data structures are pointing to the same servletInfo instances!!
+	
+	// Contains information about currently 'logged in and playing' users
+	// Everytime a user logs in, we place some info about that user in this list
+	// This is used for the sole purpose of keeping track of valid(unexpired) tokens
+	ArrayList<ActiveUser> activeUsers;
 
 	// TODO: Design the map!!
 	// TODO: MAKE SURE THAT THIS LIST IS SMALL AS POSSIBLE.. MAPS CAN BE HUGE AND SERVERS DONT GIVE ALL THAT MUCH RAM TO SERVLETS!
@@ -27,10 +36,12 @@ public class ServerInternalData {
 	ArrayList<Object> arenaMaps;
 	
 	public ServerInternalData(){
+		System.out.println("WARNING: Have you set the Admin Credentials, Right now we only have dummy usernames and password hashes");
 		arenaServletMap = new Hashtable<String,ServletInfo>();
 		arenaPool = new ArrayList<String>();
 		servletPool = new ArrayList<ServletInfo>();
 		arenaMaps = new ArrayList<Object>();
+		activeUsers = new ArrayList<ActiveUser>();
 		System.out.println("WARNING: UNIMPLEMENTED ITEM : Register own server instance in the ServerInternalData store");
 	}
 
@@ -135,6 +146,14 @@ class ServletInfo{
 	public ServletInfo(String url){
 		this.url=url;
 	}
+	
+}
+
+class ActiveUser{
+	// Holds small amount of information about a user who is logged in. This is used to manage the session
+	String username;
+	String token;					// Session specific key that is generated using the passwordhash and time
+	//TODO DATE AND TIME OF LOGIN
 	
 }
 

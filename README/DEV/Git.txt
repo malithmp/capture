@@ -4,3 +4,12 @@ Git ignore file:
 	do git rm -r --cached <filename> to force remove them
 	commit the .gitignore file as well
 
+
+Git force commit disregarding old head [DO NOT DO THIS UNLES YOU ARE EXTREMELY EXTREMELY EXTREMEY SURE]
+	Do this only if git is confused. And you are sure you are not. (I did this once, and spent an hour fixing the mess)
+	> git push -f origin master
+
+Git force pull REPLACING local files
+	Will completely replace local files and bring local code to the head of the repo
+	> git fetch --all
+	> git reset --hard origin/master
