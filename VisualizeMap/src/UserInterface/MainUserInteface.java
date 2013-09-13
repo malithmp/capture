@@ -122,10 +122,9 @@ class TalkToServerAndUpdateMap implements Runnable{
 	String test_temp_gsonTest(){
 		// convert arraylist to json and send it using httppost
 		
-		/*this is a useless comment*/
 		Gson gson = new Gson();
 		ArrayList<String> list = new ArrayList<String>();
-		String x ="MalithR11212";
+		String x ="String11212";
 		for(int i=0;i<10;i++){
 			x = ""+x.hashCode();
 			list.add(x);

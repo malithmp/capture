@@ -80,6 +80,9 @@ HTTP POST
 	admin{
 	}
 	
-	servlet{
+	servlet{			// another frontend servlet trying to communicate
+	}
+	
+	websocke{			// a worker websocket trying to communicate
 	}
 }

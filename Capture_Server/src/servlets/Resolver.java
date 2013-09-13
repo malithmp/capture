@@ -1,4 +1,5 @@
 package servlets;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -68,7 +69,7 @@ public class Resolver extends HttpServlet {
 			}
 			else{
 				System.out.println("Error: Requesttype not provided!");
-				pw.println("<html><h1> How about No! </h1><p>Protocol ErrornVal: requesttype parameter not specified!</p></html>");
+				pw.println("<html><h1> How about No! </h1><p>Protocol Error nVal: requesttype parameter not specified!</p></html>");
 			}	
 		}
 		// So far so good. Depending on the user  type we can now call the helper functions.
@@ -96,7 +97,7 @@ public class Resolver extends HttpServlet {
 		else if(parameters.get("requesttype")[0].equals("admin")){
 			// An admin connection. // This too must be authenticated as it has access to basically everything!!! 
 			// We put this option last since its the least likely request to happen
-			
+
 			//TODO:: AUTHENTICATE THIS SHIT!
 
 			handleAdminGet(parameters,response);
@@ -143,7 +144,17 @@ public class Resolver extends HttpServlet {
 		else if(parameters.get("requesttype").equals("admin")){
 			handleAdminPost(parameters, request, response);
 		}
-		
+		else if(parameters.get("requesttype").equals("servlet")){
+
+		}
+		else if(parameters.get("requesttype").equals("websocket")){
+
+		}
+		else{
+			System.out.println("CRITICAL ERROR!");
+			return;
+		}
+
 		BufferedReader r = request.getReader();//r.readLine() will get the string of the entity we sent. ie. json string
 		String inputData=r.readLine();
 		Gson gsn = new Gson();
@@ -157,10 +168,10 @@ public class Resolver extends HttpServlet {
 			System.out.println(""+i+"="+data.get(i));
 		}
 		System.out.println("hash = "+ inputData.hashCode());
-		
+
 		return;
 	}
-	//---------------INIT-------WARNING!:----------
+	//---------------INIT-----------------
 	private void initdata(){
 		serverinternaldata = new ServerInternalData();
 	}
@@ -210,9 +221,9 @@ public class Resolver extends HttpServlet {
 		//TODO Authenticate!!!!!!!
 		System.out.println("WARNING: Admin not authenticated");
 		System.out.println("adminname:"+parameters.get("adminname")[0]+" password:" + parameters.get("password")[0]);
-		
+
 		//Admin task implementation
-		
+
 		if(parameters.get("action")[0].equals("registerservlet")){
 			// Read the servlet URL and add it to the serverinternaldata data structure
 			boolean status = serverinternaldata.registerNewServlet(parameters.get("URL")[0]);
@@ -264,37 +275,17 @@ public class Resolver extends HttpServlet {
 			serverinternaldata.mapArenaServlet(parameters.get("arena")[0], parameters.get("servlet")[0]);
 		}
 		else if(parameters.get("action")[0].equals("tempInit")){
-			boolean status = true;
-			//TODO debug call to initialize dummy maps and arenas
-			// this will bypass most of the hassles during the starting the server
-			System.out.println("WARNING!: DEBUG ONLY FUNCTION CALLED!: tempInit");
-			// Assume websocket servlet is already up and runnint
-			String websocketUrl = "http://localhost:8080/Capture_Server/WS";
-			System.out.println("\tWARNING: Assuming webosocket servlet is up and the url is: "+websocketUrl);
-			
-			// Assume the map has been transfered to resolver temporary map area
-			System.out.println("\tWARNING:<<<<<<<<<<<<<<<<<<<<<<<<00000sadasjhasshdksadkjas k");
-			// Send that to the websocket servlet
-			
-			
-			String arenaname = "home";
-			System.out.println("\tWARNING: Assuming websocket servlet has the arena/map preloaded and has the name: "+arenaname);
-			// Register the arena (in this servlet)
-			status &= serverinternaldata.registerNewArena(arenaname);
-			System.out.println("\tWARNING:registerNewArena:"+status);
-			// Register the websocket servlet
-			status &= serverinternaldata.registerNewServlet(websocketUrl);
-			System.out.println("\tWARNING:registerNewServlet:"+status);
-			// Map the arena to the servlet
-			status &= serverinternaldata.mapArenaServlet(arenaname, websocketUrl);
-			System.out.println("\tWARNING:mapArenaServlet:"+status);
+			// This is a temporary function.. remove once done
+			boolean status = tempinit();
 		}
 		return;
 	}
 
 	public boolean handleAdminPost(Map<String,String[]> parameters, HttpServletRequest request, HttpServletResponse response){
+
 		return false;
 	}
+
 	public boolean sendMapToServlet(String targetURL,Object mapOfArena){
 		// This must be implemented once everything is done. 
 		// This will send map data to the servlet
@@ -306,12 +297,32 @@ public class Resolver extends HttpServlet {
 		return true;
 	}
 
-	public void tempinit(){
-		// TODO: DEBUG
-		// DEBUG INITIALIZATION FUNCTION
-		// MUST BE REMOVED FROM THE FINAL VERSION
-		// LOAD DUMMY MAP, SEND DUMMY MAP TO SERVLET, AND ALL STUFF REQUIRE TO GET US OFF THE GROUND!
-		// TODO: DEBUG END	
-		System.out.println("WARNING! temporary initialization function being called. This must be removed!");
+	public boolean tempinit(){
+		boolean status = true;
+		//TODO debug call to initialize dummy maps and arenas
+		// this will bypass most of the hassles during the starting the server
+		System.out.println("WARNING!: DEBUG ONLY FUNCTION CALLED!: tempInit");
+		// Assume websocket servlet is already up and runnint
+		String websocketUrl = "http://localhost:8080/Capture_Server/WS";
+		System.out.println("\tWARNING: Assuming webosocket servlet is up and the url is: "+websocketUrl);
+
+		// Assume the map has been transfered to resolver temporary map area
+		System.out.println("\tWARNING:<<<<<<<<<<<<<<<<<<<<<<<<00000sadasjhasshdksadkjas k");
+		// Send that to the websocket servlet
+
+
+		String arenaname = "home";
+		System.out.println("\tWARNING: Assuming websocket servlet has the arena/map preloaded and has the name: "+arenaname);
+		// Register the arena (in this servlet)
+		status &= serverinternaldata.registerNewArena(arenaname);
+		System.out.println("\tWARNING:registerNewArena:"+status);
+		// Register the websocket servlet
+		status &= serverinternaldata.registerNewServlet(websocketUrl);
+		System.out.println("\tWARNING:registerNewServlet:"+status);
+		// Map the arena to the servlet
+		status &= serverinternaldata.mapArenaServlet(arenaname, websocketUrl);
+		System.out.println("\tWARNING:mapArenaServlet:"+status);
+
+		return status;
 	}
 }
