@@ -121,6 +121,8 @@ class TalkToServerAndUpdateMap implements Runnable{
 	
 	String test_temp_gsonTest(){
 		// convert arraylist to json and send it using httppost
+		
+		/*this is a useless comment to check if the whole git messup is cleared*/
 		Gson gson = new Gson();
 		ArrayList<String> list = new ArrayList<String>();
 		String x ="MalithR11212";
