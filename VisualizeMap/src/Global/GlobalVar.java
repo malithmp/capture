@@ -2,7 +2,7 @@ package Global;
 
 public class GlobalVar {
 	public static final String SERVER="localhost";
-	public static final String PATH="/Capture_Server/FrontLine";
+	public static final String PATH="/Capture_Server/Resolver";
 	public static final String PORT="8080";
 	public static final String KEY="admin_backend_visualize";
 	public static final int STARTX = 100;

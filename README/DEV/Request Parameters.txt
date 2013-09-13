@@ -2,6 +2,9 @@ HTTP REQUEST PARAMETER TREE
 parameter names are marked inside * *. The following block contains possible values
 RETURN indecates the response from the server to a request with a complete parameter set
 
+
+HTTP GET
+--------
 *requesttype*{
 	user{
 		*loggedin*{
@@ -63,3 +66,17 @@ RETURN indecates the response from the server to a request with a complete param
 		}
 	}
 }
+
+_________________________________________________________________________________________________
+
+HTTP POST
+---------
+
+*requesttype*{
+	admin{
+	}
+	
+	servlet{
+	}
+}
+

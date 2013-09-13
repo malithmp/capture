@@ -4,13 +4,16 @@ import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.PrintWriter;
+import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 
 import Global.GlobalVar;
 import Network.HttpMethods;
-import Network.WebsocketStuff;
+
+import com.google.gson.Gson;
 public class MainUserInteface {
 
 	// Application Specific Globals
@@ -53,8 +56,8 @@ public class MainUserInteface {
 		JButton btnShow = new JButton("Show");
 		btnShow.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				WebsocketStuff wss = new WebsocketStuff();
-				wss.doWebsocketStuff();
+				//WebsocketStuff wss = new WebsocketStuff();
+				//wss.doWebsocketStuff();
 //				int[][] x = new int[6][2];
 //				x[0] = new int[] {0,20};
 //				x[1] = new int[] {30,40};
@@ -63,9 +66,9 @@ public class MainUserInteface {
 //				x[4] = new int[] {80,80};
 //				x[5] = new int[] {90,80};
 //				map.drawCurve(x,5,Color.RED);
-//				TalkToServerAndUpdateMap d = new TalkToServerAndUpdateMap(map,"","");
-//				Thread t = new Thread(d);
-//				t.start();
+				TalkToServerAndUpdateMap d = new TalkToServerAndUpdateMap(map,"","");
+				Thread t = new Thread(d);
+				t.start();
 			}
 		});
 		btnShow.setBounds(683, 543, 117, 29);
@@ -93,8 +96,14 @@ class TalkToServerAndUpdateMap implements Runnable{
 	public void run() {
 		System.out.println("Startig thread");
 		try {
-			Thread.sleep(3000);
-			HttpMethods.get(new String[][] {{"a","aa"},{"key","ermergerd..kehs"},{"bleh","yum"},{"b","bb"}});
+			Thread.sleep(1000);
+			//HttpMethods.get(new String[][] {{"a","aa"},{"key","ermergerd..kehs"},{"bleh","yum"},{"b","bb"}});
+			String gson = test_temp_gsonTest();
+			HttpMethods.post(new String[][]{{"requesttype","admin"}},gson);
+			PrintWriter out = new PrintWriter("filename.txt");
+			out.println(gson);
+			System.out.println(gson.hashCode());
+			
 		} catch (Exception e) {
 			//TODO Auto-generated catch block
 			e.printStackTrace();
@@ -108,5 +117,18 @@ class TalkToServerAndUpdateMap implements Runnable{
 		x[4] = new int[] {80,180};
 		x[5] = new int[] {2,30};
 		map.drawCurve(x,5,Color.YELLOW);
+	}
+	
+	String test_temp_gsonTest(){
+		// convert arraylist to json and send it using httppost
+		Gson gson = new Gson();
+		ArrayList<String> list = new ArrayList<String>();
+		String x ="MalithR11212";
+		for(int i=0;i<10;i++){
+			x = ""+x.hashCode();
+			list.add(x);
+			System.out.println(x);
+		}
+		return gson.toJson(list);
 	}
 }

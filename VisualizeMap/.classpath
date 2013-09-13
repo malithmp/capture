@@ -10,5 +10,6 @@
 	<classpathentry kind="lib" path="libs/jWebSocketJavaSEClient-1.0.jar"/>
 	<classpathentry kind="lib" path="libs/jWebSocketServer-1.0.jar"/>
 	<classpathentry kind="lib" path="libs/jWebSocketServerAPI-1.0.jar"/>
+	<classpathentry kind="lib" path="libs/gson-2.2.4.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

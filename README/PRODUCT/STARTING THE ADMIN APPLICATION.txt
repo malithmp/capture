@@ -1,0 +1,3 @@
+1) For the java application to be able to generate large strings (son version of the map) we must give it some extra heap. In eclipse this can be done by (Arrow below Green play button)->Run configurations->(x)=Arguments->VM arguments and add -Xmx1012m
+
+2)

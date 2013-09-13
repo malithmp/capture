@@ -1,7 +1,8 @@
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Map;
-import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -9,8 +10,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.gson.Gson;
+
 import dataStore.ServerInternalData;
-import net.sf.json.JSONObject;
 // Handles the http based request of the server
 
 @WebServlet(value="/Resolver", asyncSupported = true)
@@ -21,7 +23,7 @@ public class Resolver extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 	ServerInternalData serverinternaldata;
-	
+
 	/**
 	 * @see HttpServlet#HttpServlet()
 	 */
@@ -52,10 +54,10 @@ public class Resolver extends HttpServlet {
 		// If Admin request
 		//		Authenticate!!!
 		//		Run command straight away.
-		
+
 		// Convert the request parameters to a map so its easier for the back end
 		Map<String, String[]> parameters =request.getParameterMap();
-		
+
 		//Match request type
 		if(parameters==null || !parameters.containsKey("requesttype")){
 			// invalid request. Does not adhere to protocol. kindly ask them to GTFO!
@@ -80,20 +82,20 @@ public class Resolver extends HttpServlet {
 		else if(parameters.get("requesttype")[0].equals("general")){
 			// A general user who wants to view the game. (not necessarily a signed up user) 
 			// We put this option second since its the second most likely request to happen
-			handleGeneralViewer(parameters,response);
+			handleGeneralViewerGet(parameters,response);
 		}
 		else if(parameters.get("requesttype")[0].equals("debug")){
 			// A debugger connection. // This must be authenticated as it has access to basically everything!!! 
 			// We put this option 3rd since its much less likely request to happen
 			//TODO:: AUTHENTICATE THIS SHIT!
-			handleDebugger(parameters,response);
+			handleDebuggerGet(parameters,response);
 			System.out.println("WARNING: DEBUG MODE NOT IMPLEMENTED!");
 		}
 		else if(parameters.get("requesttype")[0].equals("admin")){
 			// An admin connection. // This too must be authenticated as it has access to basically everything!!! 
 			// We put this option last since its the least likely request to happen
 			//TODO:: AUTHENTICATE THIS SHIT!
-			handleAdmin(parameters,response);
+			handleAdminGet(parameters,response);
 			System.out.println("WARNING: ADMIN MODE NOT IMPLEMENTED!");
 		}
 		else{
@@ -112,7 +114,47 @@ public class Resolver extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		
+		// Must only be handling inter-servlet or admin data
+		// Admins may manually upload arenas/maps
+		// Servlets may pass arenas/maps within themselves for load balancing purposes
+
+		// If admin request, AUTHENTICATE!!! TODO
+		// If inter-servlet communication AUTHENTICATE!! TODO
+
+		// Convert the request parameters to a map so its easier for the back end
+		Map<String, String[]> parameters =request.getParameterMap();
+		//System.out.println("post got from"+ parameters.get("requester"));
+
+		if(parameters==null || !parameters.containsKey("requesttype")){
+			// invalid request. Does not adhere to protocol. kindly ask them to GTFO!
+			PrintWriter pw = response.getWriter();
+			if(parameters==null){
+				pw.println("<html><h1> How about No! </h1><p>Protocol Error: no parameters provided!</p></html>");
+			}
+			else{
+				System.out.println("Error: Requesttype not provided!");
+				pw.println("Protocol ErrornVal: requesttype parameter not specified!");
+			}
+		}
+		else if(parameters.get("requesttype").equals("admin")){
+			handleAdminPost(parameters, request, response);
+		}
+		/*
+		BufferedReader r = request.getReader();//r.readLine() will get the string of the entity we sent. ie. json string
+		String inputData=r.readLine();
+		Gson gsn = new Gson();
+		ArrayList<String>data = gsn.fromJson(inputData,ArrayList.class);
+		if(data==null){
+			System.out.println("its dead jim");
+			return;
+		}
+		System.out.println("len"+data.size());
+		for(int i=0;i<data.size();i++){
+			System.out.println(""+i+"="+data.get(i));
+		}
+		//System.out.println("data hash:\n"+r.readLine().hashCode());
+		*/
+		return;
 	}
 	//---------------INIT-----------------
 	private void initdata(){
@@ -123,7 +165,7 @@ public class Resolver extends HttpServlet {
 	// -------------HELPER FUNCTIONS---------------
 	// -----------must be thread safe--------------
 
-	public void handleGeneralViewer(Map<String, String[]> parameters, HttpServletResponse response){// Parameters passed by the HTTP GET
+	public void handleGeneralViewerGet(Map<String, String[]> parameters, HttpServletResponse response){// Parameters passed by the HTTP GET
 		// Resolve the request.. What are they asking for?
 		// TODO: if we are planning on using websockets, 
 		// 		 Do websockety stuff
@@ -146,7 +188,7 @@ public class Resolver extends HttpServlet {
 		System.out.println("WARNING: NOT IMPLEMENTED!");
 	}
 
-	public void handleDebugger(Map<String, String[]> parameters, HttpServletResponse response){// Parameters passed by the HTTP GET
+	public void handleDebuggerGet(Map<String, String[]> parameters, HttpServletResponse response){// Parameters passed by the HTTP GET
 		// Authenticate!!
 		// Query servlets according to request and send info back
 		System.out.println("Debug Mode");
@@ -156,8 +198,8 @@ public class Resolver extends HttpServlet {
 			System.out.println("Debugmode exception caught");
 		}
 	}
-	
-	public void handleAdmin(Map<String, String[]> parameters, HttpServletResponse response){// Parameters passed by the HTTP GET
+
+	public void handleAdminGet(Map<String, String[]> parameters, HttpServletResponse response){// Parameters passed by the HTTP GET
 		// Authenticate!!
 		// Query servlets according to request and send info bnValack
 		System.out.println("Admin Mode: Welcome my Lords!");
@@ -176,7 +218,7 @@ public class Resolver extends HttpServlet {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-				
+
 			}
 			else{
 				try {
@@ -187,13 +229,13 @@ public class Resolver extends HttpServlet {
 				}
 			}
 		}
-		
+
 		else if(parameters.get("action")[0].equals("registerarena")){
 			//Arena names are added at the time it was uploaded to the server
 			System.out.println("WARNING!:sendMapToServlet() must be called before this!");
 			System.out.println("WARNING!:Assiming map is sent to servlet");
 			boolean status = serverinternaldata.registerNewArena(parameters.get("arena")[0]);
-			
+
 			if(status){ // Let the admin know everything went well
 				try {
 					PrintWriter pw = response.getWriter();
@@ -201,7 +243,7 @@ public class Resolver extends HttpServlet {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-				
+
 			}
 			else{
 				try {
@@ -212,15 +254,18 @@ public class Resolver extends HttpServlet {
 				}
 			}
 		}
-		
+
 		else if(parameters.get("action")[0].equals("maparenaservlet")){
 			//TODO reigster (arenaID) (servletURL)
 			serverinternaldata.mapArenaServlet(parameters.get("arena")[0], parameters.get("servlet")[0]);
 		}
-		
+
 		return;
 	}
-	
+
+	public boolean handleAdminPost(Map<String,String[]> parameters, HttpServletRequest request, HttpServletResponse response){
+		return false;
+	}
 	public boolean sendMapToServlet(String targetURL,Object mapOfArena){
 		// This must be implemented once everything is done. 
 		// This will send map data to the servlet
@@ -231,7 +276,7 @@ public class Resolver extends HttpServlet {
 		System.out.println("WS Servlets must only get their map data from this method!");
 		return true;
 	}
-	
+
 	public void tempinit(){
 		// TODO: DEBUG
 		// DEBUG INITIALIZATION FUNCTION
