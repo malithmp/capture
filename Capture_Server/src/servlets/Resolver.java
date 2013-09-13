@@ -1,5 +1,4 @@
-package dataStore;
-
+package servlets;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -97,7 +96,7 @@ public class Resolver extends HttpServlet {
 		else if(parameters.get("requesttype")[0].equals("admin")){
 			// An admin connection. // This too must be authenticated as it has access to basically everything!!! 
 			// We put this option last since its the least likely request to happen
-
+			
 			//TODO:: AUTHENTICATE THIS SHIT!
 
 			handleAdminGet(parameters,response);
@@ -144,7 +143,7 @@ public class Resolver extends HttpServlet {
 		else if(parameters.get("requesttype").equals("admin")){
 			handleAdminPost(parameters, request, response);
 		}
-
+		
 		BufferedReader r = request.getReader();//r.readLine() will get the string of the entity we sent. ie. json string
 		String inputData=r.readLine();
 		Gson gsn = new Gson();
@@ -158,7 +157,7 @@ public class Resolver extends HttpServlet {
 			System.out.println(""+i+"="+data.get(i));
 		}
 		System.out.println("hash = "+ inputData.hashCode());
-
+		
 		return;
 	}
 	//---------------INIT-------WARNING!:----------
@@ -211,9 +210,9 @@ public class Resolver extends HttpServlet {
 		//TODO Authenticate!!!!!!!
 		System.out.println("WARNING: Admin not authenticated");
 		System.out.println("adminname:"+parameters.get("adminname")[0]+" password:" + parameters.get("password")[0]);
-
+		
 		//Admin task implementation
-
+		
 		if(parameters.get("action")[0].equals("registerservlet")){
 			// Read the servlet URL and add it to the serverinternaldata data structure
 			boolean status = serverinternaldata.registerNewServlet(parameters.get("URL")[0]);
@@ -272,12 +271,12 @@ public class Resolver extends HttpServlet {
 			// Assume websocket servlet is already up and runnint
 			String websocketUrl = "http://localhost:8080/Capture_Server/WS";
 			System.out.println("\tWARNING: Assuming webosocket servlet is up and the url is: "+websocketUrl);
-
+			
 			// Assume the map has been transfered to resolver temporary map area
 			System.out.println("\tWARNING:<<<<<<<<<<<<<<<<<<<<<<<<00000sadasjhasshdksadkjas k");
 			// Send that to the websocket servlet
-
-
+			
+			
 			String arenaname = "home";
 			System.out.println("\tWARNING: Assuming websocket servlet has the arena/map preloaded and has the name: "+arenaname);
 			// Register the arena (in this servlet)
