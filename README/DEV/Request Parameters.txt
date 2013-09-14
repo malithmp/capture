@@ -9,23 +9,40 @@ HTTP GET
 	user{
 		*loggedin*{
 			true{
-				*token*
-				*locationX*
-				*locationY*
-				*locationAcc*	// location accuracy +/- or %
-				*arena*
-				
-				RETURN:{
-					URL to websocket servlet for future communication
+				*token*									// Once logged in all communications must have this token
+				*username*
+				*request*{								// The actual request
+					joinmap{
+						*locationX*
+						*locationY*
+						*locationAcc*					// Location accuracy +/- or % || For location map validation (user in Siberia cant play a Toronto map)
+						*arena*							// Arena the user needs to join
+						RETURN:{
+							URL of websocket servlet that servs the map	// Backend sends this token to that websocket servlet so it know the user is legit
+						}
+					}
+
+					leavemap{
+						*arena*
+						RETURN:{
+							status						// Backedn removes the user token from websocket servlet to let it know the user left
+						}
+					}
 				}
+
 			}
 			
 			false{
-				*username*
-				*password*
-				
-				RETURN:{
-					user_token for future communications
+				request{
+					*login*{
+						*username*
+						*password*
+						RETURN:{
+							user_token for future communications
+						}
+					*signup*{
+						//TODO <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< DESIGN WHAT IS NEEDED FOR SIGNUP. HANDLE IN HTTP POST MAYBE?
+					}
 				}
 			}
 	}
@@ -39,7 +56,9 @@ HTTP GET
 		*password*
 		*action*
 		endpoint{
-			RETURN : up and running // endpoint to test if the server is up
+			RETURN: {
+				up and running 								// endpoint to test if the server is up
+			}
 		}
 	}
 	
@@ -47,24 +66,32 @@ HTTP GET
 		*adminname*
 		*password*
 		*action*{
-			registerservlet{	// Add websocket urls so the resolver knows about the worker servlets
+			registerservlet{								// Add websocket urls so the resolver knows about the worker servlets
 				*name*
 				*URL*
-				RETURN : status 
+				RETURN : {
+					status
+				} 
 			}
 			
-			maparenaservlet{		// map arena to servlet
-				*arena*				// name of the arena (ID)
-				*servlet*			// URL of servlet
-				RETURN: status
+			maparenaservlet{								// map arena to servlet
+				*arena*									// name of the arena (ID)
+				*servlet*								// URL of servlet
+				RETURN : {
+					status
+				} 
 			}
 			
-			registerarena{			// register arena name on server
+			registerarena{									// register arena name on server
 				*arena*
-				RETURN: status
+				RETURN : {
+					status
+				} 
 			}
-			tempinit{				// Endpoint for Debug purpose only, used to initialize dummy maps and arenas
-				RETURN: status
+			tempinit{									// Endpoint for Debug purpose only, used to initialize dummy maps and arenas
+				RETURN : {
+					status
+				} 
 			}
 			
 		}
@@ -80,9 +107,9 @@ HTTP POST
 	admin{
 	}
 	
-	servlet{			// another frontend servlet trying to communicate
+	servlet{											// another frontend servlet trying to communicate
 	}
 	
-	websocke{			// a worker websocket trying to communicate
+	websocke{											// a worker websocket trying to communicate
 	}
 }
