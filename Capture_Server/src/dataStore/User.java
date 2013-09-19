@@ -15,6 +15,9 @@ public class User {
 	
 	String username;
 	String passwordHash;
+	String passwordHashSalt;	// Salt that is used to secure hshed password even further: Randomly generated at time of authentication. Stored in plain sight because this is not secret.
+								// This just makes hash lookup table attacks difficult. Even if this is compromized, The attacker has to build a new hash lookup table or brute force.
+	
 	//TODO
 	
 	public User(String username, String hashpass){

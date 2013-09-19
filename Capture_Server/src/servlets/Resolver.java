@@ -3,6 +3,7 @@ package servlets;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -12,8 +13,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import tools.Crypto;
+
 import com.google.gson.Gson;
 
+import dataStore.DatabaseHelper;
 import dataStore.ServerInternalData;
 // Handles the http based request of the server
 
@@ -25,14 +29,16 @@ public class Resolver extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 	ServerInternalData serverinternaldata;
+	Crypto crypto;
+	DatabaseHelper dbHelper;	
 
-	/**
-	 * @see HttpServlet#HttpServlet()
-	 */
 	public Resolver() {
 		super();
 		//Servlet specific initializations
-		initdata();
+		
+		initdata();			// initialize data
+		initCrypt();		// initialize hashing related classes
+		initDB();			// initialize database helper and create/initilaze/open database
 	}
 
 	/**
@@ -69,7 +75,7 @@ public class Resolver extends HttpServlet {
 			}
 			else{
 				System.out.println("Error: Requesttype not provided!");
-				pw.println("<html><h1> How about No! </h1><p>Protocol Error nVal: requesttype parameter not specified!</p></html>");
+				pw.println("<html><h=1> How about No! </h1><p>Protocol Error nVal: requesttype parameter not specified!</p></html>");
 			}	
 		}
 		// So far so good. Depending on the user  type we can now call the helper functions.
@@ -173,7 +179,31 @@ public class Resolver extends HttpServlet {
 	}
 	//---------------INIT-----------------
 	private void initdata(){
-		serverinternaldata = new ServerInternalData();
+		System.out.println("INFO: Initializing data...");
+		serverinternaldata = new ServerInternalData();	
+	}
+
+	private void initCrypt(){
+		System.out.println("INFO: Initializing crypto...");
+		try {
+			crypto = new Crypto();
+		} catch (NoSuchAlgorithmException e) {
+			System.out.println("CRITICAL ERROR: Hashing algorithms failed to load. Its not safe here");
+			e.printStackTrace();
+			return;
+		}
+	}
+	
+	private void initDB(){
+		System.out.println("INFO: Initializing database...");
+		dbHelper = new DatabaseHelper();
+		try {
+			dbHelper.initDatabase();
+		} catch(Exception e) {
+			System.out.println("CRITICAL ERROR: Database failed to load. Abandon ship!");
+			e.printStackTrace();
+			return;
+		}
 	}
 	//-------------END INIT---------------response
 
@@ -274,7 +304,7 @@ public class Resolver extends HttpServlet {
 			//TODO reigster (arenaID) (servletURL)
 			serverinternaldata.mapArenaServlet(parameters.get("arena")[0], parameters.get("servlet")[0]);
 		}
-		else if(parameters.get("action")[0].equals("tempInit")){
+		else if(parameters.get("action")[0].equals("tempinit")){
 			// This is a temporary function.. remove once done
 			boolean status = tempinit();
 		}

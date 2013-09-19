@@ -1,3 +1,5 @@
+Check if all the exeption handlers d the handling.. if something fails. make it retie or something (this is not needed for the server starting. just write this here incase we forget to do it :D )
+
 1) Resolver instance must be started
 2) Websocket Backend servlets must be started
 3) Websocket Backend servlets must be registered on the frontend

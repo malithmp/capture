@@ -1,3 +1,6 @@
 Libraries used:
 
 GSON: https://code.google.com/p/google-gson/downloads/detail?name=google-gson-2.2.4-release.zip&can=2&q=
+
+JACKSUM: http://www.jonelo.de/java/jacksum/#Download
+JAva Check SUM => has multiple hashing algorithms. we are interested in wither whirlpool (512 bit) or SHA256

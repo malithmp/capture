@@ -5,6 +5,10 @@ And the beast part is our app almost always use get requests.
 
 ex: curl "http://localhost:8080/Capture_Server/Resolver?requesttype=debug"
 
+
+TEMP INIT
+curl "http://localhost:8080/Capture_Server/Resolver?requesttype=admin&adminname=malithmp&password=meh&action=tempinit"
+
 -----------------------------------------------------------------------------
 Initiate server
 1) Register the websocket servlet(s)
