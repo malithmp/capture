@@ -35,7 +35,7 @@ public class Resolver extends HttpServlet {
 	public Resolver() {
 		super();
 		//Servlet specific initializations
-		
+
 		initdata();			// initialize data
 		initCrypt();		// initialize hashing related classes
 		initDB();			// initialize database helper and create/initilaze/open database
@@ -147,33 +147,22 @@ public class Resolver extends HttpServlet {
 				pw.println("Protocol ErrornVal: requesttype parameter not specified!");
 			}
 		}
-		else if(parameters.get("requesttype").equals("admin")){
+		else if(parameters.get("requesttype")[0].equals("admin")){
 			handleAdminPost(parameters, request, response);
 		}
-		else if(parameters.get("requesttype").equals("servlet")){
+		else if(parameters.get("requesttype")[0].equals("servlet")){
 
 		}
-		else if(parameters.get("requesttype").equals("websocket")){
+		else if(parameters.get("requesttype")[0].equals("websocket")){
 
+		}
+		else if(parameters.get("requesttype")[0].equals("user")){
+			handleUserPost(parameters, request, response);
 		}
 		else{
-			System.out.println("CRITICAL ERROR!");
+			System.out.println("CRITICAL ERROR: HTTPPOST request type mismatch: provided :"+parameters.get("requesttype")[0]);
 			return;
 		}
-
-		BufferedReader r = request.getReader();//r.readLine() will get the string of the entity we sent. ie. json string
-		String inputData=r.readLine();
-		Gson gsn = new Gson();
-		ArrayList<String>data = gsn.fromJson(inputData,ArrayList.class);
-		if(data==null){
-			System.out.println("its dead jim");
-			return;
-		}
-		System.out.println("len"+data.size());
-		for(int i=0;i<data.size();i++){
-			System.out.println(""+i+"="+data.get(i));
-		}
-		System.out.println("hash = "+ inputData.hashCode());
 
 		return;
 	}
@@ -193,7 +182,7 @@ public class Resolver extends HttpServlet {
 			return;
 		}
 	}
-	
+
 	private void initDB(){
 		System.out.println("INFO: Initializing database...");
 		dbHelper = new DatabaseHelper();
@@ -219,9 +208,9 @@ public class Resolver extends HttpServlet {
 		// 		 If data is not expired, send it to them
 		System.out.println("WARNING: NOT IMPLEMENTED!");
 	}
-	public void handleUser(Map<String, String[]> parameters, HttpServletResponse response){// Parameters passed by the HTTP GET
-		// 		Read authentication info
-		//		Check against databases to see if this guy is legit
+	public void handleUserGet(Map<String, String[]> parameters, HttpServletResponse response){// Parameters passed by the HTTP GET
+		// 		Read authentication info. if false, either expect a signin or signup
+		//		If true, Check against databases to see if this guy is legit
 		//		Create access token for future communications. Let the other server instances know of this token. Set expiration time? TODO: expiriation time for token
 
 		// 		Get Location and Arena requested by the user
@@ -230,7 +219,22 @@ public class Resolver extends HttpServlet {
 		// 		If the above passes, Query all websocket servlets to see which one is serving that arena (may be done at a different stage: ie at startup of server.. or during operation)
 
 		// 		Send the client with the specific URI to that servlet and send the servlet the same token that user got when they logged in
-		System.out.println("WARNING: NOT IMPLEMENTED!");
+		if(parameters.get("loggedin")[0].equals("true")){
+			// Most frequent option
+		}
+		else if (parameters.get("loggedin")[0].equals("flase")){
+			// only allowed to signin or signup
+			if(parameters.get("request")[0].equals("signin")){
+				System.out.println("WARNING: NOT IMPLEMENTED YET");
+			}
+			//else if (parameters.get("request")[0].equals("signup")){
+			//	THIS PART MOVED TO THE HTTPPOST area. 
+			// 	User sends large amounts of data, its trouble to handle them as a string
+			//	Move to HTTP post and get the complete object as a JSON string
+			//}
+		}
+
+		System.out.println("WARNING: handleUserGet :PARTIALLY IMPLEMENTED!");
 	}
 
 	public void handleDebuggerGet(Map<String, String[]> parameters, HttpServletResponse response){// Parameters passed by the HTTP GET
@@ -308,11 +312,45 @@ public class Resolver extends HttpServlet {
 			// This is a temporary function.. remove once done
 			boolean status = tempinit();
 		}
+		else if(parameters.get("action")[0].equals("tempaddtotable")){
+			// This is a temporary function.. remove once done
+			try {
+				dbHelper.updateUserPass("watermelone", "inside a", "watermelone");
+			} catch (Exception e) {
+				System.out.println("CRAP");
+				e.printStackTrace();
+			}
+		}
 		return;
 	}
 
 	public boolean handleAdminPost(Map<String,String[]> parameters, HttpServletRequest request, HttpServletResponse response){
+		String inputData="";
+		BufferedReader r;
+		try {
+			r = request.getReader();
+			inputData=r.readLine();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}//r.readLine() will get the string of the entity we sent. ie. json string
+		
+		Gson gsn = new Gson();
+		ArrayList<String>data = gsn.fromJson(inputData,ArrayList.class);
+		if(data==null){
+			System.out.println("its dead jim");
+			return false;
+		}
+		System.out.println("len"+data.size());
+		for(int i=0;i<data.size();i++){
+			System.out.println(""+i+"="+data.get(i));
+		}
+		System.out.println("data hash:\n"+data.hashCode());
 
+		return false;
+	}
+
+	public boolean handleUserPost(Map<String,String[]> parameters, HttpServletRequest request, HttpServletResponse response){
 		return false;
 	}
 

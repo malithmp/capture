@@ -1,5 +1,10 @@
 package dataStore;
-import java.sql.*;
+import java.io.File;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
+
 public class DatabaseHelper {
 	// Handle all persistent data
 	// Example:	user database (including the name and password)
@@ -13,25 +18,32 @@ public class DatabaseHelper {
 	// TODO Note; this map loading/unloading is not the map passing between servlets. This is persistent storage.
 
 	// Store all these data to a database. Keep these databases synchronized between all Resolver instances
-
+	public static final String DBNAME="users.db";
+	public static final String TABLE_USERPASS = "USERPASS";
+	public static final String COLUMN_ID = "ID";
+	public static final String COLUMN_USERNAME="USERNAME";
+	public static final String COLUMN_HASH ="HASH";
+	public static final String COLUMN_SALT="SALT";
 	
 	Connection connection = null;
 	Statement statement = null;
 	ResultSet result = null;
+
 	// We dont know if SQLite is really thread safe. Since this function is not called so often, make it syncronized
 	public synchronized void initDatabase() throws Exception{
 		// Create Databses.Create Tables.
 		// Called only on startup of the servlet
 		// This opens an existing database, or creates a new one if it does not already exist
-		
+
 		// Open database
 		Class.forName("org.sqlite.JDBC");
-		connection = DriverManager.getConnection("jdbc:sqlite:users.db");
+		connection = DriverManager.getConnection("jdbc:sqlite:"+DBNAME);
+		System.out.println("WARNING: users.db file created in /Users/malithmp/Development/eclipse/Eclipse.app/Contents/MacOS/");
 		statement = connection.createStatement();
 		// Check if this is brandnew database, or we just reopened an existing one
 		// We do this by searching for one table. if it exists, then this is not a brandnew DB
 		// Else, we create all the tables
-		String query = "SELECT name FROM sqlite_master WHERE type=\'table' AND name=\'table_name\';";
+		String query = "SELECT name FROM sqlite_master WHERE type=\'table' AND name=\'"+TABLE_USERPASS+"\';";
 		System.out.println(query);
 		result=null;
 		result = statement.executeQuery(query);
@@ -44,10 +56,62 @@ public class DatabaseHelper {
 			// The result set is empty, That means the table is not there. So its safe to assume that the database itself is not there
 			// create one
 			// Requred fields Read the database.txt file for info
+
+			// Create USERPASS table
+			System.out.println("INFO: Creating Tables");
+			query = "CREATE TABLE " +
+					TABLE_USERPASS 	+ "(" +
+					COLUMN_ID		+" INTEGER PRIMARY KEY AUTOINCREMENT," +
+					COLUMN_USERNAME	+" TEXT NOT NULL UNIQUE, " + 
+					COLUMN_SALT		+" TEXT NOT NULL, " + 
+					COLUMN_HASH		+" TEXT NOT NULL)";
+			statement.executeUpdate(query);
+			statement.close();
 		}
 		//else{
-		// Database already exists. Do nothing.
-		// Or sing the daisy bell: http://www.youtube.com/watch?v=41U78QP8nBk
+			// Database already exists. Do nothing.
+			// Or sing the daisy bell: http://www.youtube.com/watch?v=41U78QP8nBk
 		//}
+	}
+	
+	public synchronized void updateUserPass(String username, String hash, String salt) throws Exception{
+		// This table only hold username - password related data only
+		// ONLY CALLED INTERNALLY BY THE SERVLETS, USERS HAVE NO DIRECT ACCESS USING HTTP REQUESTS!!!
+		// A valid username must be acquired beforehand: see addUser
+		// Check database to see if the username exists. If thats the case, update
+		// Add username/password hash/salt if not 
+		System.out.println("WARNING: username must be searched first!!!");
+		statement = connection.createStatement();
+		String query = "INSERT INTO "	+
+						TABLE_USERPASS	+"(" +
+						COLUMN_ID		+"," +
+						COLUMN_USERNAME	+"," +
+						COLUMN_SALT		+"," +
+						COLUMN_HASH 	+ ") VALUES(" +
+						"null"			+",\"" +	/*ID is auto increment, so we dont care*/
+						username		+"\",\"" +
+						salt			+"\",\"" +
+						hash			+"\");";
+		System.out.println("DEBUG:"+query);
+		if(statement.execute(query)){
+			System.out.println("INFO: GOOD TO GO");
+		}
+		else{
+			System.out.println("INFO: NOT ADDED TO TABLE");
+		}
+		
+	}
+	
+	public synchronized void addUser(User user){
+		// When a user is registering, the following steps are taken
+		// User submits the full report about his/her details
+		// The mobile app verifys certain data, such as password strength, username character limits and what nots
+		// Data is accepted and the username is looked up on the database, if it does not exist, we add it
+		// If the username already exists, we let the user know
+		// Lets not be dicks and make our app in a way that every time this happens, user does not have to refill the entire form :D
+		
+		// The add the user information to one table
+		// password information to the userpass table
+		// we can then query the userpass table with the username
 	}
 }

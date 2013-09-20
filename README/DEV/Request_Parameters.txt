@@ -1,5 +1,6 @@
 HTTP REQUEST PARAMETER TREE
 parameter names are marked inside * *. The following block contains possible values
+data objects (httppost only) are marked inside ** **.
 RETURN indecates the response from the server to a request with a complete parameter set
 
 
@@ -34,14 +35,14 @@ HTTP GET
 			
 			false{
 				request{
-					*login*{
+					*signin*{
 						*username*
 						*password*
 						RETURN:{
 							user_token for future communications
 						}
 					*signup*{
-						//TODO <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< DESIGN WHAT IS NEEDED FOR SIGNUP. HANDLE IN HTTP POST MAYBE?
+						//HANDLE IN HTTP POST, Get all data as an object. Add data in object to database, send response with confirmation
 					}
 				}
 			}
@@ -105,6 +106,18 @@ HTTP POST
 
 *requesttype*{
 	admin{
+	}
+	
+	user{
+		*loggedin*{
+			false{
+				*request*{
+					signup{
+						**data object**
+					}
+				}
+			}
+		}
 	}
 	
 	servlet{											// another frontend servlet trying to communicate

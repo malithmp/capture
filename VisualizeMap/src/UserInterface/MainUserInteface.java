@@ -130,6 +130,7 @@ class TalkToServerAndUpdateMap implements Runnable{
 			list.add(x);
 			System.out.println(x);
 		}
+		System.out.println("client hash: "+list.hashCode());
 		return gson.toJson(list);
 	}
 }

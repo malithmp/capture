@@ -19,10 +19,13 @@ public class User {
 								// This just makes hash lookup table attacks difficult. Even if this is compromized, The attacker has to build a new hash lookup table or brute force.
 	
 	//TODO
+	//other user data
 	
-	public User(String username, String hashpass){
+	public User(String username, String hashpass, String hashsalt){
 		this.username=username;
 		this.passwordHash = hashpass;
+		this.passwordHashSalt=hashsalt;
+		
 		System.out.println("WARNING: User class not fully implemented");
 	}
 }

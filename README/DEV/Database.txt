@@ -2,12 +2,12 @@ Database table fields
 
 users.db 								// Contains all information related to users
 	 |
-	 | -> TABLE userpass				// Contains password related data of the users
-	 | 	________________________________________________________________________
-	 | 	| username	|	32char salt			| 512 bit Hash (as 128 HexDigits)	|
-	 | 	| (string)	|	(String)			| (hex in String)					|
-	 | 	|-----------------------------------------------------------------------|
-	 |	| malithmp	| EqK@i8hdqA2Wrg2db...	| 17CD133792CCFA501FD8DA53EE36...	|
-	 |	|-----------------------------------------------------------------------
+	 | -> TABLE USERPASS				// Contains password related data of the users
+	 | 	________________________________________________________________________________________________
+	 | 	| 	ID				|	USERNAME	|	 SALT				| 				HASH 				|
+	 | 	| PRIMARY KEY INT	|	(string)	|	(32char String)		| 		(512 bit /128 HexDigits )	|
+	 | 	|-----------------------------------------------------------------------------------------------|
+	 |	| 		1			|	malithmp	| EqK@i8hdqA2Wrg2db...	| 17CD133792CCFA501FD8DA53EE36...	|
+	 |	|-----------------------------------------------------------------------------------------------
 	 |
 	 |
