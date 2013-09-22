@@ -1,0 +1,8 @@
+- Get sqlite to work on real server
+- Test user authentication on actual server
+- 
+
+- complete the addUser function (databasehelper)
+- implement the access token method (resolver :: only issuing)
+- implement the deleteUser function (databasegelper)
+- implement the updateUser function (databasehelper)

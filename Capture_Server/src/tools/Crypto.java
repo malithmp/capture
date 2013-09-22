@@ -7,13 +7,16 @@ import jonelo.jacksum.JacksumAPI;
 import jonelo.jacksum.algorithm.AbstractChecksum;
 
 public class Crypto {
-	// TODO : Check if JackSum is thread safe! Else mark these stuff synchronized
+	// TODO : Check if JackSum is thread safe! We can reduce the bottleneck if so
+	// But then again, this function is called occasionally, so it doesnt really matter that much
+	// But if we do, make sure to create a cypto object for each user connection
+	
 	AbstractChecksum checksum=null;
 	public Crypto() throws NoSuchAlgorithmException{
 		checksum = JacksumAPI.getChecksumInstance("whirlpool"); 
 	}
 
-	public String getHash(String password){
+	public synchronized String getHash(String password){
 		if(checksum!=null){
 			checksum.update(password.getBytes());
 			String hash = checksum.getFormattedValue();
@@ -24,7 +27,7 @@ public class Crypto {
 		}
 	}
 
-	public String getSalt(int length){
+	public synchronized String getSalt(int length){
 		// generates a 32 character salt (256bit)
 		// Use javas cryptographicly safe Random number generator (Not PNRG) to generate 'length' amount chars
 		SecureRandom random = new SecureRandom();

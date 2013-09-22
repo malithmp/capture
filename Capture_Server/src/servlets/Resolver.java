@@ -151,9 +151,11 @@ public class Resolver extends HttpServlet {
 			handleAdminPost(parameters, request, response);
 		}
 		else if(parameters.get("requesttype")[0].equals("servlet")){
+			System.out.println("WARNING: POST SERVLET NOT IMPLEMENTED!");
 
 		}
 		else if(parameters.get("requesttype")[0].equals("websocket")){
+			System.out.println("WARNING: POST WEBSOCKET NOT IMPLEMENTED!");
 
 		}
 		else if(parameters.get("requesttype")[0].equals("user")){
@@ -167,6 +169,8 @@ public class Resolver extends HttpServlet {
 		return;
 	}
 	//---------------INIT-----------------
+	//-------OPTIONALLY THREAD SAFE-------
+	
 	private void initdata(){
 		System.out.println("INFO: Initializing data...");
 		serverinternaldata = new ServerInternalData();	
@@ -198,6 +202,12 @@ public class Resolver extends HttpServlet {
 
 	// -------------HELPER FUNCTIONS---------------
 	// -----------must be thread safe--------------
+	public boolean authenticate(){
+		// do syncronized accesses to the database and crypto and verify authenticity  
+		// TODO DBhelpwe and crypto already provide synchronized access (due to either lack of threa safety in those libraries or to preserve ram usage)
+		// Look into this!!
+		return false;
+	}
 
 	public void handleGeneralViewerGet(Map<String, String[]> parameters, HttpServletResponse response){// Parameters passed by the HTTP GET
 		// Resolve the request.. What are they asking for?
@@ -314,8 +324,12 @@ public class Resolver extends HttpServlet {
 		}
 		else if(parameters.get("action")[0].equals("tempaddtotable")){
 			// This is a temporary function.. remove once done
+			
 			try {
-				dbHelper.updateUserPass("watermelone", "inside a", "watermelone");
+				PrintWriter pw = response.getWriter();
+				dbHelper.updateUserPass("name1", "hashahashash", "saltsaltsastl");
+				pw.println("<html><h1> Dun Dun DUN!</p></html>");
+				
 			} catch (Exception e) {
 				System.out.println("CRAP");
 				e.printStackTrace();

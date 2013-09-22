@@ -1,5 +1,14 @@
 Check if all the exeption handlers d the handling.. if something fails. make it retie or something (this is not needed for the server starting. just write this here incase we forget to do it :D )
 
+1) copy the following libraries
+	(For sql support using sqlite)
+	sqlite-jdbc-3.7.2.jar to <TomcatInstallationDirectory>/libs
+2) navigate to the Server Directory eclipse created for tomcat 7
+	copy context.xlm file to <TomcatInstallationDirectory>/webapps/<ProjectName>/META-INF
+	copy the web.xml file to <TomcatInstallationDirectory>/webapps/<ProjectName>/WEB-INF
+------------------------------------------
+
+
 1) Resolver instance must be started
 2) Websocket Backend servlets must be started
 3) Websocket Backend servlets must be registered on the frontend

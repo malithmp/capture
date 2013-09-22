@@ -1,9 +1,12 @@
 package dataStore;
-import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
+
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.sql.DataSource;
 
 public class DatabaseHelper {
 	// Handle all persistent data
@@ -17,6 +20,8 @@ public class DatabaseHelper {
 	// TODO Time consuming synchronized tasks such as Maps loading/unloading happen when the servers are not serving users
 	// TODO Note; this map loading/unloading is not the map passing between servlets. This is persistent storage.
 
+	// JDBC info https://bitbucket.org/xerial/sqlite-jdbc
+	
 	// Store all these data to a database. Keep these databases synchronized between all Resolver instances
 	public static final String DBNAME="users.db";
 	public static final String TABLE_USERPASS = "USERPASS";
@@ -38,6 +43,7 @@ public class DatabaseHelper {
 		// Open database
 		Class.forName("org.sqlite.JDBC");
 		connection = DriverManager.getConnection("jdbc:sqlite:"+DBNAME);
+	    
 		System.out.println("WARNING: users.db file created in /Users/malithmp/Development/eclipse/Eclipse.app/Contents/MacOS/");
 		statement = connection.createStatement();
 		// Check if this is brandnew database, or we just reopened an existing one
@@ -74,15 +80,43 @@ public class DatabaseHelper {
 		//}
 	}
 	
-	public synchronized void updateUserPass(String username, String hash, String salt) throws Exception{
+	public synchronized boolean updateUserPass(String username, String hash, String salt) throws Exception{
 		// This table only hold username - password related data only
 		// ONLY CALLED INTERNALLY BY THE SERVLETS, USERS HAVE NO DIRECT ACCESS USING HTTP REQUESTS!!!
 		// A valid username must be acquired beforehand: see addUser
+		// WE ASSUME THE USERNAME IS LEGIT (SINCE ITS A SERVER INTERNAL CALL AND COULD BE CALLED ONLY BY LEGIT USERS)
 		// Check database to see if the username exists. If thats the case, update
 		// Add username/password hash/salt if not 
-		System.out.println("WARNING: username must be searched first!!!");
+		
 		statement = connection.createStatement();
-		String query = "INSERT INTO "	+
+		
+		// First check if the user is already in the database
+		String query = "SELECT "		+
+							COLUMN_ID		+" FROM "+
+							TABLE_USERPASS	+ " WHERE " +
+							COLUMN_USERNAME + "= \"" +
+							username		+"\";";
+		ResultSet result = statement.executeQuery(query);
+		
+		if(result!=null && result.next()!=false){
+			// User data already in table
+			// Update the data
+			query = "UPDATE "	+
+						TABLE_USERPASS 	+" SET " +
+						COLUMN_HASH		+"= \""	+
+						hash			+"\" ," +
+						COLUMN_SALT		+"= \"" +
+						salt			+"\" WHERE " +
+						COLUMN_USERNAME +"= \"" +
+						username		+"\";";
+			boolean status = statement.execute(query);
+			statement.close();
+			return status;
+		}
+		else{
+			// User not in table
+			// Add the information to the table
+			query = "INSERT INTO "	+
 						TABLE_USERPASS	+"(" +
 						COLUMN_ID		+"," +
 						COLUMN_USERNAME	+"," +
@@ -92,17 +126,15 @@ public class DatabaseHelper {
 						username		+"\",\"" +
 						salt			+"\",\"" +
 						hash			+"\");";
-		System.out.println("DEBUG:"+query);
-		if(statement.execute(query)){
-			System.out.println("INFO: GOOD TO GO");
-		}
-		else{
-			System.out.println("INFO: NOT ADDED TO TABLE");
+			
+			boolean status = statement.execute(query);
+			statement.close();
+			return status;
 		}
 		
 	}
 	
-	public synchronized void addUser(User user){
+	public synchronized void addUser(/*User user*/String username) throws Exception{
 		// When a user is registering, the following steps are taken
 		// User submits the full report about his/her details
 		// The mobile app verifys certain data, such as password strength, username character limits and what nots
@@ -113,5 +145,20 @@ public class DatabaseHelper {
 		// The add the user information to one table
 		// password information to the userpass table
 		// we can then query the userpass table with the username
+		System.out.println("WARNING: addUser not implemented");
+		statement = connection.createStatement();
+		String query = "SELECT "		+
+				COLUMN_ID		+" FROM "+
+				TABLE_USERPASS	+ " WHERE " +
+				COLUMN_USERNAME + "= \"" +
+				username		+"\";";
+		ResultSet result = statement.executeQuery(query);
+		if(result!=null && result.next()!=false){
+			System.out.println("E: "+result.getInt(COLUMN_ID));
+		}
+		else{
+			System.out.println("DNE");
+		}
+		
 	}
 }
