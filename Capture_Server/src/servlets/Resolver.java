@@ -1,6 +1,7 @@
 package servlets;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.security.NoSuchAlgorithmException;
@@ -356,9 +357,9 @@ public class Resolver extends HttpServlet {
 
 			try {
 				PrintWriter pw = response.getWriter();
+				File f = new File("a.a");
 				dbHelper.updateUserPass("name1", "hashahashash", "saltsaltsastl");
-				pw.println("<html><h1> Dun Dun DUN!</p></html>");
-
+				pw.println("<html><h1> Dun Dun DUN!</h1><p>"+f.getAbsolutePath()+"</p></html>");
 			} catch (Exception e) {
 				System.out.println("CRAP");
 				e.printStackTrace();
