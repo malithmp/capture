@@ -84,6 +84,7 @@ public class Resolver extends HttpServlet {
 			// We put this option first since its the most likely request to happen
 			//TODO
 			System.out.println("WARNING: NOT IMPLEMENTED!");
+			handleUserGet(parameters,response);
 			//System.out.println(parameters.get("c")[1]);
 			//System.out.println(parameters.get("c")[0]);
 		}
@@ -170,7 +171,7 @@ public class Resolver extends HttpServlet {
 	}
 	//---------------INIT-----------------
 	//-------OPTIONALLY THREAD SAFE-------
-	
+
 	private void initdata(){
 		System.out.println("INFO: Initializing data...");
 		serverinternaldata = new ServerInternalData();	
@@ -198,14 +199,18 @@ public class Resolver extends HttpServlet {
 			return;
 		}
 	}
+
 	//-------------END INIT---------------response
+
 
 	// -------------HELPER FUNCTIONS---------------
 	// -----------must be thread safe--------------
-	public boolean authenticate(){
+
+	public boolean authenticate(String username, String password){
 		// do syncronized accesses to the database and crypto and verify authenticity  
 		// TODO DBhelpwe and crypto already provide synchronized access (due to either lack of threa safety in those libraries or to preserve ram usage)
 		// Look into this!!
+		// Called by all usermodes, admin/user
 		return false;
 	}
 
@@ -218,24 +223,48 @@ public class Resolver extends HttpServlet {
 		// 		 If data is not expired, send it to them
 		System.out.println("WARNING: NOT IMPLEMENTED!");
 	}
+
 	public void handleUserGet(Map<String, String[]> parameters, HttpServletResponse response){// Parameters passed by the HTTP GET
-		// 		Read authentication info. if false, either expect a signin or signup
+		// 		Read "loggedin" info. if false, either expect a signin or signup
 		//		If true, Check against databases to see if this guy is legit
-		//		Create access token for future communications. Let the other server instances know of this token. Set expiration time? TODO: expiriation time for token
+		//		Create access token for future communications. Let the other servelet instances know of this token. Set expiration time? TODO: expiriation time for token
 
+		//		If its a joinmap request
 		// 		Get Location and Arena requested by the user
-		// 		Verify if the request can be comresponsepleted (Current Location is too far away from the arena.. user is out of range)
-
+		// 		Verify if the request can be completed (Current Location is too far away from the arena.. user is out of range)
 		// 		If the above passes, Query all websocket servlets to see which one is serving that arena (may be done at a different stage: ie at startup of server.. or during operation)
 
 		// 		Send the client with the specific URI to that servlet and send the servlet the same token that user got when they logged in
+
 		if(parameters.get("loggedin")[0].equals("true")){
 			// Most frequent option
+			System.out.println("WARNING: NOT IMPLEMENTED");
 		}
 		else if (parameters.get("loggedin")[0].equals("flase")){
 			// only allowed to signin or signup
 			if(parameters.get("request")[0].equals("signin")){
-				System.out.println("WARNING: NOT IMPLEMENTED YET");
+				// Get the username and password, call the authenticate function to verify the username/password
+				// Return the access token 
+				boolean authenticationStatus = authenticate(parameters.get("username")[0],parameters.get("password")[0]);
+				if(!authenticationStatus){
+					// Auth failed, let the user know
+					try {
+						PrintWriter pw = response.getWriter();
+						pw.println("status=false");
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+				else{
+					// auth succeeded. Generate an access token
+					// Send the access token to the user.
+					// Keep track of the access token until the user logs out
+					
+				}
+
+			}
+			else if(parameters.get("request")[0].equals("signup")){
+				System.out.println("WARNING: SIGNUP NOT IMPLEMENTED YET");
 			}
 			//else if (parameters.get("request")[0].equals("signup")){
 			//	THIS PART MOVED TO THE HTTPPOST area. 
@@ -324,12 +353,12 @@ public class Resolver extends HttpServlet {
 		}
 		else if(parameters.get("action")[0].equals("tempaddtotable")){
 			// This is a temporary function.. remove once done
-			
+
 			try {
 				PrintWriter pw = response.getWriter();
 				dbHelper.updateUserPass("name1", "hashahashash", "saltsaltsastl");
 				pw.println("<html><h1> Dun Dun DUN!</p></html>");
-				
+
 			} catch (Exception e) {
 				System.out.println("CRAP");
 				e.printStackTrace();
@@ -348,7 +377,7 @@ public class Resolver extends HttpServlet {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}//r.readLine() will get the string of the entity we sent. ie. json string
-		
+
 		Gson gsn = new Gson();
 		ArrayList<String>data = gsn.fromJson(inputData,ArrayList.class);
 		if(data==null){

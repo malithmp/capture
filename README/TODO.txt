@@ -1,6 +1,15 @@
-- Get sqlite to work on real server
+MAJOR: 
+- Create a standard function and a protocol for the return values from the server to the client/admin/general requests.
+	(call a function with certain parameters, for instance if the request passed or failed followed by a custom message/data corresponding to that parameter)
+	(
+		ex: for arena request failed
+			status=false
+			extra= "arena does not exists"
+		something like this
+	)
+
+CURRENT:
 - Test user authentication on actual server
-- 
 
 - complete the addUser function (databasehelper)
 - implement the access token method (resolver :: only issuing)
