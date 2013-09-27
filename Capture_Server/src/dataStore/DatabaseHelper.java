@@ -126,7 +126,6 @@ public class DatabaseHelper {
 						username		+"\",\"" +
 						salt			+"\",\"" +
 						hash			+"\");";
-			
 			boolean status = statement.execute(query);
 			statement.close();
 			return status;
@@ -159,6 +158,35 @@ public class DatabaseHelper {
 		else{
 			System.out.println("DNE");
 		}
-		
+		statement.close();
+	}
+	
+	public synchronized String[] getSaltAndHash(String username) throws Exception{
+		// Return the Hash/ Salt pair of a given username
+		// Return null if user does not exist
+		// String[0] = salt
+		// String[1] = hash
+		statement = connection.createStatement();
+		String query = "SELECT "		+
+				COLUMN_SALT		+" , "	+
+				COLUMN_HASH		+" FROM "	+
+				TABLE_USERPASS	+ " WHERE " +
+				COLUMN_USERNAME + "= \""+
+				username		+"\";";
+		ResultSet result = statement.executeQuery(query);
+		if(result!=null && result.next()!=false){
+			String hash = result.getString(COLUMN_HASH);
+			String salt = result.getString(COLUMN_SALT);
+			statement.close();
+			return new String[]{salt,hash};
+		}
+		else{
+			// User Does Not Exist
+			// return a null array
+			statement.close();
+			System.out.println("Username DNE");
+			return null;
+
+		}
 	}
 }

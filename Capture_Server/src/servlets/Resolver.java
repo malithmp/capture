@@ -31,7 +31,7 @@ public class Resolver extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	ServerInternalData serverinternaldata;
 	Crypto crypto;
-	DatabaseHelper dbHelper;	
+	DatabaseHelper dbHelper;
 
 	public Resolver() {
 		super();
@@ -84,7 +84,7 @@ public class Resolver extends HttpServlet {
 			// A user who wants to play. 
 			// We put this option first since its the most likely request to happen
 			//TODO
-			System.out.println("WARNING: NOT IMPLEMENTED!");
+			System.out.println("WARNING: parameters.get user NOT IMPLEMENTED!");
 			handleUserGet(parameters,response);
 			//System.out.println(parameters.get("c")[1]);
 			//System.out.println(parameters.get("c")[0]);
@@ -211,7 +211,30 @@ public class Resolver extends HttpServlet {
 		// do syncronized accesses to the database and crypto and verify authenticity  
 		// TODO DBhelpwe and crypto already provide synchronized access (due to either lack of threa safety in those libraries or to preserve ram usage)
 		// Look into this!!
-		// Called by all usermodes, admin/user
+		// Called by all usermodes, admin/user via Server Internal function calls. No outer entity has direct access to this function
+		
+		// Get the Hash and the salt from the server for the user
+		String[] saltHash = null;
+		try {
+			saltHash = dbHelper.getSaltAndHash(username);
+			if (saltHash == null){
+				return false;
+			}
+			String hash = crypto.getHash(password, saltHash[0]);
+			
+			if (hash.equals(saltHash[1])){
+				return true;
+			}
+			else{
+				return false;
+			}
+		} catch (Exception e) {
+			System.out.println("CRITICAL ERROR: Authentication Procedure Caused an exception. Potential Crypto or DB issue");
+			e.printStackTrace();
+		}
+		
+		// Append the salt and hash the password
+		// Check generated hash against the local hash (one that was generated at the time user logged in!) //TODO CAHNGE PASSWORD?
 		return false;
 	}
 
@@ -238,10 +261,13 @@ public class Resolver extends HttpServlet {
 		// 		Send the client with the specific URI to that servlet and send the servlet the same token that user got when they logged in
 
 		if(parameters.get("loggedin")[0].equals("true")){
-			// Most frequent option
-			System.out.println("WARNING: NOT IMPLEMENTED");
+			// Most frequent option. Logged in user is requesting for an arena to play in
+			// TODO
+			// Check if the token is not expired, 
+			// if it is, take user through the authentication process
+			System.out.println("WARNING: logged in true : NOT IMPLEMENTED");
 		}
-		else if (parameters.get("loggedin")[0].equals("flase")){
+		else if (parameters.get("loggedin")[0].equals("false")){
 			// only allowed to signin or signup
 			if(parameters.get("request")[0].equals("signin")){
 				// Get the username and password, call the authenticate function to verify the username/password
@@ -249,6 +275,7 @@ public class Resolver extends HttpServlet {
 				boolean authenticationStatus = authenticate(parameters.get("username")[0],parameters.get("password")[0]);
 				if(!authenticationStatus){
 					// Auth failed, let the user know
+					System.out.println("INFO: AUTH FAIL");
 					try {
 						PrintWriter pw = response.getWriter();
 						pw.println("status=false");
@@ -258,14 +285,20 @@ public class Resolver extends HttpServlet {
 				}
 				else{
 					// auth succeeded. Generate an access token
+					System.out.println("INFO: AUTH PASS");
 					// Send the access token to the user.
 					// Keep track of the access token until the user logs out
-					
+					System.out.println("WARNING: Access token is a randomg string, Implement something better");
+					String token = crypto.getSalt(32);
+					boolean status = serverinternaldata.addActiveUser(parameters.get("username")[0],token );
+					try {
+						PrintWriter pw = response.getWriter();
+						pw.println("status="+status+": token="+token);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 				}
 
-			}
-			else if(parameters.get("request")[0].equals("signup")){
-				System.out.println("WARNING: SIGNUP NOT IMPLEMENTED YET");
 			}
 			//else if (parameters.get("request")[0].equals("signup")){
 			//	THIS PART MOVED TO THE HTTPPOST area. 
@@ -352,16 +385,13 @@ public class Resolver extends HttpServlet {
 			// This is a temporary function.. remove once done
 			boolean status = tempinit();
 		}
-		else if(parameters.get("action")[0].equals("tempaddtotable")){
+		else if(parameters.get("action")[0].equals("tempgetdbpath")){
 			// This is a temporary function.. remove once done
-
 			try {
 				PrintWriter pw = response.getWriter();
 				File f = new File("a.a");
-				dbHelper.updateUserPass("name1", "hashahashash", "saltsaltsastl");
-				pw.println("<html><h1> Dun Dun DUN!</h1><p>"+f.getAbsolutePath()+"</p></html>");
+				pw.println("<html><h1>Database is in </h1><p>"+f.getAbsolutePath()+"</p></html>");
 			} catch (Exception e) {
-				System.out.println("CRAP");
 				e.printStackTrace();
 			}
 		}
@@ -395,6 +425,8 @@ public class Resolver extends HttpServlet {
 	}
 
 	public boolean handleUserPost(Map<String,String[]> parameters, HttpServletRequest request, HttpServletResponse response){
+		// User sends the data packaged in a user object json string
+		
 		return false;
 	}
 
@@ -403,7 +435,7 @@ public class Resolver extends HttpServlet {
 		// This will send map data to the servlet
 		// Websocket Servlets can accept http POST requests to we can send the map to them using HTTP 
 		// Then once this is done, we know that the servlet is capable of serving the arena 
-		System.out.println("WARNING: NOT IMPLEMENTED");
+		System.out.println("WARNING: sendMapToServlet NOT IMPLEMENTED");
 		System.out.println("Dummy function pretends to send the file to the websocket sevlet, but in reality its already there!");
 		System.out.println("WS Servlets must only get their map data from this method!");
 		return true;
@@ -435,6 +467,21 @@ public class Resolver extends HttpServlet {
 		status &= serverinternaldata.mapArenaServlet(arenaname, websocketUrl);
 		System.out.println("\tWARNING:mapArenaServlet:"+status);
 
+		// dummy add users to database
+		System.out.println("WARNING: Adding dummy passwords to table. Remove immediately!");//TODO
+		try {
+			// create a salt
+			// use that salt and the password to build the hash, then put that hash and the salt to the table
+			String salt=crypto.getSalt(32);
+			dbHelper.updateUserPass("malithr", crypto.getHash("pass1",salt), salt);
+			salt=crypto.getSalt(32);
+			dbHelper.updateUserPass("numalj", crypto.getHash("pass2",salt), salt);
+			salt=crypto.getSalt(32);
+			dbHelper.updateUserPass("harithay", crypto.getHash("pass3",salt), salt);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
 		return status;
 	}
 }

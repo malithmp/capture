@@ -4,10 +4,10 @@ users.db 								// Contains all information related to users
 	 |
 	 | -> TABLE USERPASS				// Contains password related data of the users
 	 | 	________________________________________________________________________________________________
-	 | 	| 	ID				|	USERNAME	|	 SALT				| 				HASH 				|
-	 | 	| PRIMARY KEY INT	|	(string)	|	(32char String)		| 		(512 bit /128 HexDigits )	|
+	 | 	| 		ID			|	USERNAME	|	 	SALT			| 				HASH 				|
+	 | 	| PRIMARY KEY INT	|	(string)	| (64 hex chars String)	| 		(512 bit /128 HexDigits )	|
 	 | 	|-----------------------------------------------------------------------------------------------|
-	 |	| 		1			|	malithmp	| EqK@i8hdqA2Wrg2db...	| 17CD133792CCFA501FD8DA53EE36...	|
+	 |	| 		1			|	malithmp	| A793BEF4C8DEFB87...	| 17CD133792CCFA501FD8DA53EE36...	|
 	 |	|-----------------------------------------------------------------------------------------------
 	 |
 	 |

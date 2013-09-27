@@ -46,6 +46,7 @@ HTTP GET
 					}
 				}
 			}
+		}
 	}
 	
 	general{

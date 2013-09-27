@@ -1,4 +1,5 @@
-MAJOR: 
+MAJOR:
+- SALT is not being used!!! 
 - Create a standard function and a protocol for the return values from the server to the client/admin/general requests.
 	(call a function with certain parameters, for instance if the request passed or failed followed by a custom message/data corresponding to that parameter)
 	(

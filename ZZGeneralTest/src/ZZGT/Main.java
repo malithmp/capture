@@ -1,15 +1,19 @@
 package ZZGT;
 
+import java.math.BigInteger;
+
 public class Main {
 	
 	public static void main(String[] args){
-		System.out.println("meh");
-		R2 r2 = new R2();
-		final Thread t2 = new Thread(r2);
-		R1 r1 = new R1(t2);
-		final Thread t1 =  new Thread(r1);
-		t1.start();
-		t2.start();
+
+		System.out.printf("%2x", (int)(-10));
+//		System.out.println("meh");
+//		R2 r2 = new R2();
+//		final Thread t2 = new Thread(r2);
+//		R1 r1 = new R1(t2);
+//		final Thread t1 =  new Thread(r1);
+//		t1.start();
+//		t2.start();
 
 		
 	}

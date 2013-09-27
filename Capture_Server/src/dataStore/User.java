@@ -11,6 +11,9 @@ public class User {
 	//		Unlocks and other stuff
 	// Avatar
 	
+	// A temporary/smalle version of a auser is declared in ServrInternalData.java as ActiveUser
+	// This is only a representation of a user who is logged int. These two have a little in common
+	
 	// THIS DATA IS STORED IN A DATABASE AND IS SHARED ACROSS ALL RESOLVER INSTANCES!
 	
 	String username;

@@ -6,10 +6,21 @@ And the beast part is our app almost always use get requests.
 ex: curl "http://localhost:8080/Capture_Server/Resolver?requesttype=debug"
 
 
-TEMP INIT
+TEST PHASE QUERIES
+Init (create servlet connections, add dummy users, fakes the procedure of adding maps):
 curl "http://localhost:8080/Capture_Server/Resolver?requesttype=admin&adminname=malithmp&password=meh&action=tempinit"
 
+
+User login:
+curl "http://localhost:8080/Capture_Server/Resolver?requesttype=user&loggedin=false&request=signin&username=malithr&password=pass1"
+
+
+
 -----------------------------------------------------------------------------
+
+FINAL RELEASE QUERIES
 Initiate server
+
 1) Register the websocket servlet(s)
 curl "http://localhost:8080/Capture_Server/Resolver?requesttype=admin&adminname=malithmp&password=meh&action=registerservlet&URL=https://www.google.ca/"
+

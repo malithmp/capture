@@ -23,8 +23,11 @@ public class ServerInternalData {
 	
 	// Contains information about currently 'logged in and playing' users
 	// Everytime a user logs in, we place some info about that user in this list
+	// All users are granted an access token once they log in.
+	// This access token is then passed to the websocket servlet the user will be working with and also to the the users themselves.
 	// This is used for the sole purpose of keeping track of valid(unexpired) tokens
-	ArrayList<ActiveUser> activeUsers;
+	// The entry will be removed once the user logs out
+	Hashtable<String, ActiveUser> activeUsers;
 
 	// TODO: Design the map!!
 	// TODO: MAKE SURE THAT THIS LIST IS SMALL AS POSSIBLE.. MAPS CAN BE HUGE AND SERVERS DONT GIVE ALL THAT MUCH RAM TO SERVLETS!
@@ -35,13 +38,15 @@ public class ServerInternalData {
 	// A map is being reassigned from one ws servlet to another. the Resolver will be the middle man
 	ArrayList<Object> arenaMaps;
 	
+
 	public ServerInternalData(){
 		System.out.println("WARNING: Have you set the Admin Credentials, Right now we only have dummy usernames and password hashes");
+		System.out.println("WARNING: BOTTLENECKS, BOTTLENECKS EVERYWHERE!: implement better locks to avoid locking for both reads and writes equally");
 		arenaServletMap = new Hashtable<String,ServletInfo>();
 		arenaPool = new ArrayList<String>();
 		servletPool = new ArrayList<ServletInfo>();
 		arenaMaps = new ArrayList<Object>();
-		activeUsers = new ArrayList<ActiveUser>();
+		activeUsers = new Hashtable<String,ActiveUser>();
 		System.out.println("WARNING: UNIMPLEMENTED ITEM : Register own server instance in the ServerInternalData store");
 	}
 
@@ -133,6 +138,30 @@ public class ServerInternalData {
 		// Move arena from one servlet to another
 		// TODO DO THIS LAST
 	}
+	
+	public synchronized boolean addActiveUser(String username, String token){
+		// Add a newly logged in user to the pool
+		// Take the current time, Create the activeUser object and add it to the list
+		System.out.println("WARNING: implement time feature for the active user");
+		ActiveUser user = new ActiveUser(username, token);
+		activeUsers.put(username, user);
+		return false;
+		
+	}
+	
+	public synchronized boolean removeActiveUser(String username){
+		// Remove auser from the pool (user signed up or tokemn expired?)
+		if(activeUsers.containsKey(username)){
+			activeUsers.remove(username);
+			return true;
+		}
+		else{
+			//trying to remove user who does not exist
+			System.out.println("ERROR: Remving user that does not even exists!");
+			return false;
+		}
+		
+	}
 
 }
 
@@ -153,6 +182,10 @@ class ActiveUser{
 	// Holds small amount of information about a user who is logged in. This is used to manage the session
 	String username;
 	String token;					// Session specific key that is generated using the passwordhash and time
+	public ActiveUser(String username, String tokens){
+		this.username=username;
+		this.token=token;
+	}
 	//TODO DATE AND TIME OF LOGIN
 	
 }
