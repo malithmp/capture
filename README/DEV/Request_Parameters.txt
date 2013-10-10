@@ -69,7 +69,6 @@ HTTP GET
 		*password*
 		*action*{
 			registerservlet{								// Add websocket urls so the resolver knows about the worker servlets
-				*name*
 				*URL*
 				RETURN : {
 					status

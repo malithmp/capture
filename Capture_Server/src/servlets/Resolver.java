@@ -19,6 +19,7 @@ import tools.Crypto;
 import com.google.gson.Gson;
 
 import dataStore.DatabaseHelper;
+import dataStore.Globals;
 import dataStore.ServerInternalData;
 // Handles the http based request of the server
 
@@ -36,7 +37,9 @@ public class Resolver extends HttpServlet {
 	public Resolver() {
 		super();
 		//Servlet specific initializations
-
+		if(!Globals.DEBUG) System.out.println("DEBUG FLAG IS TURNED OFF. WARNINGS SUPPRESSED!");
+		if(!Globals.LOUD) System.out.println("LOUD FLAG IS TURNED OFF. NO INFORMATION WILL BE PRINTED");
+		
 		initdata();			// initialize data
 		initCrypt();		// initialize hashing related classes
 		initDB();			// initialize database helper and create/initilaze/open database
@@ -75,7 +78,7 @@ public class Resolver extends HttpServlet {
 				pw.println("<html><h1> How about No! </h1><p>Protocol Error: no parameters provided!</p></html>");
 			}
 			else{
-				System.out.println("Error: Requesttype not provided!");
+				if(Globals.DEBUG) System.out.println("ERROR: Requesttype not provided!");
 				pw.println("<html><h=1> How about No! </h1><p>Protocol Error nVal: requesttype parameter not specified!</p></html>");
 			}	
 		}
@@ -84,7 +87,7 @@ public class Resolver extends HttpServlet {
 			// A user who wants to play. 
 			// We put this option first since its the most likely request to happen
 			//TODO
-			System.out.println("WARNING: parameters.get user NOT IMPLEMENTED!");
+			if(Globals.DEBUG) System.out.println("WARNING: parameters.get user NOT IMPLEMENTED!");
 			handleUserGet(parameters,response);
 			//System.out.println(parameters.get("c")[1]);
 			//System.out.println(parameters.get("c")[0]);
@@ -100,7 +103,7 @@ public class Resolver extends HttpServlet {
 
 			//TODO:: AUTHENTICATE THIS SHIT!
 			handleDebuggerGet(parameters,response);
-			System.out.println("WARNING: DEBUG MODE NOT IMPLEMENTED!");
+			if(Globals.DEBUG) System.out.println("WARNING: DEBUG MODE NOT IMPLEMENTED!");
 		}
 		else if(parameters.get("requesttype")[0].equals("admin")){
 			// An admin connection. // This too must be authenticated as it has access to basically everything!!! 
@@ -109,13 +112,13 @@ public class Resolver extends HttpServlet {
 			//TODO:: AUTHENTICATE THIS SHIT!
 
 			handleAdminGet(parameters,response);
-			System.out.println("WARNING: ADMIN MODE NOT IMPLEMENTED!");
+			if(Globals.DEBUG) System.out.println("WARNING: ADMIN MODE NOT IMPLEMENTED!");
 		}
 		else{
 			// Again. invalid request. kindly ask them to GTFO!
 			PrintWriter pw = response.getWriter();
 			pw.println("<html><h1> How about No! </h1><p>Protocol Error: requesttype invalid!</p></html>");
-			System.out.println("Invalid Protocol Request Detected!"+parameters.get("requesttype"));
+			if(Globals.LOUD) System.out.println("Invalid Protocol Request Detected!"+parameters.get("requesttype"));
 		} 
 		// response.setContentType("text/html");
 		// System.out.println("Got:"+request.getQueryString()+"::"+request.getParameter("cat")+"::"+request.getParameter("bleh"));
@@ -145,7 +148,7 @@ public class Resolver extends HttpServlet {
 				pw.println("<html><h1> How about No! </h1><p>Protocol Error: no parameters provided!</p></html>");
 			}
 			else{
-				System.out.println("Error: Requesttype not provided!");
+				if(Globals.DEBUG) System.out.println("ERROR: Requesttype not provided!");
 				pw.println("Protocol ErrornVal: requesttype parameter not specified!");
 			}
 		}
@@ -153,18 +156,18 @@ public class Resolver extends HttpServlet {
 			handleAdminPost(parameters, request, response);
 		}
 		else if(parameters.get("requesttype")[0].equals("servlet")){
-			System.out.println("WARNING: POST SERVLET NOT IMPLEMENTED!");
+			if(Globals.DEBUG) System.out.println("WARNING: POST SERVLET NOT IMPLEMENTED!");
 
 		}
 		else if(parameters.get("requesttype")[0].equals("websocket")){
-			System.out.println("WARNING: POST WEBSOCKET NOT IMPLEMENTED!");
+			if(Globals.DEBUG) System.out.println("WARNING: POST WEBSOCKET NOT IMPLEMENTED!");
 
 		}
 		else if(parameters.get("requesttype")[0].equals("user")){
 			handleUserPost(parameters, request, response);
 		}
 		else{
-			System.out.println("CRITICAL ERROR: HTTPPOST request type mismatch: provided :"+parameters.get("requesttype")[0]);
+			if(Globals.DEBUG) System.out.println("CRITICAL ERROR: HTTPPOST request type mismatch: provided :"+parameters.get("requesttype")[0]);
 			return;
 		}
 
@@ -174,28 +177,28 @@ public class Resolver extends HttpServlet {
 	//-------OPTIONALLY THREAD SAFE-------
 
 	private void initdata(){
-		System.out.println("INFO: Initializing data...");
+		if(Globals.LOUD) System.out.println("INFO: Initializing data...");
 		serverinternaldata = new ServerInternalData();	
 	}
 
 	private void initCrypt(){
-		System.out.println("INFO: Initializing crypto...");
+		if(Globals.LOUD) System.out.println("INFO: Initializing crypto...");
 		try {
 			crypto = new Crypto();
 		} catch (NoSuchAlgorithmException e) {
-			System.out.println("CRITICAL ERROR: Hashing algorithms failed to load. Its not safe here");
+			if(Globals.DEBUG) System.out.println("CRITICAL ERROR: Hashing algorithms failed to load. Its not safe here");
 			e.printStackTrace();
 			return;
 		}
 	}
 
 	private void initDB(){
-		System.out.println("INFO: Initializing database...");
+		if(Globals.LOUD) System.out.println("INFO: Initializing database...");
 		dbHelper = new DatabaseHelper();
 		try {
 			dbHelper.initDatabase();
 		} catch(Exception e) {
-			System.out.println("CRITICAL ERROR: Database failed to load. Abandon ship!");
+			if(Globals.DEBUG) System.out.println("CRITICAL ERROR: Database failed to load. Abandon ship!");
 			e.printStackTrace();
 			return;
 		}
@@ -229,7 +232,7 @@ public class Resolver extends HttpServlet {
 				return false;
 			}
 		} catch (Exception e) {
-			System.out.println("CRITICAL ERROR: Authentication Procedure Caused an exception. Potential Crypto or DB issue");
+			if(Globals.DEBUG) System.out.println("CRITICAL ERROR: Authentication Procedure Caused an exception. Potential Crypto or DB issue");
 			e.printStackTrace();
 		}
 		
@@ -245,7 +248,7 @@ public class Resolver extends HttpServlet {
 		// TODO: if we are sending data directly from here
 		// 	 	 Check the time and see if the localmax size of http post  data (for that query) is expired
 		// 		 If data is not expired, send it to them
-		System.out.println("WARNING: NOT IMPLEMENTED!");
+		if(Globals.DEBUG) System.out.println("WARNING: NOT IMPLEMENTED!");
 	}
 
 	public void handleUserGet(Map<String, String[]> parameters, HttpServletResponse response){// Parameters passed by the HTTP GET
@@ -265,7 +268,7 @@ public class Resolver extends HttpServlet {
 			// TODO
 			// Check if the token is not expired, 
 			// if it is, take user through the authentication process
-			System.out.println("WARNING: logged in true : NOT IMPLEMENTED");
+			if(Globals.DEBUG) System.out.println("WARNING: logged in true : NOT IMPLEMENTED");
 		}
 		else if (parameters.get("loggedin")[0].equals("false")){
 			// only allowed to signin or signup
@@ -275,7 +278,7 @@ public class Resolver extends HttpServlet {
 				boolean authenticationStatus = authenticate(parameters.get("username")[0],parameters.get("password")[0]);
 				if(!authenticationStatus){
 					// Auth failed, let the user know
-					System.out.println("INFO: AUTH FAIL");
+					if(Globals.LOUD) System.out.println("INFO: AUTH FAIL");
 					try {
 						PrintWriter pw = response.getWriter();
 						pw.println("status=false");
@@ -285,10 +288,10 @@ public class Resolver extends HttpServlet {
 				}
 				else{
 					// auth succeeded. Generate an access token
-					System.out.println("INFO: AUTH PASS");
+					if(Globals.LOUD) System.out.println("INFO: AUTH PASS");
 					// Send the access token to the user.
 					// Keep track of the access token until the user logs out
-					System.out.println("WARNING: Access token is a randomg string, Implement something better");
+					if(Globals.DEBUG) System.out.println("WARNING: Access token is a randomg string, Implement something better");
 					String token = crypto.getSalt(32);
 					boolean status = serverinternaldata.addActiveUser(parameters.get("username")[0],token );
 					try {
@@ -307,27 +310,27 @@ public class Resolver extends HttpServlet {
 			//}
 		}
 
-		System.out.println("WARNING: handleUserGet :PARTIALLY IMPLEMENTED!");
+		if(Globals.DEBUG) System.out.println("WARNING: handleUserGet :PARTIALLY IMPLEMENTED!");
 	}
 
 	public void handleDebuggerGet(Map<String, String[]> parameters, HttpServletResponse response){// Parameters passed by the HTTP GET
 		// Authenticate!!
 		// Query servlets according to request and send info back
-		System.out.println("Debug Mode");
+		if(Globals.LOUD) System.out.println("Debug Mode");
 		try{
-			System.out.println("dVal = " +parameters.get("dVal")[0]);
+			if(Globals.LOUD) System.out.println("dVal = " +parameters.get("dVal")[0]);
 		}catch(Exception e){
-			System.out.println("Debugmode exception caught");
+			if(Globals.LOUD) System.out.println("Debugmode exception caught");
 		}
 	}
 
 	public void handleAdminGet(Map<String, String[]> parameters, HttpServletResponse response){// Parameters passed by the HTTP GET
 		// Authenticate!!
 		// Query servlets according to request and send info bnValack
-		System.out.println("Admin Mode: Welcome my Lords!");
+		if(Globals.DEBUG) System.out.println("INFO:Admin Mode: Welcome my Lords!");
 		//TODO Authenticate!!!!!!!
-		System.out.println("WARNING: Admin not authenticated");
-		System.out.println("adminname:"+parameters.get("adminname")[0]+" password:" + parameters.get("password")[0]);
+		if(Globals.DEBUG) System.out.println("WARNING: Admin not authenticated");
+		if(Globals.DEBUG) System.out.println("INFO:adminname:"+parameters.get("adminname")[0]+" password:" + parameters.get("password")[0]);
 
 		//Admin task implementation
 
@@ -354,9 +357,8 @@ public class Resolver extends HttpServlet {
 		}
 		else if(parameters.get("action")[0].equals("registerarena")){
 			//Arena names are added at the time it was uploaded to the server (using a POST request)
-			System.out.println();
-			System.out.println("WARNING:sendMapToServlet() must be called before this!");
-			System.out.println("WARNING:Assined map must be sent to the arena");
+			if(Globals.DEBUG) System.out.println("WARNING:sendMapToServlet() must be called before this!");
+			if(Globals.DEBUG) System.out.println("WARNING:Assined map must be sent to the arena");
 			boolean status = serverinternaldata.registerNewArena(parameters.get("arena")[0]);
 
 			if(status){ // Let the admin know everything went well
@@ -412,14 +414,14 @@ public class Resolver extends HttpServlet {
 		Gson gsn = new Gson();
 		ArrayList<String>data = gsn.fromJson(inputData,ArrayList.class);
 		if(data==null){
-			System.out.println("its dead jim");
+			if(Globals.DEBUG) System.out.println("ERROR:its dead jim");
 			return false;
 		}
-		System.out.println("len"+data.size());
+		if(Globals.DEBUG) System.out.println("len"+data.size());
 		for(int i=0;i<data.size();i++){
-			System.out.println(""+i+"="+data.get(i));
+			if(Globals.DEBUG) System.out.println(""+i+"="+data.get(i));
 		}
-		System.out.println("data hash:\n"+data.hashCode());
+		if(Globals.DEBUG) System.out.println("data hash:\n"+data.hashCode());
 
 		return false;
 	}
@@ -435,9 +437,9 @@ public class Resolver extends HttpServlet {
 		// This will send map data to the servlet
 		// Websocket Servlets can accept http POST requests to we can send the map to them using HTTP 
 		// Then once this is done, we know that the servlet is capable of serving the arena 
-		System.out.println("WARNING: sendMapToServlet NOT IMPLEMENTED");
-		System.out.println("Dummy function pretends to send the file to the websocket sevlet, but in reality its already there!");
-		System.out.println("WS Servlets must only get their map data from this method!");
+		if(Globals.DEBUG) System.out.println("WARNING: sendMapToServlet NOT IMPLEMENTED");
+		if(Globals.DEBUG) System.out.println("Dummy function pretends to send the file to the websocket sevlet, but in reality its already there!");
+		if(Globals.DEBUG) System.out.println("INFO: WS Servlets must only get their map data from this method!");
 		return true;
 	}
 
@@ -445,13 +447,13 @@ public class Resolver extends HttpServlet {
 		boolean status = true;
 		//TODO debug call to initialize dummy maps and arenas
 		// this will bypass most of the hassles during the starting the server
-		System.out.println("WARNING!: DEBUG ONLY FUNCTION CALLED!: tempInit");
+		if(Globals.DEBUG) System.out.println("WARNING!: DEBUG ONLY FUNCTION CALLED!: tempInit");
 		// Assume websocket servlet is already up and runnint
 		String websocketUrl = "http://localhost:8080/Capture_Server/WS";
-		System.out.println("\tWARNING: Assuming webosocket servlet is up and the url is: "+websocketUrl);
+		if(Globals.DEBUG) System.out.println("\tWARNING: Assuming webosocket servlet is up and the url is: "+websocketUrl);
 
 		// Assume the map has been transfered to resolver temporary map area
-		System.out.println("\tWARNING:<<<<<<<<<<<<<<<<<<<<<<<<00000sadasjhasshdksadkjas k");
+		if(Globals.DEBUG) System.out.println("\tWARNING:<<<<<<<<<<<<<<<<<<<<<<<<00000sadasjhasshdksadkjas k");
 		// Send that to the websocket servlet
 
 

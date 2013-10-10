@@ -1,4 +1,8 @@
 MAJOR:
+- READ WRITE LOCK 
+	: http://www.javacodegeeks.com/2012/04/java-concurrency-with-readwritelock.html
+	:http://docs.oracle.com/javase/1.5.0/docs/api/java/util/concurrent/locks/ReadWriteLock.html
+
 - SALT is not being used!!! 
 - Create a standard function and a protocol for the return values from the server to the client/admin/general requests.
 	(call a function with certain parameters, for instance if the request passed or failed followed by a custom message/data corresponding to that parameter)

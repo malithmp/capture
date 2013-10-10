@@ -9,6 +9,9 @@ Servlet3 Async Request handling:
 Servlet Synchronization:
 	http://www.ibm.com/developerworks/websphere/library/bestpractices/avoiding_or_minimizing_synchronization_in_servlets.html
 
+Java Read Write Locks:
+	http://www.javacodegeeks.com/2012/04/java-concurrency-with-readwritelock.html
+
 Servlet Clustering:
 	http://madbean.com/2003/mb2003-36/
 
@@ -22,6 +25,7 @@ Writing Scalable Code:
 
 Hosting servlet;
 	http://www.eatj.com/
+	openshift
 
 SSL/HTTPS Client:
 	http://www.youtube.com/watch?v=RZ1bzailqls
