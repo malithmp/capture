@@ -29,6 +29,7 @@ public class ServerInternalData {
 	// This access token is then passed to the websocket servlet the user will be working with and also to the the users themselves.
 	// This is used for the sole purpose of keeping track of valid(unexpired) tokens
 	// The entry will be removed once the user logs out
+	// TODO: We keep the list on memory. If the server crashes, everyone has to relog in.
 	Hashtable<String, ActiveUser> activeUsers;
 
 	// TODO: Design the map!!
@@ -191,7 +192,7 @@ public class ServerInternalData {
 	}
 	
 	public boolean removeActiveUser(String username){
-		// Remove auser from the pool (user signed up or tokemn expired?)
+		// Remove auser from the pool (user signed out or tokemn expired?)
 		ActiveUserWriteLock.lock();
 		if(activeUsers.containsKey(username)){
 			activeUsers.remove(username);

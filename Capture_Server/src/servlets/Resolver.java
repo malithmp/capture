@@ -48,7 +48,7 @@ public class Resolver extends HttpServlet {
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException {
 		// Check if the request is for user connection/ debugger/admin request or General viewer request
 		// If user connection (a user needs to play the game)serverinternaldparameters.get("URL")[0]ata
 		// 		Authenticate and send back a token
@@ -69,17 +69,16 @@ public class Resolver extends HttpServlet {
 
 		// Convert the request parameters to a map so its easier for the back end
 		Map<String, String[]> parameters =request.getParameterMap();
-
+		if(Globals.LOUD) System.out.println("Thread: "+Thread.currentThread().getId());
 		//Match request type
 		if(parameters==null || !parameters.containsKey("requesttype")){
 			// invalid request. Does not adhere to protocol. kindly ask them to GTFO!
-			PrintWriter pw = response.getWriter();
 			if(parameters==null){
-				pw.println("<html><h1> How about No! </h1><p>Protocol Error: no parameters provided!</p></html>");
+				sendResponse("<html><h1> How about No! </h1><p>Protocol Error: no parameters provided!</p></html>", response);
 			}
 			else{
 				if(Globals.DEBUG) System.out.println("ERROR: Requesttype not provided!");
-				pw.println("<html><h=1> How about No! </h1><p>Protocol Error nVal: requesttype parameter not specified!</p></html>");
+				sendResponse("<html><h=1> How about No! </h1><p>Protocol Error nVal: requesttype parameter not specified!</p></html>", response);
 			}	
 		}
 		// So far so good. Depending on the user  type we can now call the helper functions.
@@ -116,8 +115,7 @@ public class Resolver extends HttpServlet {
 		}
 		else{
 			// Again. invalid request. kindly ask them to GTFO!
-			PrintWriter pw = response.getWriter();
-			pw.println("<html><h1> How about No! </h1><p>Protocol Error: requesttype invalid!</p></html>");
+			sendResponse("<html><h1> How about No! </h1><p>Protocol Error: requesttype invalid!</p></html>", response);
 			if(Globals.LOUD) System.out.println("Invalid Protocol Request Detected!"+parameters.get("requesttype"));
 		} 
 		// response.setContentType("text/html");
@@ -143,13 +141,12 @@ public class Resolver extends HttpServlet {
 
 		if(parameters==null || !parameters.containsKey("requesttype")){
 			// invalid request. Does not adhere to protocol. kindly ask them to GTFO!
-			PrintWriter pw = response.getWriter();
 			if(parameters==null){
-				pw.println("<html><h1> How about No! </h1><p>Protocol Error: no parameters provided!</p></html>");
+				sendResponse("<html><h1> How about No! </h1><p>Protocol Error: no parameters provided!</p></html>",response);
 			}
 			else{
 				if(Globals.DEBUG) System.out.println("ERROR: Requesttype not provided!");
-				pw.println("Protocol ErrornVal: requesttype parameter not specified!");
+				sendResponse("Protocol ErrornVal: requesttype parameter not specified!", response);
 			}
 		}
 		else if(parameters.get("requesttype")[0].equals("admin")){
@@ -279,12 +276,7 @@ public class Resolver extends HttpServlet {
 				if(!authenticationStatus){
 					// Auth failed, let the user know
 					if(Globals.LOUD) System.out.println("INFO: AUTH FAIL");
-					try {
-						PrintWriter pw = response.getWriter();
-						pw.println("status=false");
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
+					sendResponse("status=false",response);
 				}
 				else{
 					// auth succeeded. Generate an access token
@@ -293,13 +285,8 @@ public class Resolver extends HttpServlet {
 					// Keep track of the access token until the user logs out
 					if(Globals.DEBUG) System.out.println("WARNING: Access token is a randomg string, Implement something better");
 					String token = crypto.getSalt(32);
-					boolean status = serverinternaldata.addActiveUser(parameters.get("username")[0],token );
-					try {
-						PrintWriter pw = response.getWriter();
-						pw.println("status="+status+": token="+token);
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
+					boolean status = serverinternaldata.addActiveUser(parameters.get("username")[0],token);
+					sendResponse("status="+status+": token="+token,response);
 				}
 
 			}
@@ -338,50 +325,34 @@ public class Resolver extends HttpServlet {
 			// Read the servlet URL and add it to the serverinternaldata data structure
 			boolean status = serverinternaldata.registerNewServlet(parameters.get("URL")[0]);
 			if(status){ // Let the admin know everything went well
-				try {
-					PrintWriter pw = response.getWriter();
-					pw.println("status=true");
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-
+				sendResponse("status=true:rs",response);
 			}
 			else{
-				try {
-					PrintWriter pw = response.getWriter();
-					pw.println("status=false");
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+				sendResponse("status=false:rs",response);
 			}
 		}
 		else if(parameters.get("action")[0].equals("registerarena")){
 			//Arena names are added at the time it was uploaded to the server (using a POST request)
+			// TODO Makesure there is a way to map this name to the actual arena data.
 			if(Globals.DEBUG) System.out.println("WARNING:sendMapToServlet() must be called before this!");
 			if(Globals.DEBUG) System.out.println("WARNING:Assined map must be sent to the arena");
 			boolean status = serverinternaldata.registerNewArena(parameters.get("arena")[0]);
 
 			if(status){ // Let the admin know everything went well
-				try {
-					PrintWriter pw = response.getWriter();
-					pw.println("status=true");
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-
+				sendResponse("status=true:ra",response);
 			}
 			else{
-				try {
-					PrintWriter pw = response.getWriter();
-					pw.println("status=false");
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+				sendResponse("status=false:ra",response);
 			}
 		}
 		else if(parameters.get("action")[0].equals("maparenaservlet")){
-			//TODO reigster (arenaID) (servletURL)
-			serverinternaldata.mapArenaServlet(parameters.get("arena")[0], parameters.get("servlet")[0]);
+			boolean status = serverinternaldata.mapArenaServlet(parameters.get("arena")[0], parameters.get("servlet")[0]);
+			if(status){ // Let the admin know everything went well
+				sendResponse("status=true:mas",response);
+			}
+			else{
+				sendResponse("status=false:mas",response);
+			}
 		}
 		else if(parameters.get("action")[0].equals("tempinit")){
 			// This is a temporary function.. remove once done
@@ -389,13 +360,8 @@ public class Resolver extends HttpServlet {
 		}
 		else if(parameters.get("action")[0].equals("tempgetdbpath")){
 			// This is a temporary function.. remove once done
-			try {
-				PrintWriter pw = response.getWriter();
-				File f = new File("a.a");
-				pw.println("<html><h1>Database is in </h1><p>"+f.getAbsolutePath()+"</p></html>");
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			File f = new File("a.a");
+			sendResponse("<html><h1>Database is in </h1><p>"+f.getAbsolutePath()+"</p></html>",response);
 		}
 		return;
 	}
@@ -428,7 +394,6 @@ public class Resolver extends HttpServlet {
 
 	public boolean handleUserPost(Map<String,String[]> parameters, HttpServletRequest request, HttpServletResponse response){
 		// User sends the data packaged in a user object json string
-		
 		return false;
 	}
 
@@ -441,6 +406,16 @@ public class Resolver extends HttpServlet {
 		if(Globals.DEBUG) System.out.println("Dummy function pretends to send the file to the websocket sevlet, but in reality its already there!");
 		if(Globals.DEBUG) System.out.println("INFO: WS Servlets must only get their map data from this method!");
 		return true;
+	}
+	
+	public void sendResponse(String replyString, HttpServletResponse response){
+		// this guy sends all the responses generated by the helper functions
+		try {
+			PrintWriter pw = response.getWriter();
+			pw.println(replyString);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	public boolean tempinit(){

@@ -10,14 +10,14 @@ HTTP GET
 	user{
 		*loggedin*{
 			true{
-				*token*									// Once logged in all communications must have this token
+				*token*										// Once logged in all communications must have this token
 				*username*
-				*request*{								// The actual request
+				*request*{									// The actual request
 					joinmap{
 						*locationX*
-						*locationY*
-						*locationAcc*					// Location accuracy +/- or % || For location map validation (user in Siberia cant play a Toronto map)
-						*arena*							// Arena the user needs to join
+						*locationY*	
+						*locationAcc*						// Location accuracy +/- or % || For location map validation (user in Siberia cant play a Toronto map)
+						*arena*								// Arena the user needs to join
 						RETURN:{
 							URL of websocket servlet that servs the map	// Backend sends this token to that websocket servlet so it know the user is legit
 						}
@@ -26,7 +26,7 @@ HTTP GET
 					leavemap{
 						*arena*
 						RETURN:{
-							status						// Backedn removes the user token from websocket servlet to let it know the user left
+							status							// Backedn removes the user token from websocket servlet to let it know the user left
 						}
 					}
 				}
@@ -76,8 +76,8 @@ HTTP GET
 			}
 			
 			maparenaservlet{								// map arena to servlet
-				*arena*									// name of the arena (ID)
-				*servlet*								// URL of servlet
+				*arena*										// name of the arena (ID)
+				*servlet*									// URL of servlet
 				RETURN : {
 					status
 				} 
@@ -89,7 +89,7 @@ HTTP GET
 					status
 				} 
 			}
-			tempinit{									// Endpoint for Debug purpose only, used to initialize dummy maps and arenas
+			tempinit{										// Endpoint for Debug purpose only, used to initialize dummy maps and arenas
 				RETURN : {
 					status
 				} 
@@ -120,9 +120,9 @@ HTTP POST
 		}
 	}
 	
-	servlet{											// another frontend servlet trying to communicate
+	servlet{												// another frontend servlet trying to communicate
 	}
 	
-	websocke{											// a worker websocket trying to communicate
+	websocke{												// a worker websocket trying to communicate
 	}
 }
