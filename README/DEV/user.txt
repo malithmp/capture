@@ -1,0 +1,20 @@
+// THIS FILE CONTAINS THE INFORMATION ABOUT A USER PROFILE
+// Items marked with * are mandetory
+// Items marked with ** are not decided by the user
+*Username			// unique id
+*Email address			// university email address
+
+*L1_group			// lowest level team selected randomly so that the teams are balanced on an institutional level
+
+				// Users in one team can be converted into another team by exchanging points (once)
+*L2_group			// institution level team. selected accrding to the email address provided
+				// ie. a UofT student will have UofT as their L2 group
+*L3_group			// geographical level team. selected according to the location of your L2 base
+				// more levels? //
+
+first name			// first name of the user
+last name			// second name of the user
+
+home				// some information about the users home location (wifi ssid? mac address? location) so that healing/restoration is 
+				// faster there. Can leave this empty, but that would slowdown restoration speed when at home
+

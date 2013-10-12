@@ -1,7 +1,3 @@
-MAJOR:
-- READ WRITE LOCK 
-	: http://www.javacodegeeks.com/2012/04/java-concurrency-with-readwritelock.html
-	:http://docs.oracle.com/javase/1.5.0/docs/api/java/util/concurrent/locks/ReadWriteLock.html
 
 - SALT is not being used!!! 
 - Create a standard function and a protocol for the return values from the server to the client/admin/general requests.
@@ -12,6 +8,14 @@ MAJOR:
 			extra= "arena does not exists"
 		something like this
 	)
+
+
+MAJOR:
+- READ WRITE LOCK 
+	: http://www.javacodegeeks.com/2012/04/java-concurrency-with-readwritelock.html
+	:http://docs.oracle.com/javase/1.5.0/docs/api/java/util/concurrent/locks/ReadWriteLock.html
+
+
 
 CURRENT:
 - Test user authentication on actual server
