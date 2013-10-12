@@ -5,9 +5,12 @@ http://download.eclipse.org/webtools/repository/indigo/
 
 IMPORTANT!!
 if you are using an inferior operating system like Linux or Windows [infact anything that is not MacOSX] then you might need to manually add some libraries to make websockets work. To do this
-	- Right click on project->properties->Java Build Path -> Libraries[3rd tab] -> Add external Jars
+	- Right click on project->properties->Java Build Path -> Libraries[3rd tab] -> Add external JARs
 	- Then navigate to apache directory-> lib
 	- Select all the libraries and hit ok
+	- Then go to project->properties->Java Build Path -> Libraries[3rd tab] -> Add JARs
+	- navigate to Capture Server -> WebContent -> WEB-INF -> lib
+	- Select al the libraries and hit ok
 
 	- OR you can do this by 2 easy steps
 		- Go to a mac store

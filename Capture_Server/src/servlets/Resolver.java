@@ -174,12 +174,12 @@ public class Resolver extends HttpServlet {
 	//-------OPTIONALLY THREAD SAFE-------
 
 	private void initdata(){
-		if(Globals.LOUD) System.out.println("INFO: Initializing data...");
+		if(Globals.DEBUG) System.out.println("INFO: Initializing data...");
 		serverinternaldata = new ServerInternalData();	
 	}
 
 	private void initCrypt(){
-		if(Globals.LOUD) System.out.println("INFO: Initializing crypto...");
+		if(Globals.DEBUG) System.out.println("INFO: Initializing crypto...");
 		try {
 			crypto = new Crypto();
 		} catch (NoSuchAlgorithmException e) {
@@ -190,7 +190,7 @@ public class Resolver extends HttpServlet {
 	}
 
 	private void initDB(){
-		if(Globals.LOUD) System.out.println("INFO: Initializing database...");
+		if(Globals.DEBUG) System.out.println("INFO: Initializing database...");
 		dbHelper = new DatabaseHelper();
 		try {
 			dbHelper.initDatabase();
@@ -324,8 +324,10 @@ public class Resolver extends HttpServlet {
 		if(parameters.get("action")[0].equals("registerservlet")){
 			// Read the servlet URL and add it to the serverinternaldata data structure
 			boolean status = serverinternaldata.registerNewServlet(parameters.get("URL")[0]);
+			if(Globals.DEBUG) System.out.println(parameters.get("URL")[0]);
 			if(status){ // Let the admin know everything went well
 				sendResponse("status=true:rs",response);
+				if(Globals.LOUD) System.out.println("Added Servlet");
 			}
 			else{
 				sendResponse("status=false:rs",response);
@@ -336,9 +338,11 @@ public class Resolver extends HttpServlet {
 			// TODO Makesure there is a way to map this name to the actual arena data.
 			if(Globals.DEBUG) System.out.println("WARNING:sendMapToServlet() must be called before this!");
 			if(Globals.DEBUG) System.out.println("WARNING:Assined map must be sent to the arena");
+			if(Globals.DEBUG) System.out.println(parameters.get("arena")[0]);
 			boolean status = serverinternaldata.registerNewArena(parameters.get("arena")[0]);
 
 			if(status){ // Let the admin know everything went well
+				if(Globals.LOUD) System.out.println("Added Arena");
 				sendResponse("status=true:ra",response);
 			}
 			else{
@@ -346,6 +350,7 @@ public class Resolver extends HttpServlet {
 			}
 		}
 		else if(parameters.get("action")[0].equals("maparenaservlet")){
+			if(Globals.DEBUG) System.out.println(parameters.get("arena")[0]+"--"+ parameters.get("servlet")[0]);
 			boolean status = serverinternaldata.mapArenaServlet(parameters.get("arena")[0], parameters.get("servlet")[0]);
 			if(status){ // Let the admin know everything went well
 				sendResponse("status=true:mas",response);

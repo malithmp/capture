@@ -7,7 +7,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class ServerInternalData {
 	// ALL ACCESS IS SYNCRONIZED!
-	
+
 	// Login data of administrators usernames and password hashes
 	public static final String[] adminnames={"admin1","admin2","admin3"};
 	public static final String[] adminpasshash={"hash1","hash2","hash3"};
@@ -17,12 +17,12 @@ public class ServerInternalData {
 
 	// Contains Information about all the arenas being served
 	ArrayList<String> arenaPool;
-	
+
 	// 	Contains mapping information about which arena is served by which servlet
 	// 	arenaID -----> servletInfo
 	Hashtable<String,ServletInfo> arenaServletMap;
 	// The above said two data structures are pointing to the same servletInfo instances!!
-	
+
 	// Contains information about currently 'logged in and playing' users
 	// Everytime a user logs in, we place some info about that user in this list
 	// All users are granted an access token once they log in.
@@ -40,28 +40,28 @@ public class ServerInternalData {
 	// A websocket servlet was stopped by and admin and the arenaMap was take back from it
 	// A map is being reassigned from one ws servlet to another. the Resolver will be the middle man
 	ArrayList<Object> arenaMaps;
-	
+
 	// LOCKS
 	// Read Write lock for ServletPool list
 	private final ReentrantReadWriteLock servletPoolReadWriteLock = new ReentrantReadWriteLock();
 	private final Lock servletPoolReadLock  = servletPoolReadWriteLock.readLock();
 	private final Lock servletPoolWriteLock = servletPoolReadWriteLock.writeLock();
-	
+
 	// Read Write Lock for ArenaPool list
 	private final ReentrantReadWriteLock arenaPoolReadWriteLock = new ReentrantReadWriteLock();
-	//private final Lock arenaPoolReadLock  = servletPoolReadWriteLock.readLock();
+	private final Lock arenaPoolReadLock  = arenaPoolReadWriteLock.readLock();
 	private final Lock arenaPoolWriteLock = arenaPoolReadWriteLock.writeLock();
-	
+
 	// Read Write Lock for ArenaServletMap list
 	private final ReentrantReadWriteLock arenaServletMapReadWriteLock = new ReentrantReadWriteLock();
-	private final Lock arenaServletMapReadLock  = servletPoolReadWriteLock.readLock();
+	private final Lock arenaServletMapReadLock  = arenaServletMapReadWriteLock.readLock();
 	private final Lock arenaServletMapWriteLock = arenaServletMapReadWriteLock.writeLock();
-		
+
 	// Read Write Lock for ActiveUsers list
 	private final ReentrantReadWriteLock ActiveUserReadWriteLock = new ReentrantReadWriteLock();
 	//private final Lock ActiveUserReadLock  = ActiveUserReadWriteLock.readLock();
 	private final Lock ActiveUserWriteLock = ActiveUserReadWriteLock.writeLock();
-		
+
 	public ServerInternalData(){
 		if(Globals.DEBUG) System.out.println("WARNING: Have you set the Admin Credentials, Right now we only have dummy usernames and password hashes");
 		// DONE BITCH! NOW TEST THIS System.out.println("WARNING: BOTTLENECKS, BOTTLENECKS EVERYWHERE!: implement better locks to avoid locking for both reads and writes equally");
@@ -74,17 +74,16 @@ public class ServerInternalData {
 	}
 
 	public boolean registerNewServlet(String URL){
-		servletPoolReadLock.lock();
+		// This part must be atomic. Yes.. this part is correct. cant simplify any further
+		servletPoolWriteLock.lock();
 		// Add new servlet (possibly on a different computer/network or about this instance itself) information to this servlet instance
 		// First Check if this servlet is already in the pool
 		boolean hasDuplicate=false;
 		for(int i=0; ((i<servletPool.size())&&(!hasDuplicate));i++){
 			hasDuplicate |= servletPool.get(i).url.equals(URL);
 		}
-		servletPoolReadLock.unlock();
-		
+
 		if(!hasDuplicate){
-			servletPoolWriteLock.lock();
 			// Add that bitch to the list
 			servletPool.add(new ServletInfo(URL));
 			servletPoolWriteLock.unlock();
@@ -93,16 +92,18 @@ public class ServerInternalData {
 		else{
 			// This servlet is already registered
 			if(Globals.LOUD) System.out.println("Error! : Trying to add a duplicate servlet to the pool");
+			servletPoolWriteLock.unlock();
 			return false;
 		}
 	}
 
 	public boolean registerNewArena(String arenaName){
+		// This part must be atomic. Yes.. this part is correct. cant simplify any further
 		arenaPoolWriteLock.lock();
 		// Check if this arena is already registered
 		boolean hasDuplicate=false;
 		for(int i=0; ((i<arenaPool.size())&&(!hasDuplicate));i++){
-			hasDuplicate |= arenaPool.equals(arenaName);
+			hasDuplicate |= arenaPool.get(i).equals(arenaName);
 		}
 
 		if(!hasDuplicate){
@@ -118,67 +119,106 @@ public class ServerInternalData {
 			return false;
 		}
 	}
-	
+
 	public boolean mapArenaServlet(String arenaName,String URL){
 		// Add a mapping between an arena and a servlet
+		// TODO If this is a remap. Then we need to remove the previous mapping manually before this step
 		
-		// First Check if arena is present
-		arenaServletMapReadLock.lock();
+		// First check if there is a mapping already in place
+		
+		// SYNC: We need to lock all 3 pools 
+		arenaServletMapWriteLock.lock();
+		
 		if(arenaServletMap.get(URL)!=null){
 			// there is a mapping ==> there is an arena. Dont want a duplicate
-			arenaServletMapReadLock.unlock();
+			if(Globals.LOUD)  System.out.println("ERROR:mapArenaServlet: OldMappingAlreadyExist");
+			arenaServletMapWriteLock.unlock();
 			return false;
 		}
 		
+
+		// Second Check if arena is present
+		boolean found=false;
+		arenaPoolReadLock.lock();
+		for(int i=0; ((i<arenaPool.size())&&(!found));i++){
+			found |= arenaPool.get(i).equals(arenaName);
+		}
+
+		if(!found){
+			// The arena is not present. Cant do the mapping
+			if(Globals.LOUD)  System.out.println("ERROR:mapArenaServlet: ArenaNotFound");
+			arenaPoolReadLock.unlock();
+			arenaServletMapWriteLock.unlock();
+			System.out.println("No Arena Pool");
+			return false;
+		}
+		arenaPoolReadLock.unlock();
+
 		// Then Check if the servlet is present
-		servletPoolReadLock.lock();
 		ServletInfo targetServlet=null; 		// assume the worst
-		boolean status = false;
+		//boolean status = false;
+		servletPoolReadLock.lock();
+		int k=0;
+		for(int i=0; ((i<servletPool.size())&&(!found));i++){
+			k=i;
+			System.out.println(targetServlet.url);
+			found |= targetServlet.url.equals(arenaName);
+		}
+
+		if(!found){
+			// The arena is not present. Cant do the mapping
+			if(Globals.LOUD) System.out.println("ERROR:mapArenaServlet: ArenaNotFound");
+			servletPoolReadLock.unlock();
+			arenaServletMapWriteLock.unlock();
+			return false;
+		}
+		/*
 		for(int i=0;i<servletPool.size();i++){
 			targetServlet=servletPool.get(i);
 			if(targetServlet.url.equals(URL)){
 				status = true;
 				break;
 			}
-		}
-		if(status==false){
-			// servlet is not present.. break the process
-			servletPoolReadLock.unlock();
-			return false;
-		}
+		}*/
 		servletPoolReadLock.unlock();
 		
+		//if(status==false){
+			// servlet is not present.. break the process
+		//	arenaServletMapWriteLock.unlock();
+		//	return false;
+		//}
+
 		// TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO Send the database to the websocket servlet
 		// add the mapping
-		arenaServletMapWriteLock.lock();
 		if(Globals.LOUD) System.out.println("WARNING!: Add mapping");
-		arenaServletMap.put(arenaName, targetServlet);
+		arenaServletMap.put(arenaName, servletPool.get(k));
 		arenaServletMapWriteLock.unlock();
 		return true;
 	}
-	
+
 	void unrgisterServlet(String URL){
 		// TODO IMPLEMENT THIS
-		// only called when that sevlet is completely unused!
-		// TODO do a safety check?
+		// TODO THIS IS ONLY POSSIBLE IF THERE IS NO MAPPING BETWEEN ARENA AND THIS SERVELTS (Acquire Lock for sevletArenaMap)
 		// remove all mappings from the arenaServletMap map (this servlet should NOT be serving any arenas)
+		// only called when that sevlet is completely unused!
 
 		// Check which servletInfo object corresponds to this URL
 		// Remove the god damn mapping!
 	}
 
 	void unregisterArena(){
+		// TODO THIS IS ONLY POSSIBLE IF THERE IS NO MAPPING BETWEEN THIS ARENA AND SERVELTS (Acquire Lock for sevletArenaMap)
 		// TODO IMPLEMENT THIS
 		// Arena is not active anymore. Remove mapping
 		// i.e remove entry (TODO does that sevlet call this function or does this function ask the servelt to forget about that arena?)
 	}
-	
+
 	void remapArena(){
 		// TODO IMPLEMENT THIS
 		// Move arena from one servlet to another
 		// TODO DO THIS LAST
 	}
-	
+
 	public boolean addActiveUser(String username, String token){
 		// Add a newly logged in user to the pool
 		// Take the current time, Create the activeUser object and add it to the list
@@ -188,9 +228,9 @@ public class ServerInternalData {
 		activeUsers.put(username, user);
 		ActiveUserWriteLock.unlock();
 		return false;
-		
+
 	}
-	
+
 	public boolean removeActiveUser(String username){
 		// Remove auser from the pool (user signed out or tokemn expired?)
 		ActiveUserWriteLock.lock();
@@ -205,7 +245,7 @@ public class ServerInternalData {
 			ActiveUserWriteLock.unlock();
 			return false;
 		}
-		
+
 	}
 
 }
@@ -220,7 +260,7 @@ class ServletInfo{
 	public ServletInfo(String url){
 		this.url=url;
 	}
-	
+
 }
 
 class ActiveUser{
@@ -232,7 +272,7 @@ class ActiveUser{
 		this.token=token;
 	}
 	//TODO DATE AND TIME OF LOGIN
-	
+
 }
 
 // TODO create mapping between geographical area ----->  arena so we can dynamically create arenas

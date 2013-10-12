@@ -8,6 +8,6 @@ public class T_TesterMain {
 		//test1.websocketTest1();
 		
 		BetterMultiThreadedTest test1 = new BetterMultiThreadedTest();
-		test1.test(100);
+		test1.test(1);
 	}
 }
