@@ -19,6 +19,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
 
+
 //import net.sf.json.JSONObject;
 import tools.Crypto;
 
@@ -45,7 +46,7 @@ public class Resolver extends HttpServlet {
 		//Servlet specific initializations
 		if(!Globals.DEBUG) System.out.println("DEBUG FLAG IS TURNED OFF. WARNINGS SUPPRESSED!");
 		if(!Globals.LOUD) System.out.println("LOUD FLAG IS TURNED OFF. NO INFORMATION WILL BE PRINTED");
-		
+
 		initdata();			// initialize data
 		initCrypt();		// initialize hashing related classes
 		initDB();			// initialize database helper and create/initilaze/open database
@@ -218,7 +219,7 @@ public class Resolver extends HttpServlet {
 		// TODO DBhelpwe and crypto already provide synchronized access (due to either lack of threa safety in those libraries or to preserve ram usage)
 		// Look into this!!
 		// Called by all usermodes, admin/user via Server Internal function calls. No outer entity has direct access to this function
-		
+
 		// Get the Hash and the salt from the server for the user
 		String[] saltHash = null;
 		try {
@@ -227,7 +228,7 @@ public class Resolver extends HttpServlet {
 				return false;
 			}
 			String hash = crypto.getHash(password, saltHash[0]);
-			
+
 			if (hash.equals(saltHash[1])){
 				return true;
 			}
@@ -238,7 +239,7 @@ public class Resolver extends HttpServlet {
 			if(Globals.DEBUG) System.out.println("CRITICAL ERROR: Authentication Procedure Caused an exception. Potential Crypto or DB issue");
 			e.printStackTrace();
 		}
-		
+
 		// Append the salt and hash the password
 		// Check generated hash against the local hash (one that was generated at the time user logged in!) //TODO CAHNGE PASSWORD?
 		return false;
@@ -282,7 +283,7 @@ public class Resolver extends HttpServlet {
 				if(!authenticationStatus){
 					// Auth failed, let the user know
 					if(Globals.LOUD) System.out.println("INFO: AUTH FAIL");
-					sendResponse("status=false",response);
+					sendResponse("{\"status\":\"false\",\"message\":\"Authentication Failed\"}",response);
 				}
 				else{
 					// auth succeeded. Generate an access token
@@ -292,7 +293,13 @@ public class Resolver extends HttpServlet {
 					if(Globals.DEBUG) System.out.println("WARNING: Access token is a randomg string, Implement something better");
 					String token = crypto.getSalt(32);
 					boolean status = serverinternaldata.addActiveUser(parameters.get("username")[0],token);
-					sendResponse("status="+status+": token="+token,response);
+					if(status==true){
+						sendResponse("{\"status\":\"true\",\"token\":"+token+"\"}",response);
+					}
+					else{
+						sendResponse("{\"status\":\"false\",\"message\":\"Authentication Failed\"}",response);
+					}
+					
 				}
 
 			}
@@ -405,20 +412,54 @@ public class Resolver extends HttpServlet {
 
 	public boolean handleUserPost(Map<String,String[]> parameters, HttpServletRequest request, HttpServletResponse response){
 		if(Globals.DEBUG) System.out.println("AUTHENTICATE USER POST!");
-		// User sends the data packaged in a user object json string
-		String inputData="";
-		BufferedReader r;
-		try {
-			r = request.getReader();
-			inputData=r.readLine();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}//r.readLine() will get the string of the entity we sent. ie. json string
-		System.out.println(inputData);
-		JSONObject jObj = (JSONObject) JSONValue.parse(inputData);
-		System.out.println("Address is:"+jObj.get("Address"));
-		return false;
+		if(parameters.get("loggedin")[0].equals("false")){
+			if(parameters.get("request")[0].equals("signup")){
+				// User needs to signup
+				// User sends the data packaged in a user object json string
+				String inputData="";
+				BufferedReader r;
+				try {
+					r = request.getReader();
+					inputData=r.readLine();
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}//r.readLine() will get the string of the entity we sent. ie. json string
+				JSONObject jObj = (JSONObject) JSONValue.parse(inputData);
+				// TODO makesure DBHelper does everything in a threadsafe way
+				// First we Hash the password and prepare everything needed to add a username to the userpass table
+				String salt = crypto.getSalt(32);
+				String hash = crypto.getHash((String)jObj.get("password"), salt);
+				// Second we add the user to the userpass table. This ensures we have a unique username. If this fails we let the user know it failed
+				try {
+					boolean added = dbHelper.acquireUsername((String)jObj.get("username"),hash,salt);
+					if(added==false){
+						sendResponse("{\"status\":\"false\",\"message\":\"Username "+(String)jObj.get("username")+ " Already In Use\"}", response);
+						return false;
+					}
+					// user added to the userpass table
+					// TODO IMPLEMENT THIS
+				} catch (Exception e) {
+					e.printStackTrace();
+					sendResponse("{\"status\":\"false\",\"message\":\"Username "+(String)jObj.get("username")+ " Already In Use\"}", response);
+					return false;
+				}
+				// If it passed, we proceed with adding the remaining data to the tables
+				sendResponse("{\"status\":\"true\",\"message\":\"Username "+(String)jObj.get("username")+ " Added to the Database\"}", response);
+				return true;
+				//System.out.println("Address is:"+jObj.get("Address"));
+				
+			}
+			else{
+				sendResponse("status=false:message="+parameters.get("request")[0]+" is not legal for POST", response);
+				return false;
+			}
+		}
+		else{
+			sendResponse("status=false:message="+parameters.get("loggedin")[0]+" is not legal for POST", response);
+			return false;
+		}
+
 	}
 
 	public boolean sendMapToServlet(String targetURL,Object mapOfArena){
@@ -431,7 +472,7 @@ public class Resolver extends HttpServlet {
 		if(Globals.DEBUG) System.out.println("INFO: WS Servlets must only get their map data from this method!");
 		return true;
 	}
-	
+
 	public void sendResponse(String replyString, HttpServletResponse response){
 		// this guy sends all the responses generated by the helper functions
 		try {
@@ -474,15 +515,15 @@ public class Resolver extends HttpServlet {
 			// create a salt
 			// use that salt and the password to build the hash, then put that hash and the salt to the table
 			String salt=crypto.getSalt(32);
-			dbHelper.updateUserPass("malithr", crypto.getHash("pass1",salt), salt);
+			dbHelper.acquireUsername("malithr", crypto.getHash("pass1",salt), salt);
 			salt=crypto.getSalt(32);
-			dbHelper.updateUserPass("numalj", crypto.getHash("pass2",salt), salt);
+			dbHelper.acquireUsername("numalj", crypto.getHash("pass2",salt), salt);
 			salt=crypto.getSalt(32);
-			dbHelper.updateUserPass("harithay", crypto.getHash("pass3",salt), salt);
+			dbHelper.acquireUsername("harithay", crypto.getHash("pass3",salt), salt);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		return status;
 	}
 }

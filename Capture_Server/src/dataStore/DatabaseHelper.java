@@ -24,11 +24,23 @@ public class DatabaseHelper {
 	
 	// Store all these data to a database. Keep these databases synchronized between all Resolver instances
 	public static final String DBNAME="users.db";
-	public static final String TABLE_USERPASS = "USERPASS";
-	public static final String COLUMN_ID = "ID";
-	public static final String COLUMN_USERNAME="USERNAME";
-	public static final String COLUMN_HASH ="HASH";
-	public static final String COLUMN_SALT="SALT";
+	public static final String TABLE_USERPASS = "USERPASS";			// Table that contains username, password hash and salt
+	public static final String TABLE_USERDATA = "USERDATA";			// Table that contain the rest of the user profile information
+	
+	public static final String COLUMN_USERPASS_ID = "ID";			// ID Column name in userpass table	
+	public static final String COLUMN_USERPASS_USERNAME="USERNAME";	// Username Column name in userpass table
+	public static final String COLUMN_USERPASS_HASH ="HASH";		// Hash Column name in userpass table
+	public static final String COLUMN_USERPASS_SALT="SALT";			// Salt Column name in userpass table
+	
+	public static final String COLUMN_USERDATA_ID = "ID";			// ID Column name in userdata table	
+	public static final String COLUMN_USERDATA_USERNAME="USERNAME";	// Username Column name in userdata table
+	public static final String COLUMN_USERDATA_EMAIL ="EMAIL";		// Email Address Column name in userdata table
+	public static final String COLUMN_USERDATA_FIRSTNAME="FNAME";	// First Name Column name in userdata table
+	public static final String COLUMN_USERDATA_LASTNAME="LNAME";	// Last Name Column name in userdata table
+	public static final String COLUMN_USERDATA_L1GROUP="L1GROUP";	// L1 Group Column name in userdata table
+	public static final String COLUMN_USERDATA_L2GROUP="L2GROUP";	// L2 Group Column name in userdata table
+	public static final String COLUMN_USERDATA_L3GROUP="L3GROUP";	// L3 Group Column name in userdata table
+	public static final String COLUMN_USERDATA_HOME="HOME";			// Home Column name in userdata table
 	
 	Connection connection = null;
 	Statement statement = null;
@@ -65,12 +77,29 @@ public class DatabaseHelper {
 
 			// Create USERPASS table
 			System.out.println("INFO: Creating Tables");
+			
 			query = "CREATE TABLE " +
 					TABLE_USERPASS 	+ "(" +
-					COLUMN_ID		+" INTEGER PRIMARY KEY AUTOINCREMENT," +
-					COLUMN_USERNAME	+" TEXT NOT NULL UNIQUE, " + 
-					COLUMN_SALT		+" TEXT NOT NULL, " + 
-					COLUMN_HASH		+" TEXT NOT NULL)";
+					COLUMN_USERPASS_ID		+" INTEGER PRIMARY KEY AUTOINCREMENT," +
+					COLUMN_USERPASS_USERNAME	+" TEXT NOT NULL UNIQUE, " + 
+					COLUMN_USERPASS_SALT		+" TEXT NOT NULL, " + 
+					COLUMN_USERPASS_HASH		+" TEXT NOT NULL)";
+			
+			statement.executeUpdate(query);
+			
+			// Create USERDATA table
+			query = "CREATE TABLE " +
+					TABLE_USERDATA 	+ "(" +
+					COLUMN_USERDATA_ID		+" INTEGER PRIMARY KEY AUTOINCREMENT," +
+					COLUMN_USERDATA_USERNAME	+" TEXT NOT NULL UNIQUE, " + 
+					COLUMN_USERDATA_EMAIL		+" TEXT NOT NULL UNIQUE, " + 
+					COLUMN_USERDATA_FIRSTNAME	+" TEXT, " + 
+					COLUMN_USERDATA_LASTNAME	+" TEXT, " + 
+					COLUMN_USERDATA_L1GROUP	+" TEXT, " + 
+					COLUMN_USERDATA_L2GROUP	+" TEXT, " + 
+					COLUMN_USERDATA_L3GROUP	+" TEXT, " + 
+					COLUMN_USERDATA_HOME	+" TEXT)";
+			
 			statement.executeUpdate(query);
 			statement.close();
 		}
@@ -83,8 +112,7 @@ public class DatabaseHelper {
 	public synchronized boolean updateUserPass(String username, String hash, String salt) throws Exception{
 		// This table only hold username - password related data only
 		// ONLY CALLED INTERNALLY BY THE SERVLETS, USERS HAVE NO DIRECT ACCESS USING HTTP REQUESTS!!!
-		// A valid username must be acquired beforehand: see addUser
-		// WE ASSUME THE USERNAME IS LEGIT (SINCE ITS A SERVER INTERNAL CALL AND COULD BE CALLED ONLY BY LEGIT USERS)
+		// Used to update the user password
 		// Check database to see if the username exists. If thats the case, update
 		// Add username/password hash/salt if not 
 		
@@ -92,9 +120,9 @@ public class DatabaseHelper {
 		
 		// First check if the user is already in the database
 		String query = "SELECT "		+
-							COLUMN_ID		+" FROM "+
+							COLUMN_USERPASS_ID		+" FROM "+
 							TABLE_USERPASS	+ " WHERE " +
-							COLUMN_USERNAME + "= \"" +
+							COLUMN_USERPASS_USERNAME + "= \"" +
 							username		+"\";";
 		ResultSet result = statement.executeQuery(query);
 		
@@ -103,62 +131,116 @@ public class DatabaseHelper {
 			// Update the data
 			query = "UPDATE "	+
 						TABLE_USERPASS 	+" SET " +
-						COLUMN_HASH		+"= \""	+
+						COLUMN_USERPASS_HASH		+"= \""	+
 						hash			+"\" ," +
-						COLUMN_SALT		+"= \"" +
+						COLUMN_USERPASS_SALT		+"= \"" +
 						salt			+"\" WHERE " +
-						COLUMN_USERNAME +"= \"" +
+						COLUMN_USERPASS_USERNAME +"= \"" +
 						username		+"\";";
-			boolean status = statement.execute(query);
+			statement.execute(query);
 			statement.close();
-			return status;
+			return true;
 		}
 		else{
 			// User not in table
+			return false;
 			// Add the information to the table
-			query = "INSERT INTO "	+
-						TABLE_USERPASS	+"(" +
-						COLUMN_ID		+"," +
-						COLUMN_USERNAME	+"," +
-						COLUMN_SALT		+"," +
-						COLUMN_HASH 	+ ") VALUES(" +
-						"null"			+",\"" +	/*ID is auto increment, so we dont care*/
-						username		+"\",\"" +
-						salt			+"\",\"" +
-						hash			+"\");";
-			boolean status = statement.execute(query);
-			statement.close();
-			return status;
+//			query = "INSERT INTO "	+
+//						TABLE_USERPASS	+"(" +
+//						COLUMN_USERPASS_ID		+"," +
+//						COLUMN_USERPASS_USERNAME	+"," +
+//						COLUMN_USERPASS_SALT		+"," +
+//						COLUMN_USERPASS_HASH 	+ ") VALUES(" +
+//						"null"			+",\"" +	/*ID is auto increment, so we dont care*/
+//						username		+"\",\"" +
+//						salt			+"\",\"" +
+//						hash			+"\");";
+//			boolean status = statement.execute(query);
+//			statement.close();
+//			
+//			return status;
 		}
 		
 	}
 	
-	public synchronized void addUser(/*User user*/String username) throws Exception{
-		// When a user is registering, the following steps are taken
-		// User submits the full report about his/her details
-		// The mobile app verifys certain data, such as password strength, username character limits and what nots
-		// Data is accepted and the username is looked up on the database, if it does not exist, we add it
-		// If the username already exists, we let the user know
-		// Lets not be dicks and make our app in a way that every time this happens, user does not have to refill the entire form :D
+	public synchronized boolean acquireUsername(String username, String hash, String salt) throws Exception{
+		// Used by users who are signing up and trying to acquire a username
+		// ONLY CALLED INTERNALLY BY THE SERVLETS, USERS HAVE NO DIRECT ACCESS USING HTTP REQUESTS!!!
+		// Check database to see if the username exists. If thats the case that means the usernam is already taken. return false
+		// Otherwise the username is unique so we can procede to adding it
+		// Add username/password hash/salt if not 
 		
-		// The add the user information to one table
-		// password information to the userpass table
-		// we can then query the userpass table with the username
+		statement = connection.createStatement();
+		
+		// First check if the user is already in the database
+		String query = "SELECT "		+
+							COLUMN_USERPASS_ID		+" FROM "+
+							TABLE_USERPASS	+ " WHERE " +
+							COLUMN_USERPASS_USERNAME + "= \"" +
+							username		+"\";";
+		ResultSet result = statement.executeQuery(query);
+		
+		if(result!=null && result.next()!=false){
+			// User data already in table
+			// Username is not unique
+			return false;
+		}
+		else{
+			// User not in table
+			// Add the username (and the password stuff)
+			// Add the information to the table
+			query = "INSERT INTO "	+
+						TABLE_USERPASS	+"(" +
+						COLUMN_USERPASS_ID		+"," +
+						COLUMN_USERPASS_USERNAME	+"," +
+						COLUMN_USERPASS_SALT		+"," +
+						COLUMN_USERPASS_HASH 	+ ") VALUES(" +
+						"null"			+",\"" +	/*ID is auto increment, so we dont care*/
+						username		+"\",\"" +
+						salt			+"\",\"" +
+						hash			+"\");";
+			statement.execute(query);
+			statement.close();
+			
+			return true;
+		}
+		
+	}
+	
+	public synchronized boolean addUser(/*User user*/String username) throws Exception{
+		// When a user is registering, the following steps are taken
+		// User submits the full report about their details
+		// The mobile app verifies certain data, such as password strength, username character limits and what nots
+		// Data is accepted and the username is looked up on the database, if it does not exist, we add it (USING THE UPDATEUSERPASS METHOD)..If the username already exists, it let the user know
+		// Lets not be dicks and make our app in a way that every time this happens, user does not have to refill the entire form :D
+
+		// If the user gets here , that means that they acquired a unique username
+		// We first confirm this (that the username is actually in the table)
+		// The add the user information to userData table
+		
+		// TODO If we (by any chance) plan to move to a thread safe model, MAKESURE to use locks before adding the username
+		// TODO We acquire a lock, check if the username is unique, if it is, add to userpass table, the release the lock
+		// TODO Do not remove the above 2 TODO comments until its done. 
 		System.out.println("WARNING: addUser not implemented");
 		statement = connection.createStatement();
 		String query = "SELECT "		+
-				COLUMN_ID		+" FROM "+
+				COLUMN_USERPASS_ID		+" FROM "+
 				TABLE_USERPASS	+ " WHERE " +
-				COLUMN_USERNAME + "= \"" +
+				COLUMN_USERPASS_USERNAME + "= \"" +
 				username		+"\";";
+		System.out.println(query);
 		ResultSet result = statement.executeQuery(query);
 		if(result!=null && result.next()!=false){
-			System.out.println("E: "+result.getInt(COLUMN_ID));
+			// user already exists
+			statement.close();
+			return false;
+			//System.out.println("E: "+result.getInt(COLUMN_ID));
 		}
 		else{
-			System.out.println("DNE");
+			// can add user
+			statement.close();
+			return false;
 		}
-		statement.close();
 	}
 	
 	public synchronized String[] getSaltAndHash(String username) throws Exception{
@@ -168,15 +250,15 @@ public class DatabaseHelper {
 		// String[1] = hash
 		statement = connection.createStatement();
 		String query = "SELECT "		+
-				COLUMN_SALT		+" , "	+
-				COLUMN_HASH		+" FROM "	+
+				COLUMN_USERPASS_SALT		+" , "	+
+				COLUMN_USERPASS_HASH		+" FROM "	+
 				TABLE_USERPASS	+ " WHERE " +
-				COLUMN_USERNAME + "= \""+
+				COLUMN_USERPASS_USERNAME + "= \""+
 				username		+"\";";
 		ResultSet result = statement.executeQuery(query);
 		if(result!=null && result.next()!=false){
-			String hash = result.getString(COLUMN_HASH);
-			String salt = result.getString(COLUMN_SALT);
+			String hash = result.getString(COLUMN_USERPASS_HASH);
+			String salt = result.getString(COLUMN_USERPASS_SALT);
 			statement.close();
 			return new String[]{salt,hash};
 		}
