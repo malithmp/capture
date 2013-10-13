@@ -8,7 +8,8 @@
 			extra= "arena does not exists"
 		something like this
 	)
-
+- Check if user signin still return status=false
+	I hardcoded it to return true, so it SHOULD return true. make it so that it will return false if something goes wrong
 
 MAJOR:
 - READ WRITE LOCK 

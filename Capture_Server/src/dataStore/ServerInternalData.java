@@ -227,7 +227,7 @@ public class ServerInternalData {
 		ActiveUser user = new ActiveUser(username, token);
 		activeUsers.put(username, user);
 		ActiveUserWriteLock.unlock();
-		return false;
+		return true;
 
 	}
 

@@ -14,6 +14,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
+
+
+//import net.sf.json.JSONObject;
 import tools.Crypto;
 
 import com.google.gson.Gson;
@@ -372,6 +378,7 @@ public class Resolver extends HttpServlet {
 	}
 
 	public boolean handleAdminPost(Map<String,String[]> parameters, HttpServletRequest request, HttpServletResponse response){
+		if(Globals.DEBUG) System.out.println("AUTHENTICATE ADMIN POST!");
 		String inputData="";
 		BufferedReader r;
 		try {
@@ -381,7 +388,6 @@ public class Resolver extends HttpServlet {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}//r.readLine() will get the string of the entity we sent. ie. json string
-
 		Gson gsn = new Gson();
 		ArrayList<String>data = gsn.fromJson(inputData,ArrayList.class);
 		if(data==null){
@@ -398,7 +404,20 @@ public class Resolver extends HttpServlet {
 	}
 
 	public boolean handleUserPost(Map<String,String[]> parameters, HttpServletRequest request, HttpServletResponse response){
+		if(Globals.DEBUG) System.out.println("AUTHENTICATE USER POST!");
 		// User sends the data packaged in a user object json string
+		String inputData="";
+		BufferedReader r;
+		try {
+			r = request.getReader();
+			inputData=r.readLine();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}//r.readLine() will get the string of the entity we sent. ie. json string
+		System.out.println(inputData);
+		JSONObject jObj = (JSONObject) JSONValue.parse(inputData);
+		System.out.println("Address is:"+jObj.get("Address"));
 		return false;
 	}
 
