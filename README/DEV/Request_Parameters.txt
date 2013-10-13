@@ -17,7 +17,7 @@ HTTP GET
 						*locationX*
 						*locationY*	
 						*locationAcc*						// Location accuracy +/- or % || For location map validation (user in Siberia cant play a Toronto map)
-						*arena*								// Arena the user needs to join
+														// Server decides the arena depending on location
 						RETURN:{
 							URL of websocket servlet that servs the map	// Backend sends this token to that websocket servlet so it know the user is legit
 						}
@@ -34,14 +34,14 @@ HTTP GET
 			}
 			
 			false{
-				request{
-					*signin*{
+				*request*{
+					signin{
 						*username*
 						*password*
 						RETURN:{
 							user_token for future communications
 						}
-					*signup*{
+					signup{
 						//HANDLE IN HTTP POST, Get all data as an object. Add data in object to database, send response with confirmation
 					}
 				}
