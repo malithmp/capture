@@ -7,6 +7,9 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class ServerInternalData {
 	// ALL ACCESS IS SYNCRONIZED!
+	// MUST HOLD NON PERSISTANT DATA. STUFF THAT WONT MAKE A BIG DEAL OF THE SERVER CRASHES. STUFF LIKE THE CURRENT ACTIVE USERS (PEOPLE CAN JUST LOG BACK IN)
+	// OR STUFF THAT THE ADMINS CAN QUICKLY RELOAD (LIKE SERVLET URLS AND MAPPINGS)
+	// TODO MAKE METHODS TO PERIODICALLY BACK UP THESE STUFF SO IN CASE THE SERVLET CLOSES, WE CAN GO BACK TO A SNAPSHOT (NOT LOSE *ALL* THE INTERMEDIARY DATA)
 
 	// Login data of administrators usernames and password hashes
 	public static final String[] adminnames={"admin1","admin2","admin3"};
@@ -40,7 +43,12 @@ public class ServerInternalData {
 	// A websocket servlet was stopped by and admin and the arenaMap was take back from it
 	// A map is being reassigned from one ws servlet to another. the Resolver will be the middle man
 	ArrayList<Object> arenaMaps;
-
+	
+	// Resolver orders L1 team spots and caches them here. And when a user registers, resolver hands one spot from the cache. When Resolver runs out of spots, it
+	// reorders them from the database. Always order balanced numbers: 100 team 1 spots and 100 team 2 spots
+	// All access needs to be synchronized by the caller
+	Hashtable<String,InstituteSpot> spots;	// spots[0] = 100 and spots[1] = 0 means that when resolver is assigning teams , it will assign the next 100 users to team 0 and then reorder for more spots
+	
 	// LOCKS
 	// Read Write lock for ServletPool list
 	private final ReentrantReadWriteLock servletPoolReadWriteLock = new ReentrantReadWriteLock();
@@ -62,6 +70,18 @@ public class ServerInternalData {
 	//private final Lock ActiveUserReadLock  = ActiveUserReadWriteLock.readLock();
 	private final Lock ActiveUserWriteLock = ActiveUserReadWriteLock.writeLock();
 
+	// Read Write Lock for Email-Institute map:  WRITES MIGHT HAPPEN EXTREAMELY RARELY! (WHEN AN ADMIN REGISTERS A NEW INSTITUTION!)
+	private final ReentrantReadWriteLock emailInstituteMapReadWriteLock = new ReentrantReadWriteLock();
+	private final Lock emailInstituteMapReadLock  = emailInstituteMapReadWriteLock.readLock();
+	private final Lock emailInstituteMapWriteLock = emailInstituteMapReadWriteLock.writeLock();
+
+	// Read Write Lock for Email-Institute map
+	private final ReentrantReadWriteLock spotReservationL2ReadWriteLock = new ReentrantReadWriteLock();
+	//private final Lock spotReservationL2ReadLock  = spotReservationL2ReadWriteLock.readLock();
+	private final Lock spotReservationL2WriteLock = spotReservationL2ReadWriteLock.writeLock();
+
+	
+	
 	public ServerInternalData(){
 		if(Globals.DEBUG) System.out.println("WARNING: Have you set the Admin Credentials, Right now we only have dummy usernames and password hashes");
 		// DONE BITCH! NOW TEST THIS System.out.println("WARNING: BOTTLENECKS, BOTTLENECKS EVERYWHERE!: implement better locks to avoid locking for both reads and writes equally");
@@ -70,6 +90,8 @@ public class ServerInternalData {
 		servletPool = new ArrayList<ServletInfo>();
 		arenaMaps = new ArrayList<Object>();
 		activeUsers = new Hashtable<String,ActiveUser>();
+		spots = new Hashtable<String, InstituteSpot>();
+		
 		if(Globals.DEBUG) System.out.println("WARNING: UNIMPLEMENTED ITEM : Register own server instance in the ServerInternalData store");
 	}
 
@@ -123,19 +145,19 @@ public class ServerInternalData {
 	public boolean mapArenaServlet(String arenaName,String URL){
 		// Add a mapping between an arena and a servlet
 		// TODO If this is a remap. Then we need to remove the previous mapping manually before this step
-		
+
 		// First check if there is a mapping already in place
-		
+
 		// SYNC: We need to lock all 3 pools 
 		arenaServletMapWriteLock.lock();
-		
+
 		if(arenaServletMap.get(URL)!=null){
 			// there is a mapping ==> there is an arena. Dont want a duplicate
 			if(Globals.LOUD)  System.out.println("ERROR:mapArenaServlet: OldMappingAlreadyExist");
 			arenaServletMapWriteLock.unlock();
 			return false;
 		}
-		
+
 
 		// Second Check if arena is present
 		boolean found=false;
@@ -181,9 +203,9 @@ public class ServerInternalData {
 			}
 		}*/
 		servletPoolReadLock.unlock();
-		
+
 		//if(status==false){
-			// servlet is not present.. break the process
+		// servlet is not present.. break the process
 		//	arenaServletMapWriteLock.unlock();
 		//	return false;
 		//}
@@ -247,6 +269,11 @@ public class ServerInternalData {
 		}
 
 	}
+	
+	public String getSpot(String instituteDomain){
+		//implement the get spot code here. Just the caching part i think
+		return "";
+	}
 
 }
 
@@ -272,7 +299,6 @@ class ActiveUser{
 		this.token=token;
 	}
 	//TODO DATE AND TIME OF LOGIN
-
 }
 
 // TODO create mapping between geographical area ----->  arena so we can dynamically create arenas

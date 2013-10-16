@@ -16,19 +16,26 @@ public class User {
 	
 	// THIS DATA IS STORED IN A DATABASE AND IS SHARED ACROSS ALL RESOLVER INSTANCES!
 	
-	String username;
-	String passwordHash;
-	String passwordHashSalt;	// Salt that is used to secure hshed password even further: Randomly generated at time of authentication. Stored in plain sight because this is not secret.
-								// This just makes hash lookup table attacks difficult. Even if this is compromized, The attacker has to build a new hash lookup table or brute force.
+	public String username;
+	public String email;
+	public int l1group;		// Level 1 is just a number
+	public String l2group;		// Level 2 is just the institution
+	public String l3group;		// Level 3 is not defined yet //TODO
+	public String firstname;
+	public String lastname;
+	public String home;
+	
 	
 	//TODO
 	//other user data
-	
-	public User(String username, String hashpass, String hashsalt){
+	public User(String username,String email,int l1group,String l2group,String l3group,String firstname,	String lastname,String home){
 		this.username=username;
-		this.passwordHash = hashpass;
-		this.passwordHashSalt=hashsalt;
-		
-		System.out.println("WARNING: User class not fully implemented");
+		this.email=email;
+		this.l1group=l1group;
+		this.l2group=l2group;
+		this.l3group=l3group;
+		this.firstname=firstname;
+		this.lastname=lastname;
+		this.home=home;
 	}
 }

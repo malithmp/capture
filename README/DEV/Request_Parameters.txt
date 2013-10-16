@@ -75,6 +75,13 @@ HTTP GET
 				} 
 			}
 			
+			registerarena{									// register arena name on server
+				*arena*
+				RETURN : {
+					status
+				} 
+			}
+
 			maparenaservlet{								// map arena to servlet
 				*arena*										// name of the arena (ID)
 				*servlet*									// URL of servlet
@@ -82,19 +89,25 @@ HTTP GET
 					status
 				} 
 			}
-			
-			registerarena{									// register arena name on server
-				*arena*
+		
+			registerinstitute{								// register an institute enabling any one with an email address from it register
+				*institutename*
+				*institutedomain*
+				RETURN : {
+					status
+				}
+			}
+
+			tempinit{									// Endpoint for Debug purpose only, used to initialize dummy maps and arenas
 				RETURN : {
 					status
 				} 
 			}
-			tempinit{										// Endpoint for Debug purpose only, used to initialize dummy maps and arenas
-				RETURN : {
-					status
-				} 
-			}
 			
+			tempgetdbpath{									// <EXTREMELY TEMPORARY>
+				RETURN : {
+				}
+			}
 		}
 	}
 }

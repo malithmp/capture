@@ -19,7 +19,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
 
-
+import sun.util.locale.StringTokenIterator;
 //import net.sf.json.JSONObject;
 import tools.Crypto;
 
@@ -28,6 +28,7 @@ import com.google.gson.Gson;
 import dataStore.DatabaseHelper;
 import dataStore.Globals;
 import dataStore.ServerInternalData;
+import dataStore.User;
 // Handles the http based request of the server
 
 @WebServlet(value="/Resolver", asyncSupported = true)
@@ -372,6 +373,20 @@ public class Resolver extends HttpServlet {
 				sendResponse("status=false:mas",response);
 			}
 		}
+		else if(parameters.get("action")[0].equals("registerinstitute")){
+			// Map institute email domain to the institute name
+			try {
+				boolean status = dbHelper.addInstituteDomain(parameters.get("institutename")[0],parameters.get("institutedomain")[0]);
+				if(status){ // Let the admin know everything went well
+					sendResponse("status=true:regInstitute",response);
+				}
+				else{
+					sendResponse("status=false:regInstitute",response);
+				}
+			} catch (Exception e) {
+				sendResponse("status=false:regInstitute:exception",response);
+			}
+		}
 		else if(parameters.get("action")[0].equals("tempinit")){
 			// This is a temporary function.. remove once done
 			boolean status = tempinit();
@@ -437,8 +452,38 @@ public class Resolver extends HttpServlet {
 						sendResponse("{\"status\":\"false\",\"message\":\"Username "+(String)jObj.get("username")+ " Already In Use\"}", response);
 						return false;
 					}
-					// user added to the userpass table
-					// TODO IMPLEMENT THIS
+					User user = new User((String)jObj.get("username"), 
+							(String)jObj.get("email"), 
+							-1, 
+							"l2", 
+							"l3", 
+							(String)jObj.get("firstname"), 
+							(String)jObj.get("lastname"), 
+							(String)jObj.get("home"));
+					
+					// assign teams
+					// Use the email address to identify the institute
+					
+					// We assume that the email address sent is of the correct format. We have to trust the app to do the validataion
+					// We know that the email address is of this form by now <username>@<domain>
+					StringTokenIterator stokenzr = new StringTokenIterator(user.email, "@");
+					String domain = stokenzr.next();		// eatup the username part
+					domain = stokenzr.next();			// get the domain part
+					String L2 = null;
+					L2 = dbHelper.getInstitute(domain);
+					if (L2 == null){
+						// institute was not found in the database.
+						sendResponse("{\"status\":\"false\",\"message\":\" "+"Your institute "+domain+ " Is not supported yet\"}", response);
+						return false;
+					}
+					// We have an L2 team. Now get an L1 Team for that L2 team
+					serverinternaldata.getSpot(domain);	// use the domain name to get a L1 team
+					//TODO IMPLEMENT L3 TEAM LOGIC HERE!
+					
+					// WE are all set. Store this data on the database and we have ourselves a legit registered user
+					// give user the good news
+					sendResponse("{\"status\":\"true\",\"message\":\"" + "Sucessfully Registered to " + user.l2group+ ":"+user.l1group+ "}", response);
+					
 				} catch (Exception e) {
 					e.printStackTrace();
 					sendResponse("{\"status\":\"false\",\"message\":\"Username "+(String)jObj.get("username")+ " Already In Use\"}", response);
@@ -520,10 +565,15 @@ public class Resolver extends HttpServlet {
 			dbHelper.acquireUsername("numalj", crypto.getHash("pass2",salt), salt);
 			salt=crypto.getSalt(32);
 			dbHelper.acquireUsername("harithay", crypto.getHash("pass3",salt), salt);
+			dbHelper.addInstituteDomain("UofT","utoronto.ca");
+			dbHelper.addInstituteDomain("Ryerson","ryerson.ca");
+			dbHelper.addInstituteDomain("York","yorku.ca");
+			dbHelper.addInstituteDomain("Waterloo","uwaterloo.ca");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
+		System.out.println("WARNING: Adding dummy institute email domain mappings");
 		return status;
 	}
 }

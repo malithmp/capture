@@ -1,0 +1,27 @@
+// THIS FILE DEFINES DIFFERENT ACTIONS EACH USERTYPE (USER ADMIN GENERAL) CAN PERFORM
+// We will map this against the protocol request
+ADMIN	
+------
+registerservlet
+maparenaservlet
+registerarena
+registerinstitute
+tempinit
+tempgetdbpath <EXTREMELY TEMPORARY>
+------------------------------------------------------------------------	
+USER	
+------
+signin
+signup
+joinmap
+leavemap
+
+------------------------------------------------------------------------
+
+GENERAL	
+------
+------------------------------------------------------------------------
+
+DEBUG	
+------
+------------------------------------------------------------------------
