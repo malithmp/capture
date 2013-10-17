@@ -469,18 +469,26 @@ public class Resolver extends HttpServlet {
 					StringTokenIterator stokenzr = new StringTokenIterator(user.email, "@");
 					String domain = stokenzr.next();		// eatup the username part
 					domain = stokenzr.next();			// get the domain part
-					String L2 = null;
-					L2 = dbHelper.getInstitute(domain);
-					if (L2 == null){
+					String l2 = null;
+					l2 = dbHelper.getInstitute(domain);
+					if (l2 == null){
 						// institute was not found in the database.
 						sendResponse("{\"status\":\"false\",\"message\":\" "+"Your institute "+domain+ " Is not supported yet\"}", response);
 						return false;
 					}
 					// We have an L2 team. Now get an L1 Team for that L2 team
-					serverinternaldata.getSpot(domain);	// use the domain name to get a L1 team
+					int l1 = serverinternaldata.getSpot(domain);	// use the domain name to get a L1 team
+					if(l1<0){
+						// Ran out of spots. We have to check if we still can register more users // TODO: probably we dont need this
+						serverinternaldata.reloadSpots(domain, 100, 100);
+					}
+					l1 = serverinternaldata.getSpot(domain);	// now that its reloaded. get the L1 team
 					//TODO IMPLEMENT L3 TEAM LOGIC HERE!
+					user.l1group = l1;
+					user.l2group = l2;
 					
 					// WE are all set. Store this data on the database and we have ourselves a legit registered user
+					dbHelper.addUser(user);
 					// give user the good news
 					sendResponse("{\"status\":\"true\",\"message\":\"" + "Sucessfully Registered to " + user.l2group+ ":"+user.l1group+ "}", response);
 					

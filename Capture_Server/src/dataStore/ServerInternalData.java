@@ -44,6 +44,7 @@ public class ServerInternalData {
 	// A map is being reassigned from one ws servlet to another. the Resolver will be the middle man
 	ArrayList<Object> arenaMaps;
 	
+	// Maps emailDomain -> instituteSpots
 	// Resolver orders L1 team spots and caches them here. And when a user registers, resolver hands one spot from the cache. When Resolver runs out of spots, it
 	// reorders them from the database. Always order balanced numbers: 100 team 1 spots and 100 team 2 spots
 	// All access needs to be synchronized by the caller
@@ -270,9 +271,33 @@ public class ServerInternalData {
 
 	}
 	
-	public String getSpot(String instituteDomain){
-		//implement the get spot code here. Just the caching part i think
-		return "";
+	public int getSpot(String instituteDomain){
+		// Check if the institute is on the hashtable (cached in ram)
+		int team;
+		spotReservationL2WriteLock.lock();
+		InstituteSpot instituteSpot;
+		if(spots.contains(instituteDomain)){
+			// If it is, then use that to get a spot
+			instituteSpot = spots.get(instituteDomain);
+			team = instituteSpot.getL1Team();	// if spots ranout. this will return -1. Then the Resolver should reload the spots
+			spotReservationL2WriteLock.unlock();
+			return team;
+		}
+		// By the time we get to this part, We know for a fact that the Institute is legit (we add L2 before we add L1 teams)
+		// So we create one and add it
+		InstituteSpot i = new InstituteSpot(instituteDomain);
+		i.reloadSpots(100,100);
+		spots.put(instituteDomain, i);
+		team = i.getL1Team();				// This will never failed. We just added it 100 spots!!!
+		spotReservationL2WriteLock.unlock();
+		return team;
+		
+	}
+	
+	public void reloadSpots(String instituteDomain, int team1, int team2){
+		spotReservationL2WriteLock.lock();
+		spots.get(instituteDomain).reloadSpots(team1, team2);;
+		spotReservationL2WriteLock.unlock();
 	}
 
 }

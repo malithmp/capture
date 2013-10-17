@@ -19,13 +19,13 @@ class InstituteSpot {
 		// WE CAN ASSUME ALL FUNCTION CALLS TO THIS CLASS ARE ATOMIC SINCE THE SERVERINTERNAL DATA CLASS WILL HOLD A WRITE LOCK BEFORE CALLING THIS
 		// return 0 or a positive number (team number) if we found spot. 
 		// returns -1 if we are out of spots to return. The server will have to re order spots and then call this function again
-		int team = Math.abs((counter++)%Globals.L1_TEAMS);
+		int team = Math.abs((counter++)%2);
 		if(spots[team]>0){
 			spots[team]--;
 			return team;
 		}
 		else{
-			team = (team+1)%Globals.L1_TEAMS;
+			team = (team+1)%2;
 			if(spots[team]>0){
 				spots[team]--;
 				return team;
@@ -34,27 +34,15 @@ class InstituteSpot {
 				return -1;
 			}
 		}
-		// This code is useful if we have more than 2 L1 teams
-//		int searched=0;
-//		do{
-//			searched++;
-//			team = (team+1)%Globals.L1_TEAMS;		// cycle to next team
-//			if(spots[team]>0){
-//				//found a spot
-//				spots[team]--;
-//				return team;
-//			}
-//		}while(searched<Globals.L1_TEAMS);			// if this condition is meat, that means we have looked up all the places
-//		
-//		// All spots are taken. Reorder more
-//		//return -1;
 	}
 	
-	public void reloadSpots(int howmanyPerTeam){
+	public void reloadSpots(int team1, int team2){
 		// WE CAN ASSUME ALL FUNCTION CALLS TO THIS CLASS ARE ATOMIC SINCE THE SERVERINTERNAL DATA CLASS WILL HOLD A WRITE LOCK BEFORE CALLING THIS
 		// we fill equal amounts for each team
-		spots[0]=howmanyPerTeam;
-		spots[1]=howmanyPerTeam;
+		spots[0]=team1;
+		spots[1]=team2;
 		//reloaded
 	}
+	
+	
 }
