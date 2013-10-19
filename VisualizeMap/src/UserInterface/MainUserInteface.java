@@ -97,12 +97,12 @@ class TalkToServerAndUpdateMap implements Runnable{
 		System.out.println("Startig thread");
 		try {
 			Thread.sleep(1000);
-			//HttpMethods.get(new String[][] {{"a","aa"},{"key","ermergerd..kehs"},{"bleh","yum"},{"b","bb"}});
-			String gson = test_temp_gsonTest();
-			HttpMethods.post(new String[][]{{"requesttype","admin"}},gson);
+			HttpMethods.get(new String[][] {{"requesttype","admin"},{"adminname","malithmp"},{"password","pass"},{"action","tempgetdbpath"}});
+			//String gson = test_temp_gsonTest();
+			//HttpMethods.post(new String[][]{{"requesttype","admin"}},gson);
 			//PrintWriter out = new PrintWriter("filename.txt");
 			//out.println(gson);
-			System.out.println(gson.hashCode());
+			//System.out.println(gson.hashCode());
 			
 		} catch (Exception e) {
 			//TODO Auto-generated catch block
@@ -120,7 +120,7 @@ class TalkToServerAndUpdateMap implements Runnable{
 	}
 	
 	String test_temp_gsonTest(){
-		// convert arraylist to json and send it using httppost
+		// convert arraylist to json and send it using httppostfalse
 		
 		Gson gson = new Gson();
 		ArrayList<String> list = new ArrayList<String>();

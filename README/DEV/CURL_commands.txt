@@ -7,13 +7,13 @@ ex: curl "http://localhost:8080/Capture_Server/Resolver?requesttype=debug"
 
 TEST PHASE QUERIES
 Init (create servlet connections, add dummy users, fakes the procedure of adding maps):
-curl "http://localhost:8080/Capture_Server/Resolver?requesttype=admin&adminname=malithmp&password=meh&action=tempinit"
+curl "http://localhost:8080/Capture_Server/Resolver?requesttype=admin&adminname=malithmp&password=meh&request=tempinit"
 
-http://localhost:8080/Capture_Server/Resolver?requesttype=admin&adminname=malithmp&password=meh&action=registerarena&arena=A0
+http://localhost:8080/Capture_Server/Resolver?requesttype=admin&adminname=malithmp&password=meh&request=registerarena&arena=A0
 
-http://localhost:8080/Capture_Server/Resolver?requesttype=admin&adminname=malithmp&password=meh&action=registerservlet&URL=S0
+http://localhost:8080/Capture_Server/Resolver?requesttype=admin&adminname=malithmp&password=meh&request=registerservlet&URL=S0
 
-http://localhost:8080/Capture_Server/Resolver?requesttype=admin&adminname=malithmp&password=meh&action=maparenaservlet&arena=A0&servlet=S0
+http://localhost:8080/Capture_Server/Resolver?requesttype=admin&adminname=malithmp&password=meh&request=maparenaservlet&arena=A0&servlet=S0
 
 
 User login:
@@ -28,5 +28,5 @@ FINAL RELEASE QUERIES
 Initiate server
 
 1) Register the websocket servlet(s)
-curl "http://localhost:8080/Capture_Server/Resolver?requesttype=admin&adminname=malithmp&password=meh&action=registerservlet&URL=https://www.google.ca/"
+curl "http://localhost:8080/Capture_Server/Resolver?requesttype=admin&adminname=malithmp&password=meh&request=registerservlet&URL=https://www.google.ca/"
 

@@ -42,15 +42,24 @@ public class HttpMethods {
 
 		HttpResponse response = httpclient.execute(httpget);
 		HttpEntity entity = response.getEntity();
+		
 		if (entity != null) {
 			InputStream instream = entity.getContent();
 			try {
-				// do something useful
+				byte []reply = new byte[instream.available()];
+				instream.read(reply);
+				String s = new String(reply);
+				System.out.println(s);
 			} finally {
 				instream.close();
 			}
 		}
 
+		
+		builder.removeQuery();
+		uri = builder.build();
+		System.out.println("-----> "+uri.toString());
+		
 		return "";
 	}
 

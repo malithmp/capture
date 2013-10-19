@@ -1,3 +1,4 @@
+IN ANDROID IF YOU NEED TO CONTACT A SERVER IN THE HOST MACHINE USE 10.0.2.2 BECAUSE localhost(127.0.0.1) REFERS TO THE EMULAATOR ITSELF
 HTTP GET request example
 	- http://localhost:8080/Capture_Server/Resolver?a=sds&b=sad&c=cat&c=dog&one=two
 		a   = "sds"

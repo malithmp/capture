@@ -6,3 +6,5 @@ JSON SIMPLE: https://code.google.com/p/json-simple/
 
 JACKSUM: http://www.jonelo.de/java/jacksum/#Download
 JAva Check SUM => has multiple hashing algorithms. we are interested in wither whirlpool (512 bit) or SHA256
+
+Apache HttpClient: http://hc.apache.org/downloads.cgi

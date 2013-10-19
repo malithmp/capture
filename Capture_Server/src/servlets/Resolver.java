@@ -82,11 +82,11 @@ public class Resolver extends HttpServlet {
 		if(parameters==null || !parameters.containsKey("requesttype")){
 			// invalid request. Does not adhere to protocol. kindly ask them to GTFO!
 			if(parameters==null){
-				sendResponse("<html><h1> How about No! </h1><p>Protocol Error: no parameters provided!</p></html>", response);
+				sendResponse("{\"status\":\"false\",\"message\":\"Protocol Error: no parameters provided\"}",response);
 			}
 			else{
 				if(Globals.DEBUG) System.out.println("ERROR: Requesttype not provided!");
-				sendResponse("<html><h=1> How about No! </h1><p>Protocol Error nVal: requesttype parameter not specified!</p></html>", response);
+				sendResponse("{\"status\":\"false\",\"message\":\"Protocol Error nVal: requesttype parameter not specified!\"}",response);
 			}	
 		}
 		// So far so good. Depending on the user  type we can now call the helper functions.
@@ -118,13 +118,13 @@ public class Resolver extends HttpServlet {
 
 			//TODO:: AUTHENTICATE THIS SHIT!
 
-			handleAdminGet(parameters,response);
 			if(Globals.DEBUG) System.out.println("WARNING: ADMIN MODE NOT IMPLEMENTED!");
+			handleAdminGet(parameters,response);
 		}
 		else{
 			// Again. invalid request. kindly ask them to GTFO!
-			sendResponse("<html><h1> How about No! </h1><p>Protocol Error: requesttype invalid!</p></html>", response);
 			if(Globals.LOUD) System.out.println("Invalid Protocol Request Detected!"+parameters.get("requesttype"));
+			sendResponse("{\"status\":\"false\",\"message\":\"Protocol Error: requesttype invalid!\"}",response);
 		} 
 		// response.setContentType("text/html");
 		// System.out.println("Got:"+request.getQueryString()+"::"+request.getParameter("cat")+"::"+request.getParameter("bleh"));
@@ -150,11 +150,11 @@ public class Resolver extends HttpServlet {
 		if(parameters==null || !parameters.containsKey("requesttype")){
 			// invalid request. Does not adhere to protocol. kindly ask them to GTFO!
 			if(parameters==null){
-				sendResponse("<html><h1> How about No! </h1><p>Protocol Error: no parameters provided!</p></html>",response);
+				sendResponse("{\"status\":\"false\",\"message\":\"Protocol Error: no parameters provided!\"}",response);
 			}
 			else{
 				if(Globals.DEBUG) System.out.println("ERROR: Requesttype not provided!");
-				sendResponse("Protocol ErrornVal: requesttype parameter not specified!", response);
+				sendResponse("{\"status\":\"false\",\"message\":\"requesttype parameter not specified!\"}",response);
 			}
 		}
 		else if(parameters.get("requesttype")[0].equals("admin")){
@@ -335,19 +335,19 @@ public class Resolver extends HttpServlet {
 
 		//Admin task implementation
 
-		if(parameters.get("action")[0].equals("registerservlet")){
+		if(parameters.get("request")[0].equals("registerservlet")){
 			// Read the servlet URL and add it to the serverinternaldata data structure
 			boolean status = serverinternaldata.registerNewServlet(parameters.get("URL")[0]);
 			if(Globals.DEBUG) System.out.println(parameters.get("URL")[0]);
 			if(status){ // Let the admin know everything went well
-				sendResponse("status=true:rs",response);
 				if(Globals.LOUD) System.out.println("Added Servlet");
+				sendResponse("{\"status\":\"true\",\"message\":\"Servlet Registered\"}",response);
 			}
 			else{
-				sendResponse("status=false:rs",response);
+				sendResponse("{\"status\":\"false\",\"message\":\"Servlet Registration Failed\"}",response);
 			}
 		}
-		else if(parameters.get("action")[0].equals("registerarena")){
+		else if(parameters.get("request")[0].equals("registerarena")){
 			//Arena names are added at the time it was uploaded to the server (using a POST request)
 			// TODO Makesure there is a way to map this name to the actual arena data.
 			if(Globals.DEBUG) System.out.println("WARNING:sendMapToServlet() must be called before this!");
@@ -357,44 +357,44 @@ public class Resolver extends HttpServlet {
 
 			if(status){ // Let the admin know everything went well
 				if(Globals.LOUD) System.out.println("Added Arena");
-				sendResponse("status=true:ra",response);
+				sendResponse("{\"status\":\"true\",\"message\":\"Arena Registered\"}",response);
 			}
 			else{
-				sendResponse("status=false:ra",response);
+				sendResponse("{\"status\":\"false\",\"message\":\"Arena Registration Failed\"}",response);
 			}
 		}
-		else if(parameters.get("action")[0].equals("maparenaservlet")){
+		else if(parameters.get("request")[0].equals("maparenaservlet")){
 			if(Globals.DEBUG) System.out.println(parameters.get("arena")[0]+"--"+ parameters.get("servlet")[0]);
 			boolean status = serverinternaldata.mapArenaServlet(parameters.get("arena")[0], parameters.get("servlet")[0]);
 			if(status){ // Let the admin know everything went well
-				sendResponse("status=true:mas",response);
+				sendResponse("{\"status\":\"true\",\"message\":\"Arena Servlet Mapped\"}",response);
 			}
 			else{
-				sendResponse("status=false:mas",response);
+				sendResponse("{\"status\":\"false\",\"message\":\"Arena Servlet Mapping Failed\"}",response);
 			}
 		}
-		else if(parameters.get("action")[0].equals("registerinstitute")){
+		else if(parameters.get("request")[0].equals("registerinstitute")){
 			// Map institute email domain to the institute name
 			try {
 				boolean status = dbHelper.addInstituteDomain(parameters.get("institutename")[0],parameters.get("institutedomain")[0]);
 				if(status){ // Let the admin know everything went well
-					sendResponse("status=true:regInstitute",response);
+					sendResponse("{\"status\":\"true\",\"message\":\"Institute Registered\"}",response);
 				}
 				else{
-					sendResponse("status=false:regInstitute",response);
+					sendResponse("{\"status\":\"false\",\"message\":\"Institute Registration Failed\"}",response);
 				}
 			} catch (Exception e) {
-				sendResponse("status=false:regInstitute:exception",response);
+				sendResponse("{\"status\":\"false\",\"message\":\"Register Institute Exception Occured! WHY?\"}",response);
 			}
 		}
-		else if(parameters.get("action")[0].equals("tempinit")){
+		else if(parameters.get("request")[0].equals("tempinit")){
 			// This is a temporary function.. remove once done
 			boolean status = tempinit();
 		}
-		else if(parameters.get("action")[0].equals("tempgetdbpath")){
+		else if(parameters.get("request")[0].equals("tempgetdbpath")){
 			// This is a temporary function.. remove once done
 			File f = new File("a.a");
-			sendResponse("<html><h1>Database is in </h1><p>"+f.getAbsolutePath()+"</p></html>",response);
+			sendResponse("{\"status\":\"true\",\"message\":\" Database Path: "+f.getAbsolutePath()+"\"}",response);
 		}
 		return;
 	}
@@ -504,12 +504,12 @@ public class Resolver extends HttpServlet {
 				
 			}
 			else{
-				sendResponse("status=false:message="+parameters.get("request")[0]+" is not legal for POST", response);
+				sendResponse("{\"status\":\"false\",\"message\":\"Username " +parameters.get("request")[0]+" is not legal for POST" + "\"}", response);
 				return false;
 			}
 		}
 		else{
-			sendResponse("status=false:message="+parameters.get("loggedin")[0]+" is not legal for POST", response);
+			sendResponse("{\"status\":\"false\",\"message\":\"Username " +parameters.get("loggedin")[0]+" is not legal for POST" + "\"}", response);
 			return false;
 		}
 

@@ -38,3 +38,5 @@ Android SSL/HTTPS:
 
 Clientside code with jwebsockets
 http://technology.amis.nl/2012/01/15/stand-alone-java-client-for-jwebsocket-server-communicating-from-java-client-to-web-clients-and-vice-versa-over-websockets/
+
+Java HTTPS: http://www.mkyong.com/java/java-https-client-httpsurlconnection-example/
