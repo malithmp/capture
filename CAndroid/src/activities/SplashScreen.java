@@ -1,10 +1,12 @@
 package activities;
 
 import com.capture.candroid.R;
+import activities.LoginPage;
 
 import network.NetworkTools;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -14,7 +16,7 @@ public class SplashScreen extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.splash_screen);
+		setContentView(R.layout.activity_splash_screen);
 		// This is the splash screen. We can put our backdoor buttons here
 		// Also this canbe used as an actual splash screen if needed.. While checking internet connection, GPS lock status, yada yada yada
 		// or we can use this as the login screen in the final version
@@ -26,11 +28,16 @@ public class SplashScreen extends Activity {
 		getMenuInflater().inflate(R.menu.splash_screen, menu);
 		return true;
 	}
-	
+
 	public void buttonAction(View view){
 		NetworkTools nt = new NetworkTools();
 		Thread t = new Thread(new TR(nt,this));
 		t.start();
+	}
+
+	public void loginScreen(View view){
+		Intent intent=new Intent(SplashScreen.this,LoginPage.class);
+		startActivity(intent);
 	}
 
 }

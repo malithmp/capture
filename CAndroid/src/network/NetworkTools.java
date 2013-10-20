@@ -37,9 +37,10 @@ public class NetworkTools {
 		request = new HttpGet();
 	}
 
-	public synchronized void setURL(String host,int port){
+	public synchronized void setURL(String host,int port,String path){
 		SERVER_HOST = host;
 		SERVER_PORT = Integer.toString(port); 
+		SERVER_PATH = path;
 		url = SERVER_HOST+":"+SERVER_PORT+SERVER_PATH+SERVER_USER_CONSTANT;
 	}
 

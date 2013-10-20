@@ -23,7 +23,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/textView1"
         android:layout_marginTop="112dp"
-        android:text="Login"
+        android:text="BackDoor"
         android:onClick="buttonAction" />
 
     <TextView
@@ -34,5 +34,16 @@
         android:layout_below="@+id/button1"
         android:layout_marginTop="53dp"
         android:text="Status:" />
+
+    <Button
+        android:id="@+id/button2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/button1"
+        android:layout_alignBottom="@+id/button1"
+        android:layout_alignRight="@+id/textView1"
+        android:layout_marginRight="18dp"
+        android:onClick="loginScreen"
+        android:text="Login" />
 
 </RelativeLayout>
