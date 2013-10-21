@@ -294,7 +294,7 @@ public class Resolver extends HttpServlet {
 					String token = crypto.getSalt(32);
 					boolean status = serverinternaldata.addActiveUser(parameters.get("username")[0],token);
 					if(status==true){
-						sendResponse("{\"status\":\"true\",\"token\":"+token+"\"}",response);
+						sendResponse("{\"status\":\"true\",\"token\":\""+token+"\"}",response);
 					}
 					else{
 						sendResponse("{\"status\":\"false\",\"message\":\"Authentication Failed\"}",response);
