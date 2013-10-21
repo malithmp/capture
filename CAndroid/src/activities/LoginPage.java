@@ -38,7 +38,9 @@ public class LoginPage extends Activity implements OnClickListener {
 		btn = (Button) findViewById(R.id.button_Login);
 		btn.setOnClickListener(this);
 		networktools = new NetworkTools();
-		networktools.setURL("http://10.0.2.2", 8080,"/Capture_Server/Resolver");		// Dont need to set this if the default values are set up. I just put this here to let you know it exists
+		//networktools.setURL("http://10.0.2.2", 8080,"/Capture_Server/Resolver");		// Dont need to set this if the default values are set up. I just put this here to let you know it exists
+		networktools.setURL("http://192.168.0.106", 8080,"/Capture_Server/Resolver");		// Dont need to set this if the default values are set up. I just put this here to let you know it exists
+		
 		context = this;
 		//File file = new File("file.txt");
 		/*try {

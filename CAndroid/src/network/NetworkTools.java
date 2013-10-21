@@ -77,7 +77,7 @@ public class NetworkTools {
 				Log.d("Tag1","-->"+jsonResponse);
 				JSONObject jObj = (JSONObject) JSONValue.parse(jsonResponse);
 				response[0]=(String) jObj.get("status");
-				response[1]=(String) jObj.get("message");
+				response[1]=(String) jObj.get("token");
 				//TODO : set the remaining stuff
 			} finally{
 				instream.close();
