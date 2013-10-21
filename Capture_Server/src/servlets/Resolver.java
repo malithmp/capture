@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -18,8 +19,6 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
-
-import sun.util.locale.StringTokenIterator;
 //import net.sf.json.JSONObject;
 import tools.Crypto;
 
@@ -466,9 +465,9 @@ public class Resolver extends HttpServlet {
 					
 					// We assume that the email address sent is of the correct format. We have to trust the app to do the validataion
 					// We know that the email address is of this form by now <username>@<domain>
-					StringTokenIterator stokenzr = new StringTokenIterator(user.email, "@");
-					String domain = stokenzr.next();		// eatup the username part
-					domain = stokenzr.next();			// get the domain part
+					StringTokenizer stokenzr = new StringTokenizer(user.email, "@");
+					String domain = stokenzr.nextToken();		// eatup the username part
+					domain = stokenzr.nextToken();			// get the domain part
 					String l2 = null;
 					l2 = dbHelper.getInstitute(domain);
 					if (l2 == null){
