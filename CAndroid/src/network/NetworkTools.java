@@ -63,7 +63,6 @@ public class NetworkTools {
 
 	public synchronized boolean signIn(String[] response, String username, String password){
 		//HttpGet request = new HttpGet();
-		URI uri;
 		InputStream instream;
 		String finalUrl = url+"loggedin=false&request=signin&username="+username+"&password="+password;
 		//finalUrl = "http://www.google.ca/?gws_rd=cr&ei=udZiUuegA6PmyQHO5IGQBg";
@@ -72,9 +71,8 @@ public class NetworkTools {
 			Log.d("Tag1","->"+url.toString());
 			HttpURLConnection con = (HttpURLConnection) url.openConnection();
 			con.setRequestMethod("GET");
-			//con.setRequestProperty("User-Agent", USER_AGENT);
 
-			int responseCode = con.getResponseCode();
+//			int responseCode = con.getResponseCode();
 			instream = con.getInputStream();
 
 			try {
