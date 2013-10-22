@@ -21,10 +21,15 @@ public class SignupTest {
 	public void test(int numThreads){
 
 		Thread[] threads = new Thread[numThreads];
+		ArrayList<String> doms = new ArrayList<String>();
+		doms.add("@utoronto.ca");
+		doms.add("@ryerson.ca");
+		doms.add("@yorku.ca");
+		doms.add("@uwaterloo.ca");
 		// We create all user strings fisrt and then let all the threads do work..
 
 		for(int i=0;i<numThreads;i++){
-			UserSingup test =new UserSingup("User"+i,"Pass"+i,"First"+i,"Last"+i,"Home"+i,"Email"+i+"@utoronto.ca");
+			UserSingup test =new UserSingup("User"+i,"Pass"+i,"First"+i,"Last"+i,"Home"+i,"Email"+i+doms.get(i%4));
 			threads[i]=new Thread(test);								// First set of threads 0 to (n/3 -1)
 		}
 
@@ -68,8 +73,7 @@ public class SignupTest {
 				BufferedReader br = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
 				String serverResponseString = br.readLine();
 				//System.out.println(serverResponseString);
-
-				System.out.println("PASSED!");
+				System.out.println(serverResponseString);
 
 			}catch(Exception e){
 				e.printStackTrace();

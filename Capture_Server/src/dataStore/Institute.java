@@ -7,11 +7,10 @@ class InstituteSpot {
 	// Resolver orders L1 team spots and caches them here. And when a user registers, resolver hands one spot from the cache. When Resolver runs out of spots, it
 	// reloads. Always order balanced numbers: 100 team 1 spots and 100 team 2 spots
 	String instituteName;
-	Integer[] spots;	// spots[0] = 100 and spots[1] = 0 means that when resolver is assigning teams , it will assign the next 100 users to team 0 and then reorder for more spots
+	Integer[] spots = new Integer[2];	// spots[0] = 100 and spots[1] = 0 means that when resolver is assigning teams , it will assign the next 100 users to team 0 and then reorder for more spots
 	int counter;		// incremment and mod by team numbers to alternate between teams to balance load. Nothing much here!
 	
 	public InstituteSpot(String name) {
-		spots = new Integer[2];
 		this.instituteName=name;
 		counter=0;
 	}

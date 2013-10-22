@@ -286,7 +286,7 @@ public class ServerInternalData {
 		// By the time we get to this part, We know for a fact that the Institute is legit (we add L2 before we add L1 teams)
 		// So we create one and add it
 		InstituteSpot i = new InstituteSpot(instituteDomain);
-		i.reloadSpots(100,100);
+		i.reloadSpots(Globals.RELOAD_SPOT,Globals.RELOAD_SPOT);
 		spots.put(instituteDomain, i);
 		team = i.getL1Team();				// This will never failed. We just added it 100 spots!!!
 		spotReservationL2WriteLock.unlock();

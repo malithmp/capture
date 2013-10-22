@@ -222,50 +222,34 @@ public class DatabaseHelper {
 		// TODO If we (by any chance) plan to move to a thread safe model, MAKESURE to use locks before adding the username
 		// TODO We acquire a lock, check if the username is unique, if it is, add to userpass table, the release the lock
 		// TODO Do not remove the above 2 TODO comments until its done. 
-		System.out.println("WARNING: addUser not implemented");
-		statement = connection.createStatement();
-		String query = "SELECT "			+
-				COLUMN_USERPASS_ID			+" FROM "+
-				TABLE_USERPASS	+ " WHERE " +
-				COLUMN_USERPASS_USERNAME 	+ "= \"" +
-				user.username				+"\";";
 
-		ResultSet result = statement.executeQuery(query);
-		if(result!=null && result.next()!=false){
-			// user already exists
-			if(Globals.DEBUG) System.out.println("User May Already Exist");
-			statement.close();
-			return false;
-			//System.out.println("E: "+result.getInt(COLUMN_ID));
-		}
-		else{
-			// can add user
 
-			query = "INSERT INTO "				+
-					TABLE_USERDATA				+"(" +
-					COLUMN_USERDATA_ID			+"," +
-					COLUMN_USERDATA_USERNAME	+"," +
-					COLUMN_USERDATA_EMAIL		+"," +
-					COLUMN_USERDATA_L1GROUP		+"," +
-					COLUMN_USERDATA_L2GROUP		+"," +
-					COLUMN_USERDATA_L3GROUP		+"," +
-					COLUMN_USERDATA_FIRSTNAME	+"," +
-					COLUMN_USERDATA_LASTNAME	+"," +
-					COLUMN_USERDATA_HOME 		+ ") VALUES(" +
-					"null"			+",\"" +	/*ID is auto increment, so we dont care*/
-					user.username		+"\",\"" +
-					user.email			+"\",\"" +
-					user.l1group		+"\",\"" +
-					user.l2group		+"\",\"" +
-					user.l3group		+"\",\"" +
-					user.firstname		+"\",\"" +
-					user.lastname		+"\",\"" +
-					user.home			+"\");";
-			if(Globals.DEBUG) System.out.println("AddUser Query:"+query);
-			statement.executeQuery(query);
-			statement.close();
-			return false;
-		}
+		// can add user
+
+		String query = "INSERT INTO "				+
+				TABLE_USERDATA				+"(" +
+				COLUMN_USERDATA_ID			+"," +
+				COLUMN_USERDATA_USERNAME	+"," +
+				COLUMN_USERDATA_EMAIL		+"," +
+				COLUMN_USERDATA_L1GROUP		+"," +
+				COLUMN_USERDATA_L2GROUP		+"," +
+				COLUMN_USERDATA_L3GROUP		+"," +
+				COLUMN_USERDATA_FIRSTNAME	+"," +
+				COLUMN_USERDATA_LASTNAME	+"," +
+				COLUMN_USERDATA_HOME 		+ ") VALUES(" +
+				"null"			+",\"" +	/*ID is auto increment, so we dont care*/
+				user.username		+"\",\"" +
+				user.email			+"\",\"" +
+				user.l1group		+"\",\"" +
+				user.l2group		+"\",\"" +
+				user.l3group		+"\",\"" +
+				user.firstname		+"\",\"" +
+				user.lastname		+"\",\"" +
+				user.home			+"\");";
+		statement.execute(query);
+		statement.close();
+		return false;
+
 	}
 
 	public synchronized String[] getSaltAndHash(String username) throws Exception{
@@ -330,7 +314,7 @@ public class DatabaseHelper {
 			return true;
 		}
 	}
-	
+
 	public synchronized String getInstitute(String domain) throws Exception{
 		// Return the Hash/ Salt pair of a given username
 		// Return null if user does not exist
@@ -342,7 +326,7 @@ public class DatabaseHelper {
 				TABLE_INSTITUTEDOM						+ " WHERE " +
 				COLUMN_INSTITUTEDOM_DOMAIN 				+ "= \""+
 				domain									+"\";";
-		
+
 		ResultSet result = statement.executeQuery(query);
 		if(result!=null && result.next()!=false){
 			String institutename = result.getString(COLUMN_INSTITUTEDOM_INSTITUTENAME);

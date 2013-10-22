@@ -11,6 +11,7 @@
 - Check if user signin still return status=false
 	I hardcoded it to return true, so it SHOULD return true. make it so that it will return false if something goes wrong
 
+- All database query strings are built using string concatanation. Change that to the stringbuilder method
 MAJOR:
 - READ WRITE LOCK 
 	: http://www.javacodegeeks.com/2012/04/java-concurrency-with-readwritelock.html
