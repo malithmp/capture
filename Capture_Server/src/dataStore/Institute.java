@@ -11,6 +11,7 @@ class InstituteSpot {
 	int counter;		// incremment and mod by team numbers to alternate between teams to balance load. Nothing much here!
 	
 	public InstituteSpot(String name) {
+		spots = new Integer[2];
 		this.instituteName=name;
 		counter=0;
 	}

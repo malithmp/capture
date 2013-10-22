@@ -101,9 +101,6 @@ public class NetworkTools {
 		return true; 
 	}
 
-
-
-
 	public synchronized boolean testGet(){
 		HttpClient httpclient = new DefaultHttpClient();
 		HttpResponse res;

@@ -71,12 +71,12 @@ public class ServerInternalData {
 	//private final Lock ActiveUserReadLock  = ActiveUserReadWriteLock.readLock();
 	private final Lock ActiveUserWriteLock = ActiveUserReadWriteLock.writeLock();
 
-	// Read Write Lock for Email-Institute map:  WRITES MIGHT HAPPEN EXTREAMELY RARELY! (WHEN AN ADMIN REGISTERS A NEW INSTITUTION!)
-	private final ReentrantReadWriteLock emailInstituteMapReadWriteLock = new ReentrantReadWriteLock();
-	private final Lock emailInstituteMapReadLock  = emailInstituteMapReadWriteLock.readLock();
-	private final Lock emailInstituteMapWriteLock = emailInstituteMapReadWriteLock.writeLock();
+//	// Read Write Lock for Email-Institute map
+//	private final ReentrantReadWriteLock emailInstituteMapReadWriteLock = new ReentrantReadWriteLock();
+//	private final Lock emailInstituteMapReadLock  = emailInstituteMapReadWriteLock.readLock();
+//	private final Lock emailInstituteMapWriteLock = emailInstituteMapReadWriteLock.writeLock();
 
-	// Read Write Lock for Email-Institute map
+	// Read Write Lock for Email-Institute map :  WRITES MIGHT HAPPEN EXTREAMELY RARELY! (WHEN AN ADMIN REGISTERS A NEW INSTITUTION!)
 	private final ReentrantReadWriteLock spotReservationL2ReadWriteLock = new ReentrantReadWriteLock();
 	//private final Lock spotReservationL2ReadLock  = spotReservationL2ReadWriteLock.readLock();
 	private final Lock spotReservationL2WriteLock = spotReservationL2ReadWriteLock.writeLock();

@@ -7,13 +7,13 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class BetterMultiThreadedTest {
+public class RegisterServletArenaTests {
 	// Make multiple simultaneous requests to the server to test the serverInternalData class's parallel capabilities
 	// Test 1) So we make multiple threads go through the full arena servlet map cycle correcly 1-to-1
 	// Test 2) So we make multiple threads go through the full arena servlet map cycle incorrectly
 
 
-	public static final String baseURL="http://localhost:8080/Capture_Server/Resolver?requesttype=admin&adminname=malithmp&password=meh&action=";
+	public static final String baseURL="http://localhost:8080/Capture_Server/Resolver?requesttype=admin&adminname=malithmp&password=meh&request=";
 
 	public void test(int numThreads){
 		
@@ -21,7 +21,7 @@ public class BetterMultiThreadedTest {
 		
 		// Test 1. Non Overlapping Arena and Servlets with correct 1 to 1 mapping
 		for(int i=0;i<numThreads;i++){
-			CompleteMap test =new CompleteMap("S"+i,"A"+i);
+			RegisterMapArenaServletTest test =new RegisterMapArenaServletTest("S"+i,"A"+i);
 			threads[i]=new Thread(test);								// First set of threads 0 to (n/3 -1)
 		}
 
@@ -32,13 +32,13 @@ public class BetterMultiThreadedTest {
 
 	}
 
-	class CompleteMap implements Runnable{
+	class RegisterMapArenaServletTest implements Runnable{
 		// the following 3 strings are the URLs for the requests that are to be done parallelly
 		String registerServlet;
 		String registerArena;
 		String MapArenaServlet;
 
-		CompleteMap(String servletUrl,String arenaName){
+		RegisterMapArenaServletTest(String servletUrl,String arenaName){
 			registerServlet=baseURL+"registerservlet&URL="+servletUrl;
 			registerArena=baseURL+"registerarena&arena="+arenaName;
 			MapArenaServlet=baseURL+"maparenaservlet&arena="+arenaName+"&servlet="+servletUrl;
@@ -60,9 +60,9 @@ public class BetterMultiThreadedTest {
 				}
 				in.close();
 				
-				if(!returnCode.equals("status=true:rs")){
+				if(!returnCode.equals("{\"status\":\"true\",\"message\":\"Servlet Registered\"}")){
 					//TestCaseFailed
-					System.out.println("FAILED@rs!");
+					System.out.println(returnCode+"-->"+"FAILED@rs!");
 					return;
 				}
 				
@@ -76,9 +76,9 @@ public class BetterMultiThreadedTest {
 				}
 				in.close();
 				
-				if(!returnCode.equals("status=true:ra")){
+				if(!returnCode.equals("{\"status\":\"true\",\"message\":\"Arena Registered\"}")){
 					//TestCaseFailed
-					System.out.println("FAILED@ra! ");
+					System.out.println(returnCode+"-->"+"FAILED@ra! ");
 					return;
 				}
 				
@@ -92,9 +92,9 @@ public class BetterMultiThreadedTest {
 				}
 				in.close();
 				
-				if(!returnCode.equals("status=true:mas")){
+				if(!returnCode.equals("{\"status\":\"true\",\"message\":\"Arena Servlet Mapped\"}")){
 					//TestCaseFailed
-					System.out.println("FAILED@mas!");
+					System.out.println(returnCode+"-->"+"FAILED@mas!");
 					return;
 				}
 				System.out.println("PASSED!");

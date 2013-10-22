@@ -141,7 +141,6 @@ public class Resolver extends HttpServlet {
 
 		// If admin request, AUTHENTICATE!!! TODO
 		// If inter-servlet communication AUTHENTICATE!! TODO
-
 		// Convert the request parameters to a map so its easier for the back end
 		Map<String, String[]> parameters =request.getParameterMap();
 		//System.out.println("post got from"+ parameters.get("requester"));
@@ -388,7 +387,7 @@ public class Resolver extends HttpServlet {
 		}
 		else if(parameters.get("request")[0].equals("tempinit")){
 			// This is a temporary function.. remove once done
-			boolean status = tempinit();
+			boolean status = tempinit(response);
 		}
 		else if(parameters.get("request")[0].equals("tempgetdbpath")){
 			// This is a temporary function.. remove once done
@@ -409,6 +408,7 @@ public class Resolver extends HttpServlet {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}//r.readLine() will get the string of the entity we sent. ie. json string
+		if(Globals.DEBUG) System.out.println("GOT:"+inputData);
 		Gson gsn = new Gson();
 		ArrayList<String>data = gsn.fromJson(inputData,ArrayList.class);
 		if(data==null){
@@ -439,6 +439,8 @@ public class Resolver extends HttpServlet {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}//r.readLine() will get the string of the entity we sent. ie. json string
+				if(Globals.DEBUG) System.out.println("UserPost:"+inputData);
+				
 				JSONObject jObj = (JSONObject) JSONValue.parse(inputData);
 				// TODO makesure DBHelper does everything in a threadsafe way
 				// First we Hash the password and prepare everything needed to add a username to the userpass table
@@ -451,8 +453,26 @@ public class Resolver extends HttpServlet {
 						sendResponse("{\"status\":\"false\",\"message\":\"Username "+(String)jObj.get("username")+ " Already In Use\"}", response);
 						return false;
 					}
+										
+					// assign teams
+					// Use the email address to identify the institute
+					String email = (String)jObj.get("email");
+					// We assume that the email address sent is of the correct format. We have to trust the app to do the validataion
+					// We know that the email address is of this form by now <username>@<domain>
+					StringTokenizer stokenzr = new StringTokenizer(email, "@");
+					String domain = stokenzr.nextToken();		// eatup the username part
+					domain = stokenzr.nextToken();			// get the domain part
+					String l2 = null;
+					l2 = dbHelper.getInstitute(domain);
+					
+					if (l2 == null){
+						// institute was not found in the database.
+						sendResponse("{\"status\":\"false\",\"message\":\" "+"Your institute "+domain+ " Is not supported yet\"}", response);
+						return false;
+					}
+					if(Globals.DEBUG) System.out.println("UserTeam:"+l2);
 					User user = new User((String)jObj.get("username"), 
-							(String)jObj.get("email"), 
+							email, 
 							-1, 
 							"l2", 
 							"l3", 
@@ -460,21 +480,6 @@ public class Resolver extends HttpServlet {
 							(String)jObj.get("lastname"), 
 							(String)jObj.get("home"));
 					
-					// assign teams
-					// Use the email address to identify the institute
-					
-					// We assume that the email address sent is of the correct format. We have to trust the app to do the validataion
-					// We know that the email address is of this form by now <username>@<domain>
-					StringTokenizer stokenzr = new StringTokenizer(user.email, "@");
-					String domain = stokenzr.nextToken();		// eatup the username part
-					domain = stokenzr.nextToken();			// get the domain part
-					String l2 = null;
-					l2 = dbHelper.getInstitute(domain);
-					if (l2 == null){
-						// institute was not found in the database.
-						sendResponse("{\"status\":\"false\",\"message\":\" "+"Your institute "+domain+ " Is not supported yet\"}", response);
-						return false;
-					}
 					// We have an L2 team. Now get an L1 Team for that L2 team
 					int l1 = serverinternaldata.getSpot(domain);	// use the domain name to get a L1 team
 					if(l1<0){
@@ -535,7 +540,7 @@ public class Resolver extends HttpServlet {
 		}
 	}
 
-	public boolean tempinit(){
+	public boolean tempinit(HttpServletResponse response){
 		boolean status = true;
 		//TODO debug call to initialize dummy maps and arenas
 		// this will bypass most of the hassles during the starting the server
@@ -572,10 +577,12 @@ public class Resolver extends HttpServlet {
 			dbHelper.acquireUsername("numalj", crypto.getHash("pass2",salt), salt);
 			salt=crypto.getSalt(32);
 			dbHelper.acquireUsername("harithay", crypto.getHash("pass3",salt), salt);
+			
 			dbHelper.addInstituteDomain("UofT","utoronto.ca");
 			dbHelper.addInstituteDomain("Ryerson","ryerson.ca");
 			dbHelper.addInstituteDomain("York","yorku.ca");
 			dbHelper.addInstituteDomain("Waterloo","uwaterloo.ca");
+			sendResponse("{\"status\":\"false\",\"message\":\" "+"TempInitCaleld\"}", response);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

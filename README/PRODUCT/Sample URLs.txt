@@ -1,4 +1,0 @@
-http://localhost:8080/Capture_Server/Resolver?requesttype=debug
-	- requesttype is mandetory 
-	- has 3 poptions user, debug, general
-

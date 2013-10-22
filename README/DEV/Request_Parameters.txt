@@ -56,7 +56,7 @@ HTTP GET
 	debug{
 		*adminname*
 		*password*
-		*action*
+		*request*
 		endpoint{
 			RETURN: {
 				up and running 								// endpoint to test if the server is up
@@ -67,7 +67,7 @@ HTTP GET
 	admin{
 		*adminname*
 		*password*
-		*action*{
+		*request*{
 			registerservlet{								// Add websocket urls so the resolver knows about the worker servlets
 				*URL*
 				RETURN : {

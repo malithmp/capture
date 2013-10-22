@@ -2,3 +2,19 @@
 Servers/
 Capture_Server/.classpath
 
+/Capture_Server/bin/dataStore/ActiveUser.class
+/Capture_Server/bin/dataStore/Block.class
+/Capture_Server/bin/dataStore/DatabaseHelper.class
+/Capture_Server/bin/dataStore/Globals.class
+/Capture_Server/bin/dataStore/Map.class
+/Capture_Server/bin/dataStore/ServerInternalData.class
+/Capture_Server/bin/dataStore/ServletInfo.class
+/Capture_Server/bin/dataStore/User.class
+/Capture_Server/bin/logicUnit/Worker.class
+/Capture_Server/bin/servlets/Resolver.class
+/Capture_Server/bin/servlets/WS_Server.class
+/Capture_Server/bin/servlets/WS_Server$EchoSocket.class
+/Capture_Server/bin/servlets/WS_Server$Runnn.class
+/Capture_Server/bin/tools/Crypto.class
+/README/DEV/CURL_commands.txt~
+/README/TODO.txt~

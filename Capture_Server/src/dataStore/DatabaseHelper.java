@@ -233,6 +233,7 @@ public class DatabaseHelper {
 		ResultSet result = statement.executeQuery(query);
 		if(result!=null && result.next()!=false){
 			// user already exists
+			if(Globals.DEBUG) System.out.println("User May Already Exist");
 			statement.close();
 			return false;
 			//System.out.println("E: "+result.getInt(COLUMN_ID));
@@ -260,7 +261,7 @@ public class DatabaseHelper {
 					user.firstname		+"\",\"" +
 					user.lastname		+"\",\"" +
 					user.home			+"\");";
-
+			if(Globals.DEBUG) System.out.println("AddUser Query:"+query);
 			statement.executeQuery(query);
 			statement.close();
 			return false;

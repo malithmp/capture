@@ -1,10 +1,13 @@
 package Network;
 
+import java.io.BufferedReader;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URI;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URIBuilder;
@@ -21,81 +24,80 @@ public class HttpMethods {
 		// Finally return the String result obtained from the server
 		// Since the map updates are run on a different thread (other than the UI thread) This  network operation will not cause the GUI to freeze.
 
-		DefaultHttpClient httpclient = new DefaultHttpClient();
-		URIBuilder builder = new URIBuilder();
-		builder.setScheme("http").setHost(GlobalVar.SERVER+":"+GlobalVar.PORT).setPath(GlobalVar.PATH);
-		// add query parameters
+		StringBuilder sb = new StringBuilder();
+		sb.append("http://");
+		sb.append(GlobalVar.SERVER);
+		sb.append(":");
+		sb.append(GlobalVar.PORT);
+		sb.append(GlobalVar.PATH);
 		if(params!=null){
 			int numParams = params.length;
 			for(int i=0;i<numParams;i++){
 				if(params[i]!=null){
 					System.out.println("adding query:"+params[i][0]+" = " +params[i][1]);
-					builder.addParameter(params[i][0], params[i][1]);
-					//query = query+params[i][0]+"="+params[i][1];
+					sb.append("?");
+					sb.append(params[i][0]);
+					sb.append("=");
+					sb.append(params[i][1]);
 				}
 			}
 		}
-		URI uri = builder.build();
-		HttpGet httpget = new HttpGet(uri);
-
-		System.out.println(httpget.getURI());
-
-		HttpResponse response = httpclient.execute(httpget);
-		HttpEntity entity = response.getEntity();
 		
-		if (entity != null) {
-			InputStream instream = entity.getContent();
-			try {
-				byte []reply = new byte[instream.available()];
-				instream.read(reply);
-				String s = new String(reply);
-				System.out.println(s);
-			} finally {
-				instream.close();
-			}
-		}
+		String finalurl = sb.toString();
+		System.out.println("final URL = "+finalurl);
+		
+		HttpClient httpclient = new DefaultHttpClient();
+		HttpResponse response;
+		HttpGet request = new HttpGet(finalurl);
+		
+		response = httpclient.execute(request);
+		BufferedReader br = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+		String serverResponseString = br.readLine();
+		System.out.println(serverResponseString);
 
 		
-		builder.removeQuery();
-		uri = builder.build();
-		System.out.println("-----> "+uri.toString());
-		
-		return "";
+		return serverResponseString;
 	}
 
+	
 	public static String post(String[][] params,String data) throws Exception{
 		// get nx2 array array of key-value pairs
 		// get json string of the datastrcture we want to transfer
 		// We add the stuff needed for the protocol manually (request type. app key..etc)
-		DefaultHttpClient httpclient = new DefaultHttpClient();
-		URIBuilder builder = new URIBuilder();
-		builder.setScheme("http").setHost(GlobalVar.SERVER+":"+GlobalVar.PORT).setPath(GlobalVar.PATH);
-		// add query parameters
+		
+		// Manually set the first part of URL
+		StringBuilder sb = new StringBuilder();
+		sb.append("http://");
+		sb.append(GlobalVar.SERVER);
+		sb.append(":");
+		sb.append(GlobalVar.PORT);
+		sb.append(GlobalVar.PATH);
 		if(params!=null){
 			int numParams = params.length;
 			for(int i=0;i<numParams;i++){
 				if(params[i]!=null){
 					System.out.println("adding query:"+params[i][0]+" = " +params[i][1]);
-					builder.addParameter(params[i][0], params[i][1]);
-					//query = query+params[i][0]+"="+params[i][1];
+					sb.append("?");
+					sb.append(params[i][0]);
+					sb.append("=");
+					sb.append(params[i][1]);
 				}
 			}
 		}
-		URI uri = builder.build();
+		String finalurl = sb.toString();
+		System.out.println("final URL = "+finalurl);
 		
-		HttpPost httppost = new HttpPost(uri);
-		httppost.setEntity(new StringEntity(data));
-		HttpResponse response = httpclient.execute(httppost);
+		HttpClient httpclient = new DefaultHttpClient();
+		HttpResponse response;
+		HttpPost request = new HttpPost(finalurl);
 		
-		HttpEntity entity = response.getEntity();
-		if (entity != null) {
-			InputStream instream = entity.getContent();
-			try {
-				// do something useful
-			} finally {
-				instream.close();
-			}
-		}
-		return "";
+		request.setEntity(new StringEntity(data));
+		response = httpclient.execute(request);
+		BufferedReader br = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+		String serverResponseString = br.readLine();
+		System.out.println(serverResponseString);
+
+		return serverResponseString;
+
 	}
 }
