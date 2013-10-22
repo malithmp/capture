@@ -31,7 +31,7 @@ public class SplashScreen extends Activity {
 
 	public void buttonAction(View view){
 		NetworkTools nt = new NetworkTools();
-		Thread t = new Thread(new TR(nt,this));
+		Thread t = new Thread(new TR1(nt,this));
 		t.start();
 	}
 
@@ -64,5 +64,18 @@ class TR implements Runnable{
 		else{
 			// Network failed
 		}
+	}
+}
+
+class TR1 implements Runnable{
+	NetworkTools nt;
+	Context context;
+	TR1(NetworkTools nt,Context context){
+		this.nt = nt;
+		this.context=context;
+	}
+	public void run(){
+		Log.d("Tag1", "thread");
+		nt.testPost("asdasda");
 	}
 }
