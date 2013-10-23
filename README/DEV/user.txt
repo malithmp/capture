@@ -2,14 +2,14 @@
 // Items marked with * are mandetory
 // Items marked with ** are not decided by the user
 *username			// unique id
-*email				// university email address
+*emailAddress			// university email address
 
-*L1_group			// lowest level team selected randomly so that the teams are balanced on an institutional level (Has 2 teams )
+**L1_group			// lowest level team selected randomly so that the teams are balanced on an institutional level (Has 2 teams )
 				// Users in one team can be converted into another team by exchanging points (once)
 
-*L2_group			// institution level team. selected accrding to the email address provided
+**L2_group			// institution level team. selected accrding to the email address provided
 				// ie. a UofT student will have UofT as their L2 group
-*L3_group			// geographical level team. selected according to the location of your L2 base
+**L3_group			// geographical level team. selected according to the location of your L2 base
 
 firstname			// first name of the user
 lastname			// second name of the user
@@ -17,3 +17,4 @@ lastname			// second name of the user
 home				// some information about the users home location (wifi ssid? mac address? location) so that healing/restoration is 
 				// faster there. Can leave this empty, but that would slowdown restoration speed when at home
 
+*password			//user selected password
