@@ -276,7 +276,7 @@ public class ServerInternalData {
 		int team;
 		spotReservationL2WriteLock.lock();
 		InstituteSpot instituteSpot;
-		if(spots.contains(instituteDomain)){
+		if(spots.get(instituteDomain)!=null){
 			// If it is, then use that to get a spot
 			instituteSpot = spots.get(instituteDomain);
 			team = instituteSpot.getL1Team();	// if spots ranout. this will return -1. Then the Resolver should reload the spots

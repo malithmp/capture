@@ -13,10 +13,10 @@ import resolver_test.SignupTest;
 
 public class T_TesterMain {
 	// only one of the following is used.
-	static String hostbase="http://localhost:8080/Capture_Server/Resolver?";	// when server is own host
+	static String localhostbase="http://localhost:8080/Capture_Server/Resolver?";	// when server is own host
 	static String lanbase="http://192.168.0.150:8080/Capture_Server/Resolver?";		// when server is in the same lan
 	
-	static String base = lanbase;	//<<<<<<< SET THIS
+	static String base = localhostbase;	//<<<<<<< SET THIS
 	
 	public static void main(String[] args){
 		preTestInit(base);

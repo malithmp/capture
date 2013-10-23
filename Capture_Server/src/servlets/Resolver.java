@@ -485,8 +485,9 @@ public class Resolver extends HttpServlet {
 					if(l1<0){
 						// Ran out of spots. We have to check if we still can register more users // TODO: probably we dont need this
 						serverinternaldata.reloadSpots(domain, 100, 100);
+						l1 = serverinternaldata.getSpot(domain);	// now that its reloaded. get the L1 team
 					}
-					l1 = serverinternaldata.getSpot(domain);	// now that its reloaded. get the L1 team
+					
 					//TODO IMPLEMENT L3 TEAM LOGIC HERE!
 					user.l1group = l1;
 					user.l2group = l2;
