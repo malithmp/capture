@@ -12,8 +12,14 @@ import resolver_test.SigninTest;
 import resolver_test.SignupTest;
 
 public class T_TesterMain {
+	// only one of the following is used.
+	static String hostbase="http://localhost:8080/Capture_Server/Resolver?";	// when server is own host
+	static String lanbase="http://192.168.0.150:8080/Capture_Server/Resolver?";		// when server is in the same lan
+	
+	static String base = lanbase;	//<<<<<<< SET THIS
+	
 	public static void main(String[] args){
-		preTestInit();
+		preTestInit(base);
 		
 		// ----------------------------------------------------------
 		//T_WebsocketTestSuit test1 = new T_WebsocketTestSuit();
@@ -21,20 +27,20 @@ public class T_TesterMain {
 		// ----------------------------------------------------------
 		
 		// ----------------------------------------------------------
-		//RegisterServletArenaTests test1 = new RegisterServletArenaTests();
-		//test1.test(1);
+		RegisterServletArenaTests test1 = new RegisterServletArenaTests(base);
+		test1.test(3);
 		// ----------------------------------------------------------
 		
 		
 		// ----------------------------------------------------------
-		SignupTest test2 = new SignupTest();
-		test2.test(400);
+		SignupTest test2 = new SignupTest(base);
+		test2.test(99);
 		// ----------------------------------------------------------
 	}
 	
-	public static void preTestInit(){
+	public static void preTestInit(String base){
 		// we need to setup server before tests
-		String baseURL="http://localhost:8080/Capture_Server/Resolver?requesttype=admin&adminname=malithmp&password=meh&request=tempinit";
+		String baseURL=base+"requesttype=admin&adminname=malithmp&password=meh&request=tempinit";
 		URL target;
 		try {
 			target = new URL(baseURL);

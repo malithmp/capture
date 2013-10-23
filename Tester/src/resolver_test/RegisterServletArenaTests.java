@@ -13,15 +13,19 @@ public class RegisterServletArenaTests {
 	// Test 2) So we make multiple threads go through the full arena servlet map cycle incorrectly
 
 
-	public static final String baseURL="http://localhost:8080/Capture_Server/Resolver?requesttype=admin&adminname=malithmp&password=meh&request=";
+	public String baseURL;
 
+	public RegisterServletArenaTests(String base){
+		this.baseURL = base+"requesttype=admin&adminname=malithmp&password=meh&request=";
+	}
+	
 	public void test(int numThreads){
 		
 		Thread[] threads = new Thread[numThreads];
 		
 		// Test 1. Non Overlapping Arena and Servlets with correct 1 to 1 mapping
 		for(int i=0;i<numThreads;i++){
-			RegisterMapArenaServletTest test =new RegisterMapArenaServletTest("S"+i,"A"+i);
+			TestBundle test =new TestBundle("S"+i,"A"+i);
 			threads[i]=new Thread(test);								// First set of threads 0 to (n/3 -1)
 		}
 
@@ -32,13 +36,13 @@ public class RegisterServletArenaTests {
 
 	}
 
-	class RegisterMapArenaServletTest implements Runnable{
+	class TestBundle implements Runnable{
 		// the following 3 strings are the URLs for the requests that are to be done parallelly
 		String registerServlet;
 		String registerArena;
 		String MapArenaServlet;
 
-		RegisterMapArenaServletTest(String servletUrl,String arenaName){
+		TestBundle(String servletUrl,String arenaName){
 			registerServlet=baseURL+"registerservlet&URL="+servletUrl;
 			registerArena=baseURL+"registerarena&arena="+arenaName;
 			MapArenaServlet=baseURL+"maparenaservlet&arena="+arenaName+"&servlet="+servletUrl;
@@ -60,11 +64,7 @@ public class RegisterServletArenaTests {
 				}
 				in.close();
 				
-				if(!returnCode.equals("{\"status\":\"true\",\"message\":\"Servlet Registered\"}")){
-					//TestCaseFailed
-					System.out.println(returnCode+"-->"+"FAILED@rs!");
-					return;
-				}
+				System.out.println("RS : " + returnCode);
 				
 				
 				// Second register the arena name
@@ -76,11 +76,7 @@ public class RegisterServletArenaTests {
 				}
 				in.close();
 				
-				if(!returnCode.equals("{\"status\":\"true\",\"message\":\"Arena Registered\"}")){
-					//TestCaseFailed
-					System.out.println(returnCode+"-->"+"FAILED@ra! ");
-					return;
-				}
+				System.out.println("RA : " + returnCode);
 				
 				
 				// Third and Finally we map the two
@@ -92,12 +88,8 @@ public class RegisterServletArenaTests {
 				}
 				in.close();
 				
-				if(!returnCode.equals("{\"status\":\"true\",\"message\":\"Arena Servlet Mapped\"}")){
-					//TestCaseFailed
-					System.out.println(returnCode+"-->"+"FAILED@mas!");
-					return;
-				}
-				System.out.println("PASSED!");
+				System.out.println("MAS : " + returnCode);
+
 				
 			}catch(Exception e){
 				e.printStackTrace();

@@ -17,9 +17,14 @@ public class SignupTest {
 	// URL should follow the protocol
 	// Payload is as follows
 	// {"username":"user123","password":"pass123","firstname":"first123","lastname":"last123","home":"home123","email":"email123@institute.com"}
-
+	String baseURL;
+	
+	public SignupTest(String base) {
+		this.baseURL = base+"requesttype=user&loggedin=false&request=signup";
+	}
 	public void test(int numThreads){
-
+		
+		
 		Thread[] threads = new Thread[numThreads];
 		ArrayList<String> doms = new ArrayList<String>();
 		doms.add("@utoronto.ca");
@@ -44,8 +49,6 @@ public class SignupTest {
 		// Do a httpPost
 		//{"username":"user123","password":"pass123","firstname":"first123","lastname":"last123","home":"home123","email":"email123@institute.com"}
 		String data;
-		String baseURL="http://localhost:8080/Capture_Server/Resolver?requesttype=user&loggedin=false&request=signup";
-
 		UserSingup(String user,String pass, String first, String last, String home, String email){
 			try{
 				JSONObject obj=new JSONObject();
