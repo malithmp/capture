@@ -4,31 +4,32 @@ users.db 								// Contains all information related to users
 	|
 	| -> TABLE USERPASS				// Contains password related data of the users
 	| 	________________________________________________________________________________________________________________________________________________________
-	| 	| 		ID			|	USERNAME	|	 	SALT			| 		HASH 				|
-	| 	| 	PRIMARY KEY INT			|	(string)	|	 (64 hex chars String)		| 		(512 bit /128 HexDigits )	|
+	| 	| 		ID			|	USERNAME	|	 		SALT				| 				HASH 				|
+	| 	| 	PRIMARY KEY INT	|	(string)	|	 (64 hex chars String)		| 		(512 bit /128 HexDigits )	|
 	| 	|-------------------------------------------------------------------------------------------------------------------------------------------------------|
-	|	| 		1			|	malithmp	| 	A793BEF4C8DEFB87...		|	 017CD133792CCFA501FD8DA53EE36...	|
+	|	| 		1			|	malithmp	| 		A793BEF4C8DEFB87...		|	017CD133792CCFA501FD8DA53EE36..	|
 	|	|-------------------------------------------------------------------------------------------------------------------------------------------------------
 	|
 	|
 	|
 	| -> TABLE USERDATA
 	| 	________________________________________________________________________________________________________________________________________________________
-	| 	| 	ID	  | USERNAME 	|		EMAIL			| L1GROUP | L2GROUP | L3GROUP |    FNAME   |   LNAME    |			|
-	| 	| PRIMARY KEY INT |	(string)|		(string)		| (string)| (string)| (string)|  (string)  |  (string)  |			|
+	| 	| 	ID	  			|	 USERNAME 	|			EMAIL			| L1GROUP | L2GROUP | L3GROUP |    FNAME   |   LNAME    |			|
+	| 	| PRIMARY KEY INT 	|	(string)	|			(string)		| (string)| (string)| (string)|  (string)  |  (string)  |			|
 	| 	|-------------------------------------------------------------------------------------------------------------------------------------------------------|
 	|	| 	1	  |  malithmp   |malith.ranasinghearachchige@utoronto.ca|    1    |  uoft   |   N/A   | Malith   | Ranasinghe   |			|
 	|	|-------------------------------------------------------------------------------------------------------------------------------------------------------
 	|
 	|
 	|
-	| -> TABLE INSTITUTEDOMAIN				// Contains password related data of the users
+	| -> TABLE INSTITUTE				// Contains information about institutes registered (addint entry to this table means we now welcome players from that institute)
 	| 	________________________________________________________________________________________________________________________________________________________
-	| 	| 		ID			|			 INAME				|	 		DOMAIN				|
-	| 	| 	PRIMARY KEY INT			|			(string)			|			(String)			|
+	| 	| 		ID			 |			 INAME				|	 		DOMAIN				|	DATAFILEPATH		|
+	| 	| 	PRIMARY KEY INT	 |			(string)			|			(String)			|	(String)			|
 	| 	|-------------------------------------------------------------------------------------------------------------------------------------------------------|
-	|	| 		1			|			UofT				| 			utoronto.ca			|
+	|	| 		1			 |			UofT				| 			utoronto.ca			|	./utoronto.map		|
 	|	|-------------------------------------------------------------------------------------------------------------------------------------------------------
 	|
+	|	// DATAFILEPATH is the path to a file that contains the floorplan of the institute ( including the buiildings)
 	|
 	|

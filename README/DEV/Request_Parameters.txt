@@ -89,14 +89,6 @@ HTTP GET
 					status
 				} 
 			}
-		
-			registerinstitute{								// register an institute enabling any one with an email address from it register
-				*institutename*
-				*institutedomain*
-				RETURN : {
-					status
-				}
-			}
 
 			tempinit{									// Endpoint for Debug purpose only, used to initialize dummy maps and arenas
 				RETURN : {
@@ -119,6 +111,18 @@ HTTP POST
 
 *requesttype*{
 	admin{
+		*adminname*
+		*password*
+		*request*{
+				registerinstitute{								// register an institute enabling any one with an email address from it register
+					*institutename*
+					*institutedomain*
+					**data object**
+					RETURN : {
+						status
+					}
+				}
+		}
 	}
 	
 	user{

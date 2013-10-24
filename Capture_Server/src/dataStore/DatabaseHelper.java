@@ -23,10 +23,10 @@ public class DatabaseHelper {
 	// JDBC info https://bitbucket.org/xerial/sqlite-jdbc
 
 	// Store all these data to a database. Keep these databases synchronized between all Resolver instances
-	public static final String DBNAME="users.db";
+	public static final String DBNAME="SERVER_PERSISTANT.db";
 	public static final String TABLE_USERPASS = "USERPASS";					// Table that contains username, password hash and salt
-	public static final String TABLE_USERDATA = "USERDATA";					// Table that contain the rest of the user profile information
-	public static final String TABLE_INSTITUTEDOM = "INSTITUTEDOMAIN";		// Table that contain the rest of the user profile information
+	public static final String TABLE_USERDATA = "USERDATA";					// Table that contains the rest of the user profile information
+	public static final String TABLE_INSTITUTE = "INSTITUTE";				// Table that contains the rest information about institutes
 
 	public static final String COLUMN_USERPASS_ID = "ID";					// ID Column name in userpass table	
 	public static final String COLUMN_USERPASS_USERNAME="USERNAME";			// Username Column name in userpass table
@@ -43,9 +43,10 @@ public class DatabaseHelper {
 	public static final String COLUMN_USERDATA_L3GROUP="L3GROUP";			// L3 Group Column name in userdata table
 	public static final String COLUMN_USERDATA_HOME="HOME";					// Home Column name in userdata table
 
-	public static final String COLUMN_INSTITUTEDOM_ID = "ID";				// ID Column name in userdata table	
-	public static final String COLUMN_INSTITUTEDOM_INSTITUTENAME="INAME";	// Username Column name in userdata table
-	public static final String COLUMN_INSTITUTEDOM_DOMAIN="DOMAIN";			// Email Address Column name in userdata table
+	public static final String COLUMN_INSTITUTE_ID = "ID";					// ID Column name in userdata table	
+	public static final String COLUMN_INSTITUTE_INSTITUTENAME="INAME";		// Username Column name in userdata table
+	public static final String COLUMN_INSTITUTE_DOMAIN="DOMAIN";			// Email Address Column name in userdata table
+	public static final String COLUMN_INSTITUTE_DATA_FILE_PATH="PATH";		// Path to the file that contain additional data
 
 	Connection connection = null;
 	Statement statement = null;
@@ -61,7 +62,7 @@ public class DatabaseHelper {
 		Class.forName("org.sqlite.JDBC");
 		connection = DriverManager.getConnection("jdbc:sqlite:"+DBNAME);
 
-		System.out.println("WARNING: users.db file created in /Users/malithmp/Development/eclipse/Eclipse.app/Contents/MacOS/");
+		System.out.println("WARNING: "+DBNAME + " file created in /Users/malithmp/Development/eclipse/Eclipse.app/Contents/MacOS/");
 		statement = connection.createStatement();
 		// Check if this is brandnew database, or we just reopened an existing one
 		// We do this by searching for one table. if it exists, then this is not a brandnew DB
@@ -110,10 +111,11 @@ public class DatabaseHelper {
 
 			// Create INSTITUTEDOMAIN table
 			query = "CREATE TABLE " +
-					TABLE_INSTITUTEDOM 					+ "(" +
-					COLUMN_INSTITUTEDOM_ID				+" INTEGER PRIMARY KEY AUTOINCREMENT," +
-					COLUMN_INSTITUTEDOM_INSTITUTENAME	+" TEXT NOT NULL UNIQUE, " + 
-					COLUMN_INSTITUTEDOM_DOMAIN			+" TEXT NOT NULL UNIQUE)";
+					TABLE_INSTITUTE 					+ "(" +
+					COLUMN_INSTITUTE_ID				+" INTEGER PRIMARY KEY AUTOINCREMENT," +
+					COLUMN_INSTITUTE_INSTITUTENAME	+" TEXT NOT NULL UNIQUE, " + 
+					COLUMN_INSTITUTE_DATA_FILE_PATH	+" TEXT NOT NULL UNIQUE, " + 
+					COLUMN_INSTITUTE_DOMAIN			+" TEXT NOT NULL UNIQUE)";
 
 			statement.executeUpdate(query);
 
@@ -281,15 +283,15 @@ public class DatabaseHelper {
 		}
 	}
 
-	public synchronized boolean addInstituteDomain(String instituteName, String domain) throws Exception{
+	public synchronized boolean addInstitute(String instituteName, String domain, String dataFilePath) throws Exception{
 		// Add Institute name and Instite domain to database
 		statement = connection.createStatement();
 
 		// First check if the institute is already in the database
 		String query = "SELECT "		+
-				COLUMN_INSTITUTEDOM_ID		+" FROM "+
-				TABLE_INSTITUTEDOM	+ " WHERE " +
-				COLUMN_INSTITUTEDOM_DOMAIN + "= \"" +
+				COLUMN_INSTITUTE_ID		+" FROM "+
+				TABLE_INSTITUTE	+ " WHERE " +
+				COLUMN_INSTITUTE_DOMAIN + "= \"" +
 				domain		+"\";";
 		ResultSet result = statement.executeQuery(query);
 
@@ -301,12 +303,14 @@ public class DatabaseHelper {
 		else{
 			// Institute not in table
 			query = "INSERT INTO "						+
-					TABLE_INSTITUTEDOM					+"(" +
-					COLUMN_INSTITUTEDOM_ID				+"," +
-					COLUMN_INSTITUTEDOM_INSTITUTENAME	+"," +
-					COLUMN_INSTITUTEDOM_DOMAIN 	+ ") VALUES(" +
+					TABLE_INSTITUTE					+"(" +
+					COLUMN_INSTITUTE_ID				+"," +
+					COLUMN_INSTITUTE_INSTITUTENAME	+"," +
+					COLUMN_INSTITUTE_DATA_FILE_PATH	+"," +
+					COLUMN_INSTITUTE_DOMAIN 	+ ") VALUES(" +
 					"null"			+",\"" +					/*ID is auto increment, so we dont care*/
 					instituteName		+"\",\"" +
+					dataFilePath		+"\",\"" +
 					domain			+"\");";
 			statement.execute(query);
 			statement.close();
@@ -315,21 +319,21 @@ public class DatabaseHelper {
 		}
 	}
 
-	public synchronized String getInstitute(String domain) throws Exception{
+	public synchronized String getInstituteName(String domain) throws Exception{
 		// Return the Hash/ Salt pair of a given username
 		// Return null if user does not exist
 		// String[0] = salt
 		// String[1] = hash
 		statement = connection.createStatement();
 		String query = "SELECT "						+
-				COLUMN_INSTITUTEDOM_INSTITUTENAME		+" FROM "	+
-				TABLE_INSTITUTEDOM						+ " WHERE " +
-				COLUMN_INSTITUTEDOM_DOMAIN 				+ "= \""+
+				COLUMN_INSTITUTE_INSTITUTENAME		+" FROM "	+
+				TABLE_INSTITUTE						+ " WHERE " +
+				COLUMN_INSTITUTE_DOMAIN 				+ "= \""+
 				domain									+"\";";
 
 		ResultSet result = statement.executeQuery(query);
 		if(result!=null && result.next()!=false){
-			String institutename = result.getString(COLUMN_INSTITUTEDOM_INSTITUTENAME);
+			String institutename = result.getString(COLUMN_INSTITUTE_INSTITUTENAME);
 			statement.close();
 			return institutename;
 		}

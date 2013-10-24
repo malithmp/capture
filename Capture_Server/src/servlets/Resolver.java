@@ -1,11 +1,12 @@
 package servlets;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.StringTokenizer;
 
@@ -15,15 +16,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
 //import net.sf.json.JSONObject;
 import tools.Crypto;
-
-import com.google.gson.Gson;
-
 import dataStore.DatabaseHelper;
 import dataStore.Globals;
 import dataStore.ServerInternalData;
@@ -142,9 +139,8 @@ public class Resolver extends HttpServlet {
 		// If admin request, AUTHENTICATE!!! TODO
 		// If inter-servlet communication AUTHENTICATE!! TODO
 		// Convert the request parameters to a map so its easier for the back end
-		Map<String, String[]> parameters =request.getParameterMap();
 		//System.out.println("post got from"+ parameters.get("requester"));
-
+		Map<String, String[]> parameters =request.getParameterMap();
 		if(parameters==null || !parameters.containsKey("requesttype")){
 			// invalid request. Does not adhere to protocol. kindly ask them to GTFO!
 			if(parameters==null){
@@ -298,7 +294,7 @@ public class Resolver extends HttpServlet {
 					else{
 						sendResponse("{\"status\":\"false\",\"message\":\"Authentication Failed\"}",response);
 					}
-					
+
 				}
 
 			}
@@ -371,20 +367,6 @@ public class Resolver extends HttpServlet {
 				sendResponse("{\"status\":\"false\",\"message\":\"Arena Servlet Mapping Failed\"}",response);
 			}
 		}
-		else if(parameters.get("request")[0].equals("registerinstitute")){
-			// Map institute email domain to the institute name
-			try {
-				boolean status = dbHelper.addInstituteDomain(parameters.get("institutename")[0],parameters.get("institutedomain")[0]);
-				if(status){ // Let the admin know everything went well
-					sendResponse("{\"status\":\"true\",\"message\":\"Institute Registered\"}",response);
-				}
-				else{
-					sendResponse("{\"status\":\"false\",\"message\":\"Institute Registration Failed\"}",response);
-				}
-			} catch (Exception e) {
-				sendResponse("{\"status\":\"false\",\"message\":\"Register Institute Exception Occured! WHY?\"}",response);
-			}
-		}
 		else if(parameters.get("request")[0].equals("tempinit")){
 			// This is a temporary function.. remove once done
 			boolean status = tempinit(response);
@@ -398,28 +380,93 @@ public class Resolver extends HttpServlet {
 	}
 
 	public boolean handleAdminPost(Map<String,String[]> parameters, HttpServletRequest request, HttpServletResponse response){
-		if(Globals.DEBUG) System.out.println("AUTHENTICATE ADMIN POST!");
-		String inputData="";
-		BufferedReader r;
-		try {
-			r = request.getReader();
-			inputData=r.readLine();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}//r.readLine() will get the string of the entity we sent. ie. json string
-		if(Globals.DEBUG) System.out.println("GOT:"+inputData);
-		Gson gsn = new Gson();
-		ArrayList<String>data = gsn.fromJson(inputData,ArrayList.class);
-		if(data==null){
-			if(Globals.DEBUG) System.out.println("ERROR:its dead jim");
-			return false;
+		if(Globals.DEBUG) System.out.println("AUTHENTICATE ADMIN POST! :"+parameters.get("adminname")[0]+"::"+parameters.get("password")[0]);
+
+		System.out.println(parameters.keySet().toString());
+		if(parameters.get("request")[0].equals("registerinstitute")){
+			// Map institute email domain to the institute name and save the map data (boundary) to a file
+			String inputData="";
+			BufferedReader r;
+			String iname = parameters.get("institutename")[0];
+			String idom = parameters.get("institutedomain")[0];
+			String fname = Globals.FILE_DIR+iname+".map";
+			try{
+				// Read data from the post
+				r = request.getReader();
+				inputData=r.readLine();
+				
+				if(Globals.DEBUG) System.out.println("INFO: Creating file"+fname);	
+				if(Globals.DEBUG) System.out.println("INFO: Got = "+inputData);	
+				
+				
+				File file = new File(fname);
+				
+				// if file doesnt exists, then create it
+				if (!file.exists()) {
+					if(Globals.DEBUG) System.out.println("INFO: Creating file: "+fname);	
+					file.createNewFile();
+				}
+
+				FileWriter fw = new FileWriter(file.getAbsoluteFile());
+				BufferedWriter bw = new BufferedWriter(fw);
+				// in line #1 of file we store the insitute name
+				// in line #2 of file we store the institute domain
+				// the rest of the file contains the json string that holds the coordinates of the boundary (as an array of coordinates in order)
+				bw.write(iname);	// line #1 of = the insitute name
+				bw.write("\n");
+				bw.write(idom);	// line #1 of = the insitute domain
+				bw.write("\n");
+				bw.write(inputData);
+				bw.close();
+				
+				dbHelper.addInstitute(iname, idom, fname);
+				// Add these to the database
+				sendResponse("{\"status\":\"true\",\"message\":\"Registered Institute successfully\"}",response);
+				return true;
+			}catch(Exception e){
+				//TODO BE MORE SPECIFIC ABOUT THE ERROR MESSAGE. TELL USER WHAT WENT WRONG
+				sendResponse("{\"status\":\"false\",\"message\":\"Register Institute Exception Occured! WHY?\"}",response);
+				return false;
+			}
+			//			else if(parameters.get("request")[0].equals("registerinstitute")){
+			//				// Map institute email domain to the institute name
+			//				try {
+			//					boolean status = dbHelper.addInstituteDomain(parameters.get("institutename")[0],parameters.get("institutedomain")[0]);
+			//					if(status){ // Let the admin know everything went well
+			//						sendResponse("{\"status\":\"true\",\"message\":\"Institute Registered\"}",response);
+			//					}
+			//					else{
+			//						sendResponse("{\"status\":\"false\",\"message\":\"Institute Registration Failed\"}",response);
+			//					}
+			//				} catch (Exception e) {
+			//					sendResponse("{\"status\":\"false\",\"message\":\"Register Institute Exception Occured! WHY?\"}",response);
+			//				}
+			//			}
 		}
-		if(Globals.DEBUG) System.out.println("len"+data.size());
-		for(int i=0;i<data.size();i++){
-			if(Globals.DEBUG) System.out.println(""+i+"="+data.get(i));
+		else{
+			sendResponse("{\"status\":\"false\",\"message\":\"Invalid Admin Post Request\"}", response);
 		}
-		if(Globals.DEBUG) System.out.println("data hash:\n"+data.hashCode());
+		//		String inputData="";
+		//		BufferedReader r;
+		//		try {
+		//			r = request.getReader();
+		//			inputData=r.readLine();
+		//		} catch (Exception e) {
+		//			// TODO Auto-generated catch block
+		//			e.printStackTrace();
+		//		}//r.readLine() will get the string of the entity we sent. ie. json string
+		//		if(Globals.DEBUG) System.out.println("GOT:"+inputData);
+		//		Gson gsn = new Gson();
+		//		ArrayList<String>data = gsn.fromJson(inputData,ArrayList.class);
+		//		if(data==null){
+		//			if(Globals.DEBUG) System.out.println("ERROR:its dead jim");
+		//			return false;
+		//		}
+		//		if(Globals.DEBUG) System.out.println("len"+data.size());
+		//		for(int i=0;i<data.size();i++){
+		//			if(Globals.DEBUG) System.out.println(""+i+"="+data.get(i));
+		//		}
+		//		if(Globals.DEBUG) System.out.println("data hash:\n"+data.hashCode());
 
 		return false;
 	}
@@ -440,7 +487,7 @@ public class Resolver extends HttpServlet {
 					e.printStackTrace();
 				}//r.readLine() will get the string of the entity we sent. ie. json string
 				if(Globals.DEBUG) System.out.println("UserPost:"+inputData);
-				
+
 				JSONObject jObj = (JSONObject) JSONValue.parse(inputData);
 				// TODO makesure DBHelper does everything in a threadsafe way
 				// First we Hash the password and prepare everything needed to add a username to the userpass table
@@ -453,7 +500,7 @@ public class Resolver extends HttpServlet {
 						sendResponse("{\"status\":\"false\",\"message\":\"Username "+(String)jObj.get("username")+ " Already In Use\"}", response);
 						return false;
 					}
-										
+
 					// assign teams
 					// Use the email address to identify the institute
 					String email = (String)jObj.get("email");
@@ -463,11 +510,11 @@ public class Resolver extends HttpServlet {
 					String domain = stokenzr.nextToken();		// eatup the username part
 					domain = stokenzr.nextToken();			// get the domain part
 					String l2 = null;
-					l2 = dbHelper.getInstitute(domain);
-					
+					l2 = dbHelper.getInstituteName(domain);
+
 					if (l2 == null){
 						// institute was not found in the database.
-						sendResponse("{\"status\":\"false\",\"message\":\" "+"Your institute "+domain+ " Is not supported yet\"}", response);
+						sendResponse("{\"status\":\"false\",\"message\":\" "+"Your institute "+domain+ " is not registered yet\"}", response);
 						return false;
 					}
 					if(Globals.DEBUG) System.out.println("UserTeam:"+l2);
@@ -479,7 +526,7 @@ public class Resolver extends HttpServlet {
 							(String)jObj.get("firstname"), 
 							(String)jObj.get("lastname"), 
 							(String)jObj.get("home"));
-					
+
 					// We have an L2 team. Now get an L1 Team for that L2 team
 					int l1 = serverinternaldata.getSpot(domain);	// use the domain name to get a L1 team
 					if(l1<0){
@@ -487,16 +534,16 @@ public class Resolver extends HttpServlet {
 						serverinternaldata.reloadSpots(domain, 100, 100);
 						l1 = serverinternaldata.getSpot(domain);	// now that its reloaded. get the L1 team
 					}
-					
+
 					//TODO IMPLEMENT L3 TEAM LOGIC HERE!
 					user.l1group = l1;
 					user.l2group = l2;
-					
+
 					// WE are all set. Store this data on the database and we have ourselves a legit registered user
 					dbHelper.addUser(user);
 					// give user the good news
 					sendResponse("{\"status\":\"true\",\"message\":\"" + "Sucessfully Registered to " + user.l2group+ ":"+user.l1group+ "}", response);
-					
+
 				} catch (Exception e) {
 					e.printStackTrace();
 					sendResponse("{\"status\":\"false\",\"message\":\"Username "+(String)jObj.get("username")+ " Already In Use\"}", response);
@@ -506,7 +553,7 @@ public class Resolver extends HttpServlet {
 				sendResponse("{\"status\":\"true\",\"message\":\"Username "+(String)jObj.get("username")+ " Added to the Database\"}", response);
 				return true;
 				//System.out.println("Address is:"+jObj.get("Address"));
-				
+
 			}
 			else{
 				sendResponse("{\"status\":\"false\",\"message\":\"Username " +parameters.get("request")[0]+" is not legal for POST" + "\"}", response);
@@ -578,12 +625,13 @@ public class Resolver extends HttpServlet {
 			dbHelper.acquireUsername("numalj", crypto.getHash("pass2",salt), salt);
 			salt=crypto.getSalt(32);
 			dbHelper.acquireUsername("harithay", crypto.getHash("pass3",salt), salt);
-			
-			dbHelper.addInstituteDomain("UofT","utoronto.ca");
-			dbHelper.addInstituteDomain("Ryerson","ryerson.ca");
-			dbHelper.addInstituteDomain("York","yorku.ca");
-			dbHelper.addInstituteDomain("Waterloo","uwaterloo.ca");
-			sendResponse("{\"status\":\"false\",\"message\":\" "+"TempInitCaleld\"}", response);
+
+			dbHelper.addInstitute("UofT","utoronto.ca","./UofT.map");
+			dbHelper.addInstitute("Ryerson","ryerson.ca","./Ryerson.map");
+			dbHelper.addInstitute("York","yorku.ca","./York.map");
+			dbHelper.addInstitute("Waterloo","uwaterloo.ca","./Waterloo.map");
+
+			sendResponse("{\"status\":\"true\",\"message\":\" "+"TempInitCalled\"}", response);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
