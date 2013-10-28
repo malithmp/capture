@@ -16,5 +16,10 @@ Capture_Server/.classpath
 /Capture_Server/bin/servlets/WS_Server$EchoSocket.class
 /Capture_Server/bin/servlets/WS_Server$Runnn.class
 /Capture_Server/bin/tools/Crypto.class
+/Capture_Server/bin/*
+/CAndroid/bin/*
+/CAndroid/gen/*	
 /README/DEV/CURL_commands.txt~
 /README/TODO.txt~
+
+
