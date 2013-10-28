@@ -18,7 +18,8 @@ Capture_Server/.classpath
 /Capture_Server/bin/tools/Crypto.class
 /Capture_Server/bin/*
 /CAndroid/bin/*
-/CAndroid/gen/*	
+/CAndroid/gen/*
+/CAndroid/.settings/org.eclipse.jdt.core.prefs	
 /README/DEV/CURL_commands.txt~
 /README/TODO.txt~
 
