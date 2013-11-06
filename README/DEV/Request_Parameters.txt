@@ -39,7 +39,22 @@ HTTP GET
 						*username*
 						*password*
 						RETURN:{
-							user_token for future communications
+							//user_token for future communications
+								status{
+										*true*{
+												token{
+													*token*     //status and token are part of the JSON object
+												}
+										}
+										
+										*false*{
+												message{
+														*Error message from Server* 	//status and message are part of the JSON object
+												}
+										}
+										
+										
+								}
 						}
 					signup{
 						//HANDLE IN HTTP POST, Get all data as an object. Add data in object to database, send response with confirmation

@@ -39,6 +39,12 @@ public class SplashScreen extends Activity {
 		Intent intent=new Intent(SplashScreen.this,LoginPage.class);
 		startActivity(intent);
 	}
+	
+	public void signUpScreen(View view){
+		
+		Intent intent = new Intent(SplashScreen.this,SignUpPage.class);
+		startActivity(intent);
+	}
 
 }
 

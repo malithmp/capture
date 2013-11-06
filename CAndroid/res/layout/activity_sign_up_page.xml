@@ -1,0 +1,164 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context=".SignUpPage" >
+
+   
+	<LinearLayout
+	android:id="@+id/LinearLayout1"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:layout_margin="10dp">
+
+		<TextView
+		    android:id="@+id/textView_username"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:text="Username:	" />
+
+		<EditText
+		    android:id="@+id/editText_username"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:ems="10"
+		    android:inputType="text" />
+	    
+	</LinearLayout>
+    
+	
+	<LinearLayout
+	android:id="@+id/LinearLayout2"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:layout_below="@+id/LinearLayout1"
+    android:layout_margin="10dp">
+
+		<TextView
+		    android:id="@+id/textView_email"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:text="Email:" />
+
+		<EditText
+		    android:id="@+id/editText_email"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:ems="10"
+		    android:inputType="textEmailAddress" />
+	    
+	</LinearLayout>
+	
+	<LinearLayout
+	android:id="@+id/LinearLayout3"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:layout_below="@+id/LinearLayout2"
+    android:layout_margin="10dp">
+
+		<TextView
+		    android:id="@+id/textView_firstname"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:text="First Name" />
+
+		<EditText
+		    android:id="@+id/editText_firstname"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:ems="10"
+		    android:inputType="textPersonName" />
+	    
+	</LinearLayout>
+	
+	
+	<LinearLayout
+	android:id="@+id/LinearLayout4"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:layout_below="@+id/LinearLayout3"
+    android:layout_margin="10dp">
+
+		<TextView
+		    android:id="@+id/textView_lastname"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:text="Last Name" />
+
+		<EditText
+		    android:id="@+id/editText_lastname"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:ems="10"
+		    android:inputType="textPersonName" />
+	    
+	</LinearLayout>
+	
+	<LinearLayout
+	android:id="@+id/LinearLayout5"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:layout_below="@+id/LinearLayout4"
+    android:layout_margin="10dp">
+
+		<TextView
+		    android:id="@+id/textView_password"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:text="*Password" />
+
+		<EditText
+		    android:id="@+id/editText_password"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:ems="10"
+		    android:inputType="textPassword" />
+	    
+	</LinearLayout>
+	
+    
+	<LinearLayout 
+        	android:id="@+id/linearLayout6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/linearLayout5"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="200dp"
+            android:ems="10"  >
+        <ProgressBar
+        android:id="@+id/progressBar1"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="24dp" />
+    </LinearLayout>
+    
+    
+    <LinearLayout 
+        	android:id="@+id/linearLayout7"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/linearLayout6"
+            android:layout_centerHorizontal="true"
+            android:ems="10"  >
+        
+        <Button
+        android:id="@+id/button1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Submit" />
+        
+        </LinearLayout>
+	
+	
+</RelativeLayout>

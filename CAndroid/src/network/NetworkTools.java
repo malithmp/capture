@@ -1,21 +1,34 @@
 package network;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.net.URLEncoder;
 
+import org.apache.http.Header;
+import org.apache.http.HttpConnection;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpOptions;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
@@ -34,18 +47,34 @@ public class NetworkTools {
 	private static String SERVER_PORT="8080";
 	private static String SERVER_PATH="/Capture_Server/Resolver";
 	private static String SERVER_USER_CONSTANT = "?requesttype=user&"; 								// the mobile app is only used by regular users 
-
+	
+	private String doGetResponse = new String();
+	private String doPostResponse = new String();
+	private static NetworkTools networktools;
+	
+	
 	String url;
 	HttpClient client;
 	HttpGet request;
 	HttpResponse httpResponse;
 
+	
 	public NetworkTools(){
 		url = SERVER_HOST+":"+SERVER_PORT+SERVER_PATH+SERVER_USER_CONSTANT;
 		client = new DefaultHttpClient();
 		request = new HttpGet();
 	}
 
+	public static NetworkTools getInstance(){
+		if(networktools == null){
+			
+			networktools = new NetworkTools();
+		}
+		return networktools;
+		
+		
+	}
+	
 	public synchronized void setURL(String host,int port,String path){
 		SERVER_HOST = host;
 		SERVER_PORT = Integer.toString(port); 
@@ -62,43 +91,151 @@ public class NetworkTools {
 
 
 	public synchronized boolean signIn(String[] response, String username, String password){
-		//HttpGet request = new HttpGet();
+				
+		HttpGet request = new HttpGet();
 		InputStream instream;
+		//String error="Error",received="something";
 		String finalUrl = url+"loggedin=false&request=signin&username="+username+"&password="+password;
-		//finalUrl = "http://www.google.ca/?gws_rd=cr&ei=udZiUuegA6PmyQHO5IGQBg";
-		try {
-			URL url = new URL(finalUrl);
-			Log.d("Tag1","->"+url.toString());
-			HttpURLConnection con = (HttpURLConnection) url.openConnection();
-			con.setRequestMethod("GET");
-
-//			int responseCode = con.getResponseCode();
-			instream = con.getInputStream();
-
-			try {
-				Log.d("Tag1",""+instream.available());
-				byte []reply = new byte[instream.available()];
-				instream.read(reply);
-				String jsonResponse = new String(reply);
-				// we have the response from the server as a json string
-				Log.d("Tag1","-->"+jsonResponse);
-				JSONObject jObj = (JSONObject) JSONValue.parse(jsonResponse);
-				response[0]=(String) jObj.get("status");
-				response[1]=(String) jObj.get("token");
-				//TODO : set the remaining stuff
-			} finally{
-				instream.close();
+		Log.i("Tag1","finalurl = "+finalUrl);
+		
+		
+			
+			Log.i("test","hello");
+			if(doGET(finalUrl)){
+				Log.i("Tag1","received in SignIn= "+doGetResponse);
+				
+				JSONObject jsonresponse = (JSONObject) JSONValue.parse(doGetResponse);
+				response[0] = (String) jsonresponse.get("status");
+				if(response[0].equals("true")){
+					
+					response[1] = (String) jsonresponse.get("token");
+				}
+				else{
+					response[1] = (String) jsonresponse.get("message");
+				}
+				return true;
 			}
+			else{
+				response[0] = "false";
+				response[1] = "Error: Exception in doGet()";
+				return false;
+			}
+			/*HttpClient httpclient = new DefaultHttpClient();
+			HttpGet httpget = new HttpGet(finalUrl);
+			// Execute HTTP Post Request
+			//HttpResponse response = httpclient.execute(httppost);
+			ResponseHandler<String> responseHandler = new BasicResponseHandler();
+			received = httpclient.execute(httpget, responseHandler);*/
+			
+			//HttpResponse response = httpclient.execute(httppost);
 
-		} catch (Exception e) {
-			e.printStackTrace();
-			response[0]="false";
-			//TODO set the exception message to response[1]
-			return false;
-		}
-		return true; 
 	}
 
+	public synchronized boolean signUp(String[] response, String username,String emailAddress, String firstName, String lastName, String password){
+		
+		Log.i("Tag1"," in SignUp");
+		/*
+		 * Test values
+		 * username = "User10";
+		emailAddress = "user10@utoronto.ca";
+		firstName = "First10";
+		lastName = "Last10";
+		password = "Pass10";*/
+		
+		JSONObject jsobj = new JSONObject();
+		jsobj.put("username", username);
+		jsobj.put("emailAddress", emailAddress);
+		jsobj.put("firstName",firstName);
+		jsobj.put("lastName", lastName);
+		jsobj.put("password",password);
+		
+		String finalUrl = url+"loggedin=false&request=signup";
+		//String post_url = "http://198.84.191.122:8088/Capture_Server/Resolver?requesttype=user&loggedin=false&request=signup";
+		//String finalUrl = url+
+		
+		
+		if(doPOST(finalUrl, jsobj)){
+			
+			JSONObject jsonresponse = (JSONObject) JSONValue.parse(doPostResponse);
+			Log.i("SignUp"," jsonresponse = "+jsonresponse.toString());
+			response[0] = (String) jsonresponse.get("status");
+		
+				
+			if(response[0].equals("true")){
+				response[1]=(String) jsonresponse.get("token");
+				Log.d("Debug"," - SignUp server returned true");
+			}
+			else{
+				response[1]=(String) jsonresponse.get("message");
+				Log.d("Debug"," - SignUp server returned false: "+response[1]);
+			}
+			return true;
+		}else{
+			
+			//Exception occurred in doPost;
+			Log.d("Debug"," - Exception occurred in doPost: "+doPostResponse);	//TODO - check if received will contain response from doPost or just ""
+			response[0] = "false";
+			response[1] = "Exception occurred in doPost: "+doPostResponse;
+			return false;
+		}
+		
+		
+		/*JSONObject jsobj = new JSONObject();
+		jsobj.put("username", username);
+		jsobj.put("emailAddress", emailAddress);
+		jsobj.put("firstName",firstName);
+		jsobj.put("lastName", lastName);
+		jsobj.put("password",password);
+		
+		String post_url = "http://198.84.191.122:8088/Capture_Server/Resolver?requesttype=user&loggedin=false&request=signup";
+		
+		URL url;
+		try {
+			url = new URL(post_url);
+			HttpURLConnection con = (HttpURLConnection) url.openConnection();
+			con.setRequestMethod("POST");
+			con.setDoOutput(true);
+			con.setDoInput(true);
+			con.setRequestProperty("Content-Type","application/json");
+			
+			OutputStreamWriter outstream = new OutputStreamWriter(con.getOutputStream());
+			outstream.write(URLEncoder.encode(jsobj.toString(),"UTF-8"));
+			outstream.close();
+			
+			if(con.getResponseCode() == HttpURLConnection.HTTP_OK){
+				
+				Log.d("Tag2","->HTTP_OK "+url.toString());
+				
+				
+			}else{
+				
+				Log.d("Tag2","->HTTP_FAIL "+url.toString());
+				
+			}
+			
+			
+			con.setRequestProperty("username", username);
+			con.setRequestProperty("emailAddress", emailAddress);
+			con.setRequestProperty("firstName",firstName);
+			con.setRequestProperty("lastName", lastName);
+			con.setRequestProperty("password",password);
+			
+		} catch (MalformedURLException e) {
+			
+			e.printStackTrace();
+		} catch (IOException e) {
+			
+			e.printStackTrace();
+		}
+		
+		
+		
+		
+		
+		return true;*/
+	}
+	
+	
 	public synchronized boolean testGet(){
 		HttpClient httpclient = new DefaultHttpClient();
 		HttpResponse res;
@@ -142,5 +279,56 @@ public class NetworkTools {
 			e.printStackTrace();
 		}
 		return true; 
+	}
+	
+	public boolean doGET(String url){
+		
+		Log.i("Tag1"," - doGET start");
+		
+		
+		
+		try {
+			HttpClient httpclient = new DefaultHttpClient();
+			HttpGet httpget = new HttpGet(url);
+			ResponseHandler<String> responseHandler = new BasicResponseHandler();
+			doGetResponse = httpclient.execute(httpget, responseHandler);
+			Log.i("Tag1"," - response in doGET = "+doGetResponse);
+		} catch (ClientProtocolException e) {
+			doGetResponse = "Error"+e.getMessage();
+			e.printStackTrace();
+			return false;
+		} catch (IOException e) {
+			doGetResponse = "Error"+e.getMessage();
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+		
+	}
+	
+	public boolean doPOST(String url, JSONObject jsobj){
+		
+		HttpClient httpclient = new DefaultHttpClient();
+		HttpPost httppost = new HttpPost(url); 
+		try {
+			httppost.setEntity(new StringEntity(jsobj.toJSONString()));
+			ResponseHandler<String> responseHandler = new BasicResponseHandler();
+			doPostResponse = httpclient.execute(httppost, responseHandler);
+			Log.i("doPost","response = "+doPostResponse);
+		} catch (UnsupportedEncodingException e) {
+			doPostResponse = "Error"+e.getMessage();
+			e.printStackTrace();
+			return false;
+		} catch (ClientProtocolException e) {
+			doPostResponse = "Error"+e.getMessage();
+			e.printStackTrace();
+			return false;
+		} catch (IOException e) {
+			doPostResponse = "Error"+e.getMessage();
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+		
 	}
 }
