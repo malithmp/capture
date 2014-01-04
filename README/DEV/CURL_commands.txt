@@ -6,22 +6,27 @@ And the beast part is our app almost always use get requests.
 ex: curl "http://localhost:8080/Capture_Server/Resolver?requesttype=debug"
 
 TEST PHASE QUERIES
+-----------------------------------------
 Init (create servlet connections, add dummy users, fakes the procedure of adding maps):
-curl "http://localhost:8080/Capture_Server/Resolver?requesttype=admin&adminname=malithmp&password=meh&request=tempinit"
+	curl "http://localhost:8080/Capture_Server/Resolver?requesttype=admin&adminname=malithmp&password=meh&request=tempinit"
 
-http://localhost:8080/Capture_Server/Resolver?requesttype=admin&adminname=malithmp&password=meh&request=registerarena&arena=A0
+Register Arena
+	curl "http://localhost:8080/Capture_Server/Resolver?requesttype=admin&adminname=malithmp&password=meh&request=registerarena&arena=A0"
 
-http://localhost:8080/Capture_Server/Resolver?requesttype=admin&adminname=malithmp&password=meh&request=registerservlet&URL=S0
+Register Servlet
+	curl "http://localhost:8080/Capture_Server/Resolver?requesttype=admin&adminname=malithmp&password=meh&request=registerservlet&URL=S0"
 
-http://localhost:8080/Capture_Server/Resolver?requesttype=admin&adminname=malithmp&password=meh&request=maparenaservlet&arena=A0&servlet=S0
+Map Arena Servlet
+	curl "http://localhost:8080/Capture_Server/Resolver?requesttype=admin&adminname=malithmp&password=meh&request=maparenaservlet&arena=A0&servlet=S0"
 
+getDBpath:
+	curl "http://localhost:8080/Capture_Server/Resolver?requesttype=admin&adminname=malithmp&password=passtimmy&request=tempgetdbpath"
 
 User login:
-curl "http://localhost:8080/Capture_Server/Resolver?requesttype=user&loggedin=false&request=signin&username=malithr&password=pass1"
-
+	curl "http://localhost:8080/Capture_Server/Resolver?requesttype=user&loggedin=false&request=signin&username=malithr&password=pass1"
 
 POST
-curl -X POST -H "Content-Type: application/json" -d '{"username":"xyz","password":"xyz"}' http://localhost:8080/Capture_Server/Resolver?requesttype=user
+	curl -X POST -H "Content-Type: application/json" -d '{"username":"xyz","password":"xyz"}' http://localhost:8080/Capture_Server/Resolver?requesttype=user
 -----------------------------------------------------------------------------
 
 FINAL RELEASE QUERIES

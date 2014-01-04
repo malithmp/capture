@@ -166,7 +166,7 @@ public class DatabaseHelper {
 
 	}
 
-	public synchronized boolean acquireUsername(String username, String hash, String salt) throws Exception{
+	public synchronized boolean acquireUsername(String username, String hash, String salt,ServerResponse serverresponse) throws Exception{
 		// Used by users who are signing up and trying to acquire a username
 		// ONLY CALLED INTERNALLY BY THE SERVLETS, USERS HAVE NO DIRECT ACCESS USING HTTP REQUESTS!!!
 		// Check database to see if the username exists. If thats the case that means the usernam is already taken. return false
@@ -186,7 +186,9 @@ public class DatabaseHelper {
 		if(result!=null && result.next()!=false){
 			// User data already in table
 			// Username is not unique
-			return false;
+			serverresponse.status=false;
+			serverresponse.message="Username "+ username+" already taken"
+;			return false;
 		}
 		else{
 			// User not in table
@@ -204,7 +206,6 @@ public class DatabaseHelper {
 					hash			+"\");";
 			statement.execute(query);
 			statement.close();
-
 			return true;
 		}
 
@@ -254,7 +255,7 @@ public class DatabaseHelper {
 
 	}
 
-	public synchronized String[] getSaltAndHash(String username) throws Exception{
+	public synchronized String[] getSaltAndHash(String username, ServerResponse serverresponse) throws Exception{
 		// Return the Hash/ Salt pair of a given username
 		// Return null if user does not exist
 		// String[0] = salt
@@ -267,6 +268,7 @@ public class DatabaseHelper {
 				COLUMN_USERPASS_USERNAME + "= \""+
 				username		+"\";";
 		ResultSet result = statement.executeQuery(query);
+		
 		if(result!=null && result.next()!=false){
 			String hash = result.getString(COLUMN_USERPASS_HASH);
 			String salt = result.getString(COLUMN_USERPASS_SALT);
@@ -277,7 +279,9 @@ public class DatabaseHelper {
 			// User Does Not Exist
 			// return a null array
 			statement.close();
-			System.out.println("Username DNE");
+			if(Globals.DEBUG)System.out.println("Username DNE");
+			serverresponse.status=false;
+			serverresponse.message="Username does not exist";
 			return null;
 
 		}
@@ -319,17 +323,14 @@ public class DatabaseHelper {
 		}
 	}
 
-	public synchronized String getInstituteName(String domain) throws Exception{
-		// Return the Hash/ Salt pair of a given username
-		// Return null if user does not exist
-		// String[0] = salt
-		// String[1] = hash
+	public synchronized String getInstituteName(String domain,ServerResponse serverresponse) throws Exception{
+		// Return the institutename if its registered
 		statement = connection.createStatement();
-		String query = "SELECT "						+
+		String query = "SELECT "					+
 				COLUMN_INSTITUTE_INSTITUTENAME		+" FROM "	+
 				TABLE_INSTITUTE						+ " WHERE " +
-				COLUMN_INSTITUTE_DOMAIN 				+ "= \""+
-				domain									+"\";";
+				COLUMN_INSTITUTE_DOMAIN 			+ "= \""+
+				domain								+"\";";
 
 		ResultSet result = statement.executeQuery(query);
 		if(result!=null && result.next()!=false){
@@ -341,7 +342,8 @@ public class DatabaseHelper {
 			// User Does Not Exist
 			// return a null array
 			statement.close();
-			System.out.println("Username DNE");
+			serverresponse.status=false;
+			serverresponse.message="Institute for domain "+domain +" not yet registered";
 			return null;
 
 		}

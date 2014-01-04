@@ -58,6 +58,10 @@ HTTP GET
 						}
 					signup{
 						//HANDLE IN HTTP POST, Get all data as an object. Add data in object to database, send response with confirmation
+						RETURN{
+							l1grp	// L1 group ID
+							l2grp	// L2 group ID
+						}
 					}
 				}
 			}

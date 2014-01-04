@@ -96,7 +96,7 @@ public class ServerInternalData {
 		if(Globals.DEBUG) System.out.println("WARNING: UNIMPLEMENTED ITEM : Register own server instance in the ServerInternalData store");
 	}
 
-	public boolean registerNewServlet(String URL){
+	public boolean registerNewServlet(String URL, ServerResponse serverresponse){
 		// This part must be atomic. Yes.. this part is correct. cant simplify any further
 		servletPoolWriteLock.lock();
 		// Add new servlet (possibly on a different computer/network or about this instance itself) information to this servlet instance
@@ -116,11 +116,13 @@ public class ServerInternalData {
 			// This servlet is already registered
 			if(Globals.LOUD) System.out.println("Error! : Trying to add a duplicate servlet to the pool");
 			servletPoolWriteLock.unlock();
+			serverresponse.status=false;
+			serverresponse.message="Duplicate servlet";
 			return false;
 		}
 	}
 
-	public boolean registerNewArena(String arenaName){
+	public boolean registerNewArena(String arenaName, ServerResponse serverresponse){
 		// This part must be atomic. Yes.. this part is correct. cant simplify any further
 		arenaPoolWriteLock.lock();
 		// Check if this arena is already registered
@@ -139,11 +141,13 @@ public class ServerInternalData {
 			// This servlet is already registered
 			if(Globals.LOUD) System.out.println("Error! : Trying to add a duplicate arena to the pool");
 			arenaPoolWriteLock.unlock();
+			serverresponse.status=false;
+			serverresponse.message="Duplicate arena";
 			return false;
 		}
 	}
 
-	public boolean mapArenaServlet(String arenaName,String URL){
+	public boolean mapArenaServlet(String arenaName,String URL,ServerResponse serverresponse){
 		// Add a mapping between an arena and a servlet
 		// TODO If this is a remap. Then we need to remove the previous mapping manually before this step
 
@@ -156,6 +160,8 @@ public class ServerInternalData {
 			// there is a mapping ==> there is an arena. Dont want a duplicate
 			if(Globals.LOUD)  System.out.println("ERROR:mapArenaServlet: OldMappingAlreadyExist");
 			arenaServletMapWriteLock.unlock();
+			serverresponse.status=false;
+			serverresponse.message="Already mapped";
 			return false;
 		}
 
@@ -163,6 +169,7 @@ public class ServerInternalData {
 		// Second Check if arena is present
 		boolean found=false;
 		arenaPoolReadLock.lock();
+		
 		for(int i=0; ((i<arenaPool.size())&&(!found));i++){
 			found |= arenaPool.get(i).equals(arenaName);
 		}
@@ -172,7 +179,9 @@ public class ServerInternalData {
 			if(Globals.LOUD)  System.out.println("ERROR:mapArenaServlet: ArenaNotFound");
 			arenaPoolReadLock.unlock();
 			arenaServletMapWriteLock.unlock();
-			System.out.println("No Arena Pool");
+			if(Globals.DEBUG)System.out.println("ERROR:No Arena in Pool!");
+			serverresponse.status=false;
+			serverresponse.message="Arena is not in the arena pool!";
 			return false;
 		}
 		arenaPoolReadLock.unlock();
@@ -182,6 +191,7 @@ public class ServerInternalData {
 		//boolean status = false;
 		servletPoolReadLock.lock();
 		int k=0;
+		
 		for(int i=0; ((i<servletPool.size())&&(!found));i++){
 			k=i;
 			System.out.println(targetServlet.url);
@@ -189,10 +199,12 @@ public class ServerInternalData {
 		}
 
 		if(!found){
-			// The arena is not present. Cant do the mapping
-			if(Globals.LOUD) System.out.println("ERROR:mapArenaServlet: ArenaNotFound");
+			// The servlet is not present. Cant do the mapping
+			if(Globals.LOUD) System.out.println("ERROR:mapArenaServlet: ServletNotFound");
 			servletPoolReadLock.unlock();
 			arenaServletMapWriteLock.unlock();
+			serverresponse.status=false;
+			serverresponse.message="Servlet is not in the arena pool!";
 			return false;
 		}
 		/*
@@ -242,7 +254,7 @@ public class ServerInternalData {
 		// TODO DO THIS LAST
 	}
 
-	public boolean addActiveUser(String username, String token){
+	public boolean addActiveUser(String username, String token,ServerResponse serverresponse){
 		// Add a newly logged in user to the pool
 		// Take the current time, Create the activeUser object and add it to the list
 		ActiveUserWriteLock.lock();
