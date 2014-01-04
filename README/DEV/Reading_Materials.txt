@@ -37,6 +37,13 @@ Android SSL/HTTPS:
 	http://developer.android.com/training/articles/security-ssl.html
 
 Clientside code with jwebsockets
-http://technology.amis.nl/2012/01/15/stand-alone-java-client-for-jwebsocket-server-communicating-from-java-client-to-web-clients-and-vice-versa-over-websockets/
+	http://technology.amis.nl/2012/01/15/stand-alone-java-client-for-jwebsocket-server-communicating-from-java-client-to-web-clients-and-vice-versa-over-websockets/
 
 Java HTTPS: http://www.mkyong.com/java/java-https-client-httpsurlconnection-example/
+
+Database:
+	http://www.mulesoft.com/tomcat-mysql
+	http://www.youtube.com/watch?v=LHcxoJQxY2A
+	http://www.sqlite.org/threadsafe.html
+	http://www.youtube.com/watch?v=bo62AqckwHc
+	http://stackoverflow.com/questions/1313316/what-is-a-good-tutorial-on-how-to-set-up-tomcat-with-mysql-and-database-pooling

@@ -35,6 +35,7 @@ public class SignupTest {
 
 		for(int i=0;i<numThreads;i++){
 			UserSingup test =new UserSingup("User"+i,"Pass"+i,"First"+i,"Last"+i,"Home"+i,"Email"+i+doms.get(i%4));
+			System.out.println("User"+i+" "+"Pass"+i+" "+"First"+i+" "+"Last"+i+" "+"Home"+i+" "+"Email"+i+doms.get(i%4));
 			threads[i]=new Thread(test);								// First set of threads 0 to (n/3 -1)
 		}
 

@@ -17,7 +17,7 @@ public class T_TesterMain {
 	static String localhostbase="http://localhost:8080/Capture_Server/Resolver?";	// when server is own host
 	static String lanbase="http://192.168.0.150:8080/Capture_Server/Resolver?";		// when server is in the same lan
 
-	static String base = localhostbase;	//<<<<<<< SET THIS
+	static String base = lanbase;	//<<<<<<< SET THIS
 
 	public static void main(String[] args){
 		preTestInit(base);
@@ -28,14 +28,14 @@ public class T_TesterMain {
 		// ----------------------------------------------------------
 
 		// ----------------------------------------------------------
-		//RegisterServletArenaTests test1 = new RegisterServletArenaTests(base);
-		//test1.test(3);
+		RegisterServletArenaTests test1 = new RegisterServletArenaTests(base);
+		test1.test(10);
 		// ----------------------------------------------------------
 
 
 		// ----------------------------------------------------------
-		//SignupTest test2 = new SignupTest(base);
-		//test2.test(99);
+		SignupTest test2 = new SignupTest(base);
+		test2.test(10);
 		// ----------------------------------------------------------
 
 		// ----------------------------------------------------------

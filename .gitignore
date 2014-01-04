@@ -1,7 +1,7 @@
 .metadata/
 Servers/
 Capture_Server/.classpath
-
+CAndroid/bin/classes/activities/TR1.class
 /Capture_Server/bin/dataStore/ActiveUser.class
 /Capture_Server/bin/dataStore/Block.class
 /Capture_Server/bin/dataStore/DatabaseHelper.class
@@ -20,7 +20,10 @@ Capture_Server/.classpath
 /CAndroid/bin/*
 /CAndroid/gen/*
 /CAndroid/.settings/org.eclipse.jdt.core.prefs	
-/README/DEV/CURL_commands.txt~
+/CAndroid/bin/jarlist.cache
+/README/DEV/Random_Crap.txt~
+/README/DEV/Reading_Materials.txt~
+/README/DEV/Request_Parameters.txt~
+/README/Libs.txt~
 /README/TODO.txt~
-
-
+/README/DEV/CURL_commands.txt~

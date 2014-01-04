@@ -2,19 +2,19 @@
 // We will map this against the protocol request
 ADMIN	
 ------
-registerservlet
-maparenaservlet
-registerarena
-registerinstitute
-tempinit
+registerservlet 	<GET>
+maparenaservlet 	<GET>
+registerarena 		<GET>
+registerinstitute	<POST>
+tempinit			<GET>
 tempgetdbpath <EXTREMELY TEMPORARY>
 ------------------------------------------------------------------------	
 USER	
 ------
-signin
-signup
-joinmap
-leavemap
+signin				<GET>
+signup				<POST>
+joinmap				<GET>
+leavemap			<GET>
 
 ------------------------------------------------------------------------
 
