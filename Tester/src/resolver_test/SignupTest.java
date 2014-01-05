@@ -53,15 +53,20 @@ public class SignupTest {
 		UserSingup(String user,String pass, String first, String last, String home, String email){
 			try{
 				JSONObject obj=new JSONObject();
-				obj.put("requesttype","user");
-				obj.put("loggedin", "false");
-				obj.put("request","signup");
 				obj.put("username",user);
 				obj.put("password",pass);
 				obj.put("firstname",first);
 				obj.put("lastname",last);
 				obj.put("home",home);
 				obj.put("email",email);
+				data = obj.toString();		// the raw data package
+				
+				obj=new JSONObject();
+				obj.put("requesttype","user");
+				obj.put("loggedin", "false");
+				obj.put("request","signup");
+				obj.put("rawdata",data);
+				
 				data = obj.toString();
 			}catch(Exception e){
 				e.printStackTrace();

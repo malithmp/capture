@@ -80,6 +80,14 @@ public class RegisterInstituteTest {
 			//System.out.println(finalURL);
 			try{
 				JSONObject obj=new JSONObject();
+				
+				
+				for(int i=0;i<coordinates.length;i++){
+					obj.put(Integer.toString(i),"("+coordinates[i][0]+","+coordinates[i][1]+")");
+				}
+				data = obj.toString();			// data package
+				
+				obj=new JSONObject();
 				obj.put("requesttype", "admin");
 				obj.put("loggedin", "true");
 				obj.put("adminname", "malithmp");
@@ -87,11 +95,9 @@ public class RegisterInstituteTest {
 				obj.put("request", "registerinstitute");
 				obj.put("institutename", institutename);
 				obj.put("institutedomain", instituteDomain);
+				obj.put("rawdata", data);
 				
-				for(int i=0;i<coordinates.length;i++){
-					obj.put(Integer.toString(i),"("+coordinates[i][0]+","+coordinates[i][1]+")");
-				}
-				data = obj.toString();
+				data=obj.toString();
 			}catch(Exception e){
 				e.printStackTrace();
 			}
@@ -109,7 +115,7 @@ public class RegisterInstituteTest {
 				BufferedReader br = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
 				String serverResponseString = br.readLine();
 				//System.out.println(serverResponseString);
-				System.out.println(serverResponseString);
+				System.out.println("RI : "+serverResponseString);
 
 			}catch(Exception e){
 				e.printStackTrace();

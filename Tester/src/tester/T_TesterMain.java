@@ -41,13 +41,13 @@ public class T_TesterMain {
 
 
 		// ----------------------------------------------------------
-		//SignupTest test2 = new SignupTest(base);
-		//test2.test(10);
+		SignupTest test2 = new SignupTest(base);
+		test2.test(10);
 		// ----------------------------------------------------------
 
 		// ----------------------------------------------------------
-		//RegisterInstituteTest test4 = new RegisterInstituteTest(base);
-		//test4.test();
+		RegisterInstituteTest test4 = new RegisterInstituteTest(base);
+		test4.test();
 		// ----------------------------------------------------------
 	}
 
