@@ -4,35 +4,103 @@ data objects (httppost only) are marked inside ** **.
 RETURN indecates the response from the server to a request with a complete parameter set
 
 
-HTTP GET
---------
+HTTP POST
+---------
+
 *requesttype*{
+	admin{
+		*loggedin*{
+			true{
+				*adminname*
+				*token*
+				*request*{
+					registerinstitute{				// register an institute enabling any one with an email address from it register
+						*institutename*
+						*institutedomain*
+						**rawdata**				// another JSOPN string
+						RETURN : {
+							status{
+								true{
+									token: IA123ANS128
+								}
+								false{
+									message: Error due to this
+								}
+							}
+						}
+					}
+					registerservlet{				// Add websocket urls so the resolver knows about the worker servlets
+						*url*
+						RETURN : {
+							status
+						} 
+					}
+			
+					registerarena{					// register arena name on server
+						*arena*
+						RETURN : {
+							status
+						} 
+					}
+
+					maparenaservlet{				// map arena to servlet
+						*arena*					// name of the arena (ID)
+						*servlet*				// URL of servlet
+						RETURN : {
+							status
+						} 
+					}
+
+					tempinit{					// Endpoint for Debug purpose only, used to initialize dummy maps and arenas
+						RETURN : {
+							status
+						} 
+					}
+			
+					tempgetdbpath{					// <EXTREMELY TEMPORARY>
+						RETURN : {
+						}
+					}
+				}
+			}
+		}
+			false{
+				*adminname*
+				*password*
+				RETURN: {
+					status{
+				}
+			}
+	}
+	
 	user{
 		*loggedin*{
 			true{
-				*token*										// Once logged in all communications must have this token
+				*token*							// Once logged in all communications must have this token
 				*username*
-				*request*{									// The actual request
+				*request*{						// The actual request
 					joinmap{
 						*locationX*
 						*locationY*	
-						*locationAcc*						// Location accuracy +/- or % || For location map validation (user in Siberia cant play a Toronto map)
-														// Server decides the arena depending on location
+						*locationAcc*			
+						// Location accuracy +/- or % || For location map validation (user in Siberia cant play a Toronto map)
+						// Server decides the arena depending on location
 						RETURN:{
-							URL of websocket servlet that servs the map	// Backend sends this token to that websocket servlet so it know the user is legit
+							URL of websocket servlet that servs the map	
+							// Backend sends this token to that websocket servlet so it know the user is legit
 						}
 					}
 
 					leavemap{
 						*arena*
 						RETURN:{
-							status							// Backedn removes the user token from websocket servlet to let it know the user left
+							status			
+							// Backedn removes the user token from websocket servlet to let it know the user left
 						}
 					}
 				}
-
 			}
-			
+
 			false{
 				*request*{
 					signin{
@@ -40,24 +108,17 @@ HTTP GET
 						*password*
 						RETURN:{
 							//user_token for future communications
-								status{
-										*true*{
-												token{
-													*token*     //status and token are part of the JSON object
-												}
-										}
-										
-										*false*{
-												message{
-														*Error message from Server* 	//status and message are part of the JSON object
-												}
-										}
-										
-										
+							status{
+								true{
+									token 		//status and token are part of the JSON object
 								}
+								false{
+									message		//status and message are part of the JSON object
+								}
+							}
 						}
 					signup{
-						//HANDLE IN HTTP POST, Get all data as an object. Add data in object to database, send response with confirmation
+						**rawdata**				// another JSOPN string
 						RETURN{
 							l1grp	// L1 group ID
 							l2grp	// L2 group ID
@@ -67,12 +128,13 @@ HTTP GET
 			}
 		}
 	}
-	
+
 	general{
 		// TODO 
 	}
 	
 	debug{
+		//TODO
 		*adminname*
 		*password*
 		*request*
@@ -83,82 +145,4 @@ HTTP GET
 		}
 	}
 	
-	admin{
-		*adminname*
-		*password*
-		*request*{
-			registerservlet{								// Add websocket urls so the resolver knows about the worker servlets
-				*URL*
-				RETURN : {
-					status
-				} 
-			}
-			
-			registerarena{									// register arena name on server
-				*arena*
-				RETURN : {
-					status
-				} 
-			}
-
-			maparenaservlet{								// map arena to servlet
-				*arena*										// name of the arena (ID)
-				*servlet*									// URL of servlet
-				RETURN : {
-					status
-				} 
-			}
-
-			tempinit{									// Endpoint for Debug purpose only, used to initialize dummy maps and arenas
-				RETURN : {
-					status
-				} 
-			}
-			
-			tempgetdbpath{									// <EXTREMELY TEMPORARY>
-				RETURN : {
-				}
-			}
-		}
-	}
-}
-
-_________________________________________________________________________________________________
-
-HTTP POST
----------
-
-*requesttype*{
-	admin{
-		*adminname*
-		*password*
-		*request*{
-				registerinstitute{								// register an institute enabling any one with an email address from it register
-					*institutename*
-					*institutedomain*
-					**data object**
-					RETURN : {
-						status
-					}
-				}
-		}
-	}
-	
-	user{
-		*loggedin*{
-			false{
-				*request*{
-					signup{
-						**data object**
-					}
-				}
-			}
-		}
-	}
-	
-	servlet{												// another frontend servlet trying to communicate
-	}
-	
-	websocke{												// a worker websocket trying to communicate
-	}
 }

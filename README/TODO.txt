@@ -19,9 +19,9 @@ MAJOR:
 	: http://www.javacodegeeks.com/2012/04/java-concurrency-with-readwritelock.html
 	:http://docs.oracle.com/javase/1.5.0/docs/api/java/util/concurrent/locks/ReadWriteLock.html
 
-- Make use of the serverresponse object
 - timestamp everything in livedata object so we can do our own garbage cleaning
-- user post (clean the format)
+- admin authentication
+- SQL exception handling
 
 CURRENT:
 - Test user authentication on actual server

@@ -8,22 +8,26 @@ ex: curl "http://localhost:8080/Capture_Server/Resolver?requesttype=debug"
 TEST PHASE QUERIES
 -----------------------------------------
 Init (create servlet connections, add dummy users, fakes the procedure of adding maps):
-	curl "http://localhost:8080/Capture_Server/Resolver?requesttype=admin&adminname=malithmp&password=meh&request=tempinit"
+	curl -X POST -H "Content-Type: application/json" -d '{"requesttype":"admin","loggedin":"true","adminname":"malithmp","token":"t1mm3y","request":"tempinit"}' http://localhost:8080/Capture_Server/Resolver
 
 Register Arena
-	curl "http://localhost:8080/Capture_Server/Resolver?requesttype=admin&adminname=malithmp&password=meh&request=registerarena&arena=A0"
+	curl -X POST -H "Content-Type: application/json" -d '{"requesttype":"admin","loggedin":"true","adminname":"malithmp","token":"t1mm3y","request":"registerarena","arena":"A0"}' http://localhost:8080/Capture_Server/Resolver
 
 Register Servlet
-	curl "http://localhost:8080/Capture_Server/Resolver?requesttype=admin&adminname=malithmp&password=meh&request=registerservlet&URL=S0"
+	curl -X POST -H "Content-Type: application/json" -d '{"requesttype":"admin","loggedin":"true","adminname":"malithmp","token":"t1mm3y","request":"registerservlet","url":"S0"}' http://localhost:8080/Capture_Server/Resolver
 
 Map Arena Servlet
-	curl "http://localhost:8080/Capture_Server/Resolver?requesttype=admin&adminname=malithmp&password=meh&request=maparenaservlet&arena=A0&servlet=S0"
+	curl -X POST -H "Content-Type: application/json" -d '{"requesttype":"admin","loggedin":"true","adminname":"malithmp","token":"t1mm3y","request":"maparenaservlet","arena":"A0","servlet":"S0"}' http://localhost:8080/Capture_Server/Resolver
 
 getDBpath:
 	curl "http://localhost:8080/Capture_Server/Resolver?requesttype=admin&adminname=malithmp&password=passtimmy&request=tempgetdbpath"
 
 User login:
 	curl "http://localhost:8080/Capture_Server/Resolver?requesttype=user&loggedin=false&request=signin&username=malithr&password=pass1"
+
+RegisterInstitute
+	curl -X POST -H "Content-Type: application/json" -d '{"0":"(0,0)","1":"(1,1)"}' http://localhost:8080/Capture_Server/Resolver?requesttype=admin&adminname=malithmp&password=timmy&request=registerinstitute&institutename=utoronto&institutedomain=myaah
+
 
 POST
 	curl -X POST -H "Content-Type: application/json" -d '{"username":"xyz","password":"xyz"}' http://localhost:8080/Capture_Server/Resolver?requesttype=user

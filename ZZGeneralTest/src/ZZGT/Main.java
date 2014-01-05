@@ -2,11 +2,26 @@ package ZZGT;
 
 import java.math.BigInteger;
 
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
+
 public class Main {
 	
 	public static void main(String[] args){
 
-		System.out.printf("%2x", (int)(-10));
+//		System.out.printf("%2x", (int)(-10));
+		JSONObject obj=new JSONObject();
+		obj.put("0", "100");
+		obj.put("1", "200");
+		System.out.println(obj.toString());		
+		
+		JSONObject obj2=new JSONObject();
+		obj2.put("all", obj.toString());
+		System.out.println(obj2.toString());
+		
+		
+		JSONObject jObj = (JSONObject) JSONValue.parse(obj2.toString());
+		System.out.println(">"+(String)jObj.get("all"));
 //		System.out.println("meh");
 //		R2 r2 = new R2();
 //		final Thread t2 = new Thread(r2);

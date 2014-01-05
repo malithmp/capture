@@ -55,133 +55,109 @@ public class Resolver extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException {
-		ServerResponse serverresponse = new ServerResponse(); // Collect status of the previous helper function //TODO recycle serverresponse object
-		// Check if the request is for user connection/ debugger/admin request or General viewer request
-		// If user connection (a user needs to play the game)serverinternaldparameters.get("URL")[0]ata
-		// 		Authenticate and send back a token
-		// 		Get Location and Arena requested by the user
-		// 		Verify if the request can be completed (Current Location is too far away from the arena.. user is out of range)
-		// 		If the above passes, Query all websocket servlets to see which one is serving that arena (may be done at a different stage: ie at startup of server.. or during operation)
-		// 		Send the client with the specific URI to that servlet and send the servlet the same token that user got when they logged in
-		// If debugger request. All handled by this servlet. no websocket gimics 
-		//		Authenticate!!
-		//		Query servlets according to request and send info back
-		// If General Viewer Request TODO: Websocket of Regular?
-		//		Check if current details are expired. 
-		//		If expired Query all map info (limited detail), save the current info and send them to requester
-		//		If data is relativly new, send it to the requester
-		// If Admin request
-		//		Authenticate!!!
-		//		Run command straight away.
-
-		// Convert the request parameters to a map so its easier for the back end
-		Map<String, String[]> parameters =request.getParameterMap();
-		if(Globals.LOUD) System.out.println("Thread: "+Thread.currentThread().getId());
-		//Match request type
-		if(parameters==null || !parameters.containsKey("requesttype")){
-			// invalid request. Does not adhere to protocol. kindly ask them to GTFO!
-			if(parameters==null){
-				serverresponse.status=false;
-				serverresponse.message="Protocol Error: no parameters provided!";
-				sendResponse(response,serverresponse,null);
-			}
-			else{
-				if(Globals.DEBUG) System.out.println("ERROR: Requesttype not provided!");
-				serverresponse.status=false;
-				serverresponse.message="Protocol Error: requesttype parameter not specified!";
-				sendResponse(response,serverresponse,null);
-			}	
-		}
-		// So far so good. Depending on the user  type we can now call the helper functions.
-		else if(parameters.get("requesttype")[0].equals("user")){
-			// A user who wants to play. 
-			// We put this option first since its the most likely request to happen
-			//TODO
-			if(Globals.DEBUG) System.out.println("WARNING: parameters.get user NOT IMPLEMENTED!");
-			handleUserGet(parameters,response,serverresponse);
-			//System.out.println(parameters.get("c")[1]);
-			//System.out.println(parameters.get("c")[0]);
-		}
-		else if(parameters.get("requesttype")[0].equals("general")){
-			// A general user who wants to view the game. (not necessarily a signed up user) 
-			// We put this option second since its the second most likely request to happen
-			handleGeneralViewerGet(parameters,response);
-		}
-		else if(parameters.get("requesttype")[0].equals("debug")){
-			// A debugger connection. // This must be authenticated as it has access to basically everything!!! 
-			// We put this option 3rd since its much less likely request to happen
-
-			//TODO:: AUTHENTICATE THIS SHIT!
-			handleDebuggerGet(parameters,response);
-			if(Globals.DEBUG) System.out.println("WARNING: DEBUG MODE NOT IMPLEMENTED!");
-		}
-		else if(parameters.get("requesttype")[0].equals("admin")){
-			// An admin connection. // This too must be authenticated as it has access to basically everything!!! 
-			// We put this option last since its the least likely request to happen
-
-			//TODO:: AUTHENTICATE THIS SHIT!
-
-			if(Globals.DEBUG) System.out.println("WARNING: ADMIN MODE NOT IMPLEMENTED!");
-			handleAdminGet(parameters,response,serverresponse);
-		}
-		else{
-			// Again. invalid request. kindly ask them to GTFO!
-			if(Globals.LOUD) System.out.println("Invalid Protocol Request Detected!"+parameters.get("requesttype"));
-			serverresponse.status=false;
-			serverresponse.message="Protocol Error: invalid request: "+parameters.get("requesttype")+" !";
-			sendResponse(response,serverresponse,null);
-		} 
-		// response.setContentType("text/html");
-		// System.out.println("Got:"+request.getQueryString()+"::"+request.getParameter("cat")+"::"+request.getParameter("bleh"));
-		// PrintWriter pw = response.getWriter();
-		// pw.println("<h1>Hello World "+Thread.currentThread().getId()+"</h1>");
+		/*
+		 * We are not using httpGet anymore
+		 * ServerResponse serverresponse = new ServerResponse(); // Collect status of the previous helper function //TODO recycle serverresponse object
+		 * Convert the request parameters to a map so its easier for the back end
+		 * Map<String, String[]> parameters =request.getParameterMap();
+		 * Match request type
+		 * if(parameters==null || !parameters.containsKey("requesttype"))
+		 * 
+		 * "http://localhost:8080/Capture_Server/Resolver?requesttype=admin&adminname=malithmp&password=meh&request=tempinit"
+		 */
+		
+		// Just to remind anyone that HTTPGET is history
+		ServerResponse serverresponse = new ServerResponse();
+		serverresponse.status=false;
+		serverresponse.message="Protocol Error: Incorrect Input!";
+		sendResponse(response,serverresponse,null);
+		
 	}
 
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		//------// Check if the request is for user connection/ debugger/admin request or General viewer request
+		//------// If user connection (a user needs to play the game)
+		//------// 		Authenticate and send back a token
+		//------// 		Get Location and Arena requested by the user
+		//------// 		Verify if the request can be completed (Current Location is too far away from the arena.. user is out of range)
+		//------// 		If the above passes, Query all websocket servlets to see which one is serving that arena (may be done at a different stage: ie at startup of server.. or during operation)
+		//------// 		Send the client with the specific URI to that servlet and send the servlet the same token that user got when they logged in
+		//------// If debugger request. All handled by this servlet. no websocket gimics 
+		//------//		Authenticate!!
+		//------//		Query servlets according to request and send info back
+		//------// If General Viewer Request TODO: Websocket of Regular?
+		//------//		Check if current details are expired. 
+		//------//		If expired Query all map info (limited detail), save the current info and send them to requester
+		//------//		If data is relativly new, send it to the requester
+		//------// If Admin request
+		//------//		Authenticate!!!
+		//------//		Run command straight away.
+		
+		if(Globals.LOUD) System.out.println("Thread: "+Thread.currentThread().getId());
 		ServerResponse serverresponse = new ServerResponse();	// Collect status of the previous helper function //TODO recycle serverresponse object
-		// Must only be handling inter-servlet or admin data
-		// Admins may manually upload arenas/maps
-		// Servlets may pass arenas/maps within themselves for load balancing purposes
-
 		// If admin request, AUTHENTICATE!!! TODO
 		// If inter-servlet communication AUTHENTICATE!! TODO
-		// Convert the request parameters to a map so its easier for the back end
-		//System.out.println("post got from"+ parameters.get("requester"));
-		Map<String, String[]> parameters =request.getParameterMap();
-		if(parameters==null || !parameters.containsKey("requesttype")){
+		// If user communication AUTHENTICATE TODO
+
+		// Read data from the post request
+		String inputData="";
+		BufferedReader bufferedReader;
+
+		try{
+			// Read data from the post
+			bufferedReader = request.getReader();
+			inputData=bufferedReader.readLine();
+		}catch(Exception e){
+			// The above 2 lines are crucial for the rest of this function., Failure of any should be caught by this point and we should not (and cannot) continue
+			serverresponse.status=false;
+			serverresponse.message="No data received";
+			sendResponse(response,serverresponse,null);
+			return;
+		}
+
+		JSONObject jObj = (JSONObject) JSONValue.parse(inputData);
+		if(jObj==null || jObj.isEmpty()){
 			// invalid request. Does not adhere to protocol. kindly ask them to GTFO!
-			if(parameters==null){
-				if(Globals.DEBUG) System.out.println("ERROR: Parameters not provided!");
-				serverresponse.status=false;
-				serverresponse.message="Protocol Error: no parameters provided!";
-				sendResponse(response,serverresponse,null);
-			}
-			else{
-				if(Globals.DEBUG) System.out.println("ERROR: Requesttype not provided!");
-				serverresponse.status=false;
-				serverresponse.message="Protocol Error: requesttype parameter not specified!";
-				sendResponse(response,serverresponse,null);
-			}
+			if(Globals.DEBUG) System.out.println("ERROR: Parameters not provided!");
+			serverresponse.status=false;
+			serverresponse.message="Protocol Error: no parameters provided!";
+			sendResponse(response,serverresponse,null);
+			return;
 		}
-		else if(parameters.get("requesttype")[0].equals("admin")){
-			handleAdminPost(parameters, request, response, serverresponse);
+		else if(!jObj.containsKey("requesttype")){
+			// invalid request. Does not adhere to protocol. kindly ask them to GTFO!
+			if(Globals.DEBUG) System.out.println("ERROR: Invalid Request!");
+			serverresponse.status=false;
+			serverresponse.message="Protocol Error. Invalid Request!";
+			sendResponse(response,serverresponse,null);
+			return;
 		}
-		else if(parameters.get("requesttype")[0].equals("servlet")){
-			if(Globals.DEBUG) System.out.println("WARNING: POST SERVLET NOT IMPLEMENTED!");
 
+		if(((String)jObj.get("requesttype")).equals("user")){
+			handleUserPost(jObj, response, serverresponse);
 		}
-		else if(parameters.get("requesttype")[0].equals("websocket")){
-			if(Globals.DEBUG) System.out.println("WARNING: POST WEBSOCKET NOT IMPLEMENTED!");
 
+		else if(((String)jObj.get("requesttype")).equals("admin")){
+			handleAdminPost(jObj, response, serverresponse);
 		}
-		else if(parameters.get("requesttype")[0].equals("user")){
-			handleUserPost(parameters, request, response, serverresponse);
+
+		else if(((String)jObj.get("requesttype")).equals("general")){
+			// A general user who wants to view the game. (not necessarily a signed up user) 
+			handleGeneralViewerPost(null,response);
+			if(Globals.DEBUG) System.out.println("WARNING: GENERAL MODE NOT IMPLEMENTED!");
 		}
+		
+		else if(((String)jObj.get("requesttype")).equals("debug")){
+			// A debugger connection. // This must be authenticated as it has access to basically everything!!! 
+			handleDebuggerPost(null,response);
+			if(Globals.DEBUG) System.out.println("WARNING: DEBUG MODE NOT IMPLEMENTED!");
+		}
+
 		else{
-			if(Globals.DEBUG) System.out.println("CRITICAL ERROR: HTTPPOST request type mismatch: provided :"+parameters.get("requesttype")[0]);
+			if(Globals.DEBUG) System.out.println("CRITICAL ERROR: HTTPPOST request type mismatch: provided :"+(String)jObj.get("requesttype"));
 			return;
 		}
 
@@ -223,7 +199,117 @@ public class Resolver extends HttpServlet {
 
 	// ------------------------------- HELPER FUNCTIONS -------------------------------------------
 
-	public void handleUserGet(Map<String, String[]> parameters, HttpServletResponse response, ServerResponse serverresponse){// Parameters passed by the HTTP GET
+	public void handleDebuggerPost(JSONObject jObj, HttpServletResponse response){// Parameters passed by the HTTP GET
+		// Authenticate!!
+		// Query servlets according to request and send info back
+		if(Globals.LOUD) System.out.println("Debug Mode");
+		try{
+			if(Globals.LOUD) System.out.println("dVal");
+		}catch(Exception e){
+			if(Globals.LOUD) System.out.println("Debugmode exception caught");
+		}
+	}
+
+
+
+	public boolean handleAdminPost(JSONObject jObj,  HttpServletResponse response, ServerResponse serverresponse){
+		//TODO Authenticate!!
+		if(Globals.DEBUG) System.out.println("WARNING: Admin not authenticated");
+		if(Globals.DEBUG) System.out.println("INFO:adminname:"+(String)jObj.get("adminname")+" token:" + (String)jObj.get("token"));
+		
+		if(((String)jObj.get("loggedin")).equals("true")){
+			if(Globals.DEBUG) System.out.println("INFO:Admin Mode: Welcome my Lords!");
+			if(((String)jObj.get("request")).equals("registerinstitute")){
+				// Map institute email domain to the institute name and save the map data (boundary) to a file
+				boolean registered = registerInstitute(((String)jObj.get("institutename")), ((String)jObj.get("institutedomain")), ((String)jObj.get("rawdata")), serverresponse);
+				if(registered){
+					sendResponse(response, serverresponse,new String[]{"message","Institure registered successfully"});
+					return true;
+				}else{
+					sendResponse(response,serverresponse,null);
+					return false;
+				}
+			}
+			else if(((String)jObj.get("request")).equals("registerservlet")){
+				// Read the servlet URL and add it to the serverinternaldata data structure
+				boolean status = serverinternaldata.registerNewServlet((String)jObj.get("url"),serverresponse);
+				if(status){ // Let the admin know everything went well
+					if(Globals.LOUD) System.out.println("Servlet Added");
+					serverresponse.status=true;
+					sendResponse(response, serverresponse,new String[]{"message","Servlet Registered"});
+					return true;
+				}
+				else{
+					// Error message set inside serverinternaldata.registerNewServlet function
+					sendResponse(response, serverresponse,null);
+					return false;
+				}
+			}
+			else if(((String)jObj.get("request")).equals("registerarena")){
+				//Arena names are added at the time it was uploaded to the server (using a POST request)
+				// TODO Makesure there is a way to map this name to the actual arena data.
+				if(Globals.DEBUG) System.out.println("WARNING:sendMapToServlet() must be called before this!");
+				if(Globals.DEBUG) System.out.println("WARNING:Assined map must be sent to the arena");
+				if(Globals.DEBUG) System.out.println((String)jObj.get("arena"));
+				boolean status = serverinternaldata.registerNewArena((String)jObj.get("arena"), serverresponse);
+
+				if(status){ // Let the admin know everything went well
+					if(Globals.LOUD) System.out.println("Added Arena");
+					sendResponse(response,serverresponse,new String[]{"message","Arena Registered"});
+					return true;
+				}
+				else{
+					sendResponse(response,serverresponse,null);
+					return false;
+				}
+			}
+			else if(((String)jObj.get("request")).equals("maparenaservlet")){
+				if(Globals.DEBUG) System.out.println(((String)jObj.get("arena"))+"--"+ ((String)jObj.get("servlet")));
+				boolean status = serverinternaldata.mapArenaServlet(((String)jObj.get("arena")), ((String)jObj.get("servlet")), serverresponse);
+				if(status){ // Let the admin know everything went well
+					sendResponse(response,serverresponse,new String[]{"message","Arena Servlet mapped"});
+					return true;
+				}
+				else{
+					sendResponse(response,serverresponse,null);
+					return false;
+				}
+			}
+			else if(((String)jObj.get("request")).equals("tempinit")){
+				// This is a temporary function.. remove once done
+				boolean status = tempinit(response, serverresponse);
+				return false;
+			}
+			else if(((String)jObj.get("request")).equals("tempgetdbpath")){
+				// This is a temporary function.. remove once done
+				File f = new File("a.a");
+				sendResponse(response,serverresponse,new String[]{"message","Database Path: "+f.getAbsolutePath()});
+				return false;
+			}
+			else{
+				serverresponse.status=false;
+				serverresponse.message="Invalid Admin Post Request!";
+				sendResponse(response,serverresponse, null);
+				return false;
+			}
+		}
+		else if (((String)jObj.get("loggedin")).equals("true")){
+			// TODO Admin authentication!!!
+			return false;
+		}
+		
+		else{
+			serverresponse.status=false;
+			serverresponse.message="Invalid Admin Post Request!";
+			sendResponse(response,serverresponse, null);
+			return false;
+		}
+		
+		
+	}
+
+
+	public boolean handleUserPost(JSONObject jObj, HttpServletResponse response , ServerResponse serverresponse){
 		// 		Read "loggedin" info. if false, either expect a signin or signup
 		//		If true, Check against databases to see if this guy is legit
 		//		Create access token for future communications. Let the other servelet instances know of this token. Set expiration time? TODO: expiriation time for token
@@ -234,164 +320,32 @@ public class Resolver extends HttpServlet {
 		// 		If the above passes, Query all websocket servlets to see which one is serving that arena (may be done at a different stage: ie at startup of server.. or during operation)
 
 		// 		Send the client with the specific URI to that servlet and send the servlet the same token that user got when they logged in
+		if(Globals.DEBUG) System.out.println("AUTHENTICATE USER POST!");
 
-		if(parameters.get("loggedin")[0].equals("true")){
+		if(((String)jObj.get("loggedin")).equals("true")){
 			// Most frequent option. Logged in user is requesting for an arena to play in
 			// TODO
 			// Check if the token is not expired, 
 			// if it is, take user through the authentication process
 			if(Globals.DEBUG) System.out.println("WARNING: logged in true : NOT IMPLEMENTED");
+			return false;//TODO
 		}
-		else if (parameters.get("loggedin")[0].equals("false")){
+
+		else if(((String)jObj.get("loggedin")).equals("false")){
 			// only allowed to signin or signup
-			if(parameters.get("request")[0].equals("signin")){
-				// Get the username and password, call the authenticate function to verify the username/password
-				boolean authenticationStatus = authenticate(parameters.get("username")[0],parameters.get("password")[0],response,serverresponse);
-			}
-			//else if (parameters.get("request")[0].equals("signup")){
-			//	THIS PART MOVED TO THE HTTPPOST area. 
-			// 	User sends large amounts of data, its trouble to handle them as a string
-			//	Move to HTTP post and get the complete object as a JSON string
-			//}
-		}
 
-		if(Globals.DEBUG) System.out.println("WARNING: handleUserGet :PARTIALLY IMPLEMENTED!");
-	}
-
-	public void handleDebuggerGet(Map<String, String[]> parameters, HttpServletResponse response){// Parameters passed by the HTTP GET
-		// Authenticate!!
-		// Query servlets according to request and send info back
-		if(Globals.LOUD) System.out.println("Debug Mode");
-		try{
-			if(Globals.LOUD) System.out.println("dVal = " +parameters.get("dVal")[0]);
-		}catch(Exception e){
-			if(Globals.LOUD) System.out.println("Debugmode exception caught");
-		}
-	}
-
-
-	public void handleAdminGet(Map<String, String[]> parameters, HttpServletResponse response, ServerResponse serverresponse){// Parameters passed by the HTTP GET
-		//TODO Authenticate!!
-		// Query servlets according to request and send info bnValack
-		if(Globals.DEBUG) System.out.println("INFO:Admin Mode: Welcome my Lords!");
-		//TODO Authenticate!!!!!!!
-		if(Globals.DEBUG) System.out.println("WARNING: Admin not authenticated");
-		if(Globals.DEBUG) System.out.println("INFO:adminname:"+parameters.get("adminname")[0]+" password:" + parameters.get("password")[0]);
-
-		//Admin task implementation
-
-		if(parameters.get("request")[0].equals("registerservlet")){
-			// Read the servlet URL and add it to the serverinternaldata data structure
-			boolean status = serverinternaldata.registerNewServlet(parameters.get("URL")[0], serverresponse);
-			if(Globals.DEBUG) System.out.println(parameters.get("URL")[0]);
-			if(status){ // Let the admin know everything went well
-				if(Globals.LOUD) System.out.println("Added Servlet");
-				serverresponse.status=true;
-				sendResponse(response, serverresponse,new String[]{"message","Servlet Registered"});
-			}
-			else{
-				// Error message set inside serverinternaldata.registerNewServlet function
-				sendResponse(response, serverresponse,null);
-			}
-		}
-		else if(parameters.get("request")[0].equals("registerarena")){
-			//Arena names are added at the time it was uploaded to the server (using a POST request)
-			// TODO Makesure there is a way to map this name to the actual arena data.
-			if(Globals.DEBUG) System.out.println("WARNING:sendMapToServlet() must be called before this!");
-			if(Globals.DEBUG) System.out.println("WARNING:Assined map must be sent to the arena");
-			if(Globals.DEBUG) System.out.println(parameters.get("arena")[0]);
-			boolean status = serverinternaldata.registerNewArena(parameters.get("arena")[0], serverresponse);
-
-			if(status){ // Let the admin know everything went well
-				if(Globals.LOUD) System.out.println("Added Arena");
-				sendResponse(response,serverresponse,new String[]{"message","Arena Registered"});
-			}
-			else{
-				sendResponse(response,serverresponse,null);
-			}
-		}
-		else if(parameters.get("request")[0].equals("maparenaservlet")){
-			if(Globals.DEBUG) System.out.println(parameters.get("arena")[0]+"--"+ parameters.get("servlet")[0]);
-			boolean status = serverinternaldata.mapArenaServlet(parameters.get("arena")[0], parameters.get("servlet")[0], serverresponse);
-			if(status){ // Let the admin know everything went well
-				sendResponse(response,serverresponse,new String[]{"message","Arena Servlet mapped"});
-			}
-			else{
-				sendResponse(response,serverresponse,null);
-			}
-		}
-		else if(parameters.get("request")[0].equals("tempinit")){
-			// This is a temporary function.. remove once done
-			boolean status = tempinit(response, serverresponse);
-		}
-		else if(parameters.get("request")[0].equals("tempgetdbpath")){
-			// This is a temporary function.. remove once done
-			File f = new File("a.a");
-			sendResponse(response,serverresponse,new String[]{"message","Database Path: "+f.getAbsolutePath()});
-		}
-		return;
-	}
-
-
-	public boolean handleAdminPost(Map<String,String[]> parameters, HttpServletRequest request, HttpServletResponse response, ServerResponse serverresponse){
-
-		if(Globals.DEBUG) System.out.println("AUTHENTICATE ADMIN POST! :"+parameters.get("adminname")[0]+"::"+parameters.get("password")[0]);
-		System.out.println(parameters.keySet().toString());//TODO???? remove this 
-		String inputData="";
-		BufferedReader bufferedReader;
-
-		try{
-			// Read data from the post
-			bufferedReader = request.getReader();
-			inputData=bufferedReader.readLine();
-		}catch(Exception e){
-			// The above 2 lines are crucial for the rest of this function., Failure of any should be caught by this point and we should not (and cannot) continue
-			serverresponse.status=false;
-			serverresponse.message="Admin Post Crashed";
-			return false;
-		}
-
-		if(parameters.get("request")[0].equals("registerinstitute")){
-			// Map institute email domain to the institute name and save the map data (boundary) to a file
-
-			boolean registered = registerInstitute(parameters.get("institutename")[0], parameters.get("institutedomain")[0], inputData, serverresponse);
-			if(registered){
-				sendResponse(response, serverresponse,new String[]{"message","Institure registered successfully"});
-			}else{
-				sendResponse(response,serverresponse,null);
-			}
-			
-		}
-		else{
-			serverresponse.status=false;
-			serverresponse.message="Invalid Admin Post Request!";
-			sendResponse(response,serverresponse, null);
-		}
-		return false;
-	}
-
-
-	public boolean handleUserPost(Map<String,String[]> parameters, HttpServletRequest request, HttpServletResponse response , ServerResponse serverresponse){
-		if(Globals.DEBUG) System.out.println("AUTHENTICATE USER POST!");
-
-		if(parameters.get("loggedin")[0].equals("false")){
-			if(parameters.get("request")[0].equals("signup")){
+			if(((String)jObj.get("request")).equals("signup")){
 				// User needs to signup
 				// User sends the data packaged in a user object json string
-				String inputData="";
-				BufferedReader r;
-				try {
-					r = request.getReader();
-					inputData=r.readLine();			//r.readLine() will get the string of the entity we sent. ie. json string
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-					return false;
-				}
-				if(Globals.DEBUG) System.out.println("UserPost:"+inputData);
-				usersignup(inputData,response,serverresponse);
+				if(Globals.DEBUG) System.out.println("UserPost:"+(String)jObj.get("rawdata"));
+				usersignup((String)jObj.get("rawdata"),response,serverresponse);
 				return false;
-
+			}
+			else if(((String)jObj.get("loggedin")).equals("signin")){
+				// Get the username and password, call the authenticate function to verify the username/password
+				boolean authenticationStatus = authenticate((String)jObj.get("username"),(String)jObj.get("password"),response,serverresponse);
+				//TODO what to do with the authenticationStatus ?
+				return true;
 			}
 			else{
 				serverresponse.status=false;
@@ -410,7 +364,7 @@ public class Resolver extends HttpServlet {
 	}
 
 
-	public void handleGeneralViewerGet(Map<String, String[]> parameters, HttpServletResponse response){// Parameters passed by the HTTP GET
+	public void handleGeneralViewerPost(JSONObject jObj, HttpServletResponse response){
 		// Resolve the request.. What are they asking for?
 		// TODO: if we are planning on using websockets, 
 		// 		 Do websockety stuff
@@ -419,20 +373,20 @@ public class Resolver extends HttpServlet {
 		// 		 If data is not expired, send it to them
 		if(Globals.DEBUG) System.out.println("WARNING: NOT IMPLEMENTED!");
 	}
-	
-	
-	
+
+
+
 	// ------------------------------- actual helper functions--------------------------------------------------
 
-	private boolean registerInstitute(String instituteName, String instituteDomain, String inputData, ServerResponse serverresponse){
-		if(inputData==null){				// little sanity test
+	private boolean registerInstitute(String instituteName, String instituteDomain, String rawData, ServerResponse serverresponse){
+		if(rawData==null){				// little sanity test
 			serverresponse.status=false;
 			serverresponse.message="Input Data null, Sanity failed";
 			return false;
 		}
 		String fname = Globals.FILE_DIR+instituteName+".map";
 		if(Globals.DEBUG) System.out.println("INFO: Creating file"+fname);	
-		if(Globals.DEBUG) System.out.println("INFO: Got = "+inputData);	
+		if(Globals.DEBUG) System.out.println("INFO: Got = "+rawData);	
 
 		try{
 			File file = new File(fname);
@@ -452,12 +406,12 @@ public class Resolver extends HttpServlet {
 			bw.write("\n");
 			bw.write(instituteDomain);		// line #1 of = the insitute domain
 			bw.write("\n");
-			bw.write(inputData);
+			bw.write(rawData);
 			bw.close();
 
 			// Add these to the database
 			dbHelper.addInstitute(instituteName, instituteDomain, fname);
-			
+
 		}catch(Exception e){
 			serverresponse.status=false;
 			serverresponse.message="Could not write to file";
@@ -627,9 +581,9 @@ public class Resolver extends HttpServlet {
 			sb.append("\"true\"");
 			for(int i=0;i<extra.length;i++){
 				sb.append(",\"");
-				sb.append(extra[i]);
-				sb.append("\":\"");
 				sb.append(extra[i++]);
+				sb.append("\":\"");
+				sb.append(extra[i]);
 				sb.append("\"");
 			}
 		}

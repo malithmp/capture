@@ -20,7 +20,7 @@ public class SignupTest {
 	String baseURL;
 	
 	public SignupTest(String base) {
-		this.baseURL = base+"requesttype=user&loggedin=false&request=signup";
+		this.baseURL = base;
 	}
 	public void test(int numThreads){
 		
@@ -35,7 +35,7 @@ public class SignupTest {
 
 		for(int i=0;i<numThreads;i++){
 			UserSingup test =new UserSingup("User"+i,"Pass"+i,"First"+i,"Last"+i,"Home"+i,"Email"+i+doms.get(i%4));
-			System.out.println("User"+i+" "+"Pass"+i+" "+"First"+i+" "+"Last"+i+" "+"Home"+i+" "+"Email"+i+doms.get(i%4));
+			//System.out.println("User"+i+" "+"Pass"+i+" "+"First"+i+" "+"Last"+i+" "+"Home"+i+" "+"Email"+i+doms.get(i%4));
 			threads[i]=new Thread(test);								// First set of threads 0 to (n/3 -1)
 		}
 
@@ -53,6 +53,9 @@ public class SignupTest {
 		UserSingup(String user,String pass, String first, String last, String home, String email){
 			try{
 				JSONObject obj=new JSONObject();
+				obj.put("requesttype","user");
+				obj.put("loggedin", "false");
+				obj.put("request","signup");
 				obj.put("username",user);
 				obj.put("password",pass);
 				obj.put("firstname",first);
@@ -77,7 +80,7 @@ public class SignupTest {
 				BufferedReader br = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
 				String serverResponseString = br.readLine();
 				//System.out.println(serverResponseString);
-				System.out.println(serverResponseString);
+				System.out.println("SU : "+serverResponseString);
 
 			}catch(Exception e){
 				e.printStackTrace();

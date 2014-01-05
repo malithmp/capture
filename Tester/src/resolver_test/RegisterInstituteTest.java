@@ -22,11 +22,10 @@ public class RegisterInstituteTest {
 	String baseURL;
 
 	public RegisterInstituteTest(String base) {
-		this.baseURL = base+"requesttype=admin&adminname=malithmp&password=pass1&request=registerinstitute&";
+		this.baseURL = base;
 	}
+	
 	public void test(){
-
-
 		Thread[] threads = new Thread[4];
 		ArrayList<Integer[]> points = new ArrayList<Integer[]>();
 		
@@ -74,13 +73,21 @@ public class RegisterInstituteTest {
 		// Do a httpPost
 		//{"username":"user123","password":"pass123","firstname":"first123","lastname":"last123","home":"home123","email":"email123@institute.com"}
 		String data;
-		String finalURL;
+		//String finalURL;
 		
 		RegisterInstitute(String institutename,String instituteDomain, Integer[][] coordinates){
-			finalURL = baseURL+"institutename="+institutename+"&institutedomain="+instituteDomain;
-			System.out.println(finalURL);
+			//finalURL = baseURL+"institutename="+institutename+"&institutedomain="+instituteDomain;
+			//System.out.println(finalURL);
 			try{
 				JSONObject obj=new JSONObject();
+				obj.put("requesttype", "admin");
+				obj.put("loggedin", "true");
+				obj.put("adminname", "malithmp");
+				obj.put("token", "t1mm3y");
+				obj.put("request", "registerinstitute");
+				obj.put("institutename", institutename);
+				obj.put("institutedomain", instituteDomain);
+				
 				for(int i=0;i<coordinates.length;i++){
 					obj.put(Integer.toString(i),"("+coordinates[i][0]+","+coordinates[i][1]+")");
 				}
@@ -95,7 +102,7 @@ public class RegisterInstituteTest {
 			try{
 				HttpClient httpclient = new DefaultHttpClient();
 				HttpResponse response;
-				HttpPost request = new HttpPost(finalURL);
+				HttpPost request = new HttpPost(baseURL);
 
 				request.setEntity(new StringEntity(data));
 				response = httpclient.execute(request);
