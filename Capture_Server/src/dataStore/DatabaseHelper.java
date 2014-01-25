@@ -8,6 +8,9 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
 
+import models.ServerResponse;
+import models.User;
+
 public class DatabaseHelper {
 	// Handle all persistent data
 	// Example:	user database (including the name and password)

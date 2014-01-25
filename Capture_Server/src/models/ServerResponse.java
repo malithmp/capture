@@ -1,4 +1,4 @@
-package dataStore;
+package models;
 
 public class ServerResponse {
 	// This object is passed to helper function to store the state and the message

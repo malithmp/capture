@@ -7,7 +7,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.security.NoSuchAlgorithmException;
-import java.util.Map;
 import java.util.StringTokenizer;
 
 import javax.servlet.ServletException;
@@ -16,8 +15,14 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import models.ServerResponse;
+import models.User;
+
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
+
+
+
 
 
 //import net.sf.json.JSONObject;
@@ -25,9 +30,6 @@ import tools.Crypto;
 import dataStore.DatabaseHelper;
 import dataStore.Globals;
 import dataStore.ServerInternalData;
-import dataStore.ServerResponse;
-import dataStore.User;
-// Handles the http based request of the server
 
 @WebServlet(value="/Resolver", asyncSupported = true)
 public class Resolver extends HttpServlet {
@@ -49,6 +51,8 @@ public class Resolver extends HttpServlet {
 		initdata();			// initialize data
 		initCrypt();		// initialize hashing related classes
 		initDB();			// initialize database helper and create/initilaze/open database
+		initAccounts();		// Create initial accounts such as admin accounts
+
 	}
 
 	/**
@@ -65,13 +69,13 @@ public class Resolver extends HttpServlet {
 		 * 
 		 * "http://localhost:8080/Capture_Server/Resolver?requesttype=admin&adminname=malithmp&password=meh&request=tempinit"
 		 */
-		
+
 		// Just to remind anyone that HTTPGET is history
 		ServerResponse serverresponse = new ServerResponse();
 		serverresponse.status=false;
 		serverresponse.message="Protocol Error: Incorrect Input!";
 		sendResponse(response,serverresponse,null);
-		
+
 	}
 
 	/**
@@ -95,7 +99,7 @@ public class Resolver extends HttpServlet {
 		//------// If Admin request
 		//------//		Authenticate!!!
 		//------//		Run command straight away.
-		
+
 		if(Globals.LOUD) System.out.println("Thread: "+Thread.currentThread().getId());
 		ServerResponse serverresponse = new ServerResponse();	// Collect status of the previous helper function //TODO recycle serverresponse object
 		// If admin request, AUTHENTICATE!!! TODO
@@ -149,7 +153,7 @@ public class Resolver extends HttpServlet {
 			handleGeneralViewerPost(null,response);
 			if(Globals.DEBUG) System.out.println("WARNING: GENERAL MODE NOT IMPLEMENTED!");
 		}
-		
+
 		else if(((String)jObj.get("requesttype")).equals("debug")){
 			// A debugger connection. // This must be authenticated as it has access to basically everything!!! 
 			handleDebuggerPost(null,response);
@@ -194,6 +198,15 @@ public class Resolver extends HttpServlet {
 		}
 	}
 
+	private void initAccounts(){
+		// Create the very first admin with the following credentials
+		// Current admin username: th3_0n3
+		// current admin password: BananasAreG00d
+		// TODO: REMOVE THE FIRST ADMIN WITH THE REAL ONES [ adminName-> (salt, hash)]
+		serverinternaldata.modifyAdminCredentials("th3_0n3", "36d5c61af959e7e38bb69e1cc297b63028c5c257a5db25d60c8bff90442bf631",
+				"6dcf27c9d74d6b82a898dd803559be59a3bf34ec8bb7d9ec479d2e8290279c624dd4c3a2a4d589c56da8aa8bdaee4c1373db7397d23c7b7fafc8bfa0abe8e126", 1);
+		if(Globals.DEBUG) System.out.println("WARNING: Creating First Admin...");
+	}
 	//-------------END INIT---------------
 
 
@@ -211,13 +224,20 @@ public class Resolver extends HttpServlet {
 	}
 
 
-
 	public boolean handleAdminPost(JSONObject jObj,  HttpServletResponse response, ServerResponse serverresponse){
 		//TODO Authenticate!!
-		if(Globals.DEBUG) System.out.println("WARNING: Admin not authenticated");
 		if(Globals.DEBUG) System.out.println("INFO:adminname:"+(String)jObj.get("adminname")+" token:" + (String)jObj.get("token"));
-		
+
 		if(((String)jObj.get("loggedin")).equals("true")){
+			if(!serverinternaldata.isAdminValid((String)jObj.get("adminname"), (String)jObj.get("token"))){
+				// Admin request with invalid credentials
+				if(Globals.DEBUG)System.out.println("WARNING: ADMIN REQUETS WITH INVALID CREDENTIALS");
+				serverresponse.status=false;
+				serverresponse.message="Illegal request  o8e45";
+				sendResponse(response, serverresponse,null);
+				return false;
+			}
+
 			if(Globals.DEBUG) System.out.println("INFO:Admin Mode: Welcome my Lords!");
 			if(((String)jObj.get("request")).equals("registerinstitute")){
 				// Map institute email domain to the institute name and save the map data (boundary) to a file
@@ -275,6 +295,14 @@ public class Resolver extends HttpServlet {
 					return false;
 				}
 			}
+			else if(((String)jObj.get("request")).equals("addadmin")){
+				// Add another admin
+				String adminname = (String)jObj.get("adminname");
+				String password = (String)jObj.get("password");
+				addAdmin(adminname, password, response, serverresponse);
+				return true;
+			}
+			
 			else if(((String)jObj.get("request")).equals("tempinit")){
 				// This is a temporary function.. remove once done
 				boolean status = tempinit(response, serverresponse);
@@ -293,19 +321,25 @@ public class Resolver extends HttpServlet {
 				return false;
 			}
 		}
-		else if (((String)jObj.get("loggedin")).equals("true")){
+		else if (((String)jObj.get("loggedin")).equals("false")){
 			// TODO Admin authentication!!!
+			if(((String)jObj.get("request")).equals("signin")){
+				authenticateAdmin((String)jObj.get("adminname"),(String)jObj.get("password"), response, serverresponse);
+			}else{
+				serverresponse.status=false;
+				serverresponse.message="Invalid Admin Post Request!";
+				sendResponse(response,serverresponse, null);
+			}
 			return false;
 		}
-		
 		else{
 			serverresponse.status=false;
 			serverresponse.message="Invalid Admin Post Request!";
 			sendResponse(response,serverresponse, null);
 			return false;
 		}
-		
-		
+
+
 	}
 
 
@@ -328,6 +362,14 @@ public class Resolver extends HttpServlet {
 			// Check if the token is not expired, 
 			// if it is, take user through the authentication process
 			if(Globals.DEBUG) System.out.println("WARNING: logged in true : NOT IMPLEMENTED");
+			if(!serverinternaldata.isUserValid((String)jObj.get("username"), (String)jObj.get("token"))){
+				// Admin request with invalid credentials
+				if(Globals.DEBUG)System.out.println("WARNING: USER REQUETS WITH INVALID CREDENTIALS");
+				serverresponse.status=false;
+				serverresponse.message="Illegal request  o8e46";
+				sendResponse(response, serverresponse,null);
+				return false;
+			}
 			return false;//TODO
 		}
 
@@ -343,7 +385,7 @@ public class Resolver extends HttpServlet {
 			}
 			else if(((String)jObj.get("loggedin")).equals("signin")){
 				// Get the username and password, call the authenticate function to verify the username/password
-				boolean authenticationStatus = authenticate((String)jObj.get("username"),(String)jObj.get("password"),response,serverresponse);
+				boolean authenticationStatus = authenticateUser((String)jObj.get("username"),(String)jObj.get("password"),response,serverresponse);
 				//TODO what to do with the authenticationStatus ?
 				return true;
 			}
@@ -420,7 +462,8 @@ public class Resolver extends HttpServlet {
 		return true;
 	}
 
-	private boolean authenticate(String username, String password, HttpServletResponse response, ServerResponse serverresponse){
+
+	private boolean authenticateUser(String username, String password, HttpServletResponse response, ServerResponse serverresponse){
 		// do syncronized accesses to the database and crypto and verify authenticity  
 		// TODO DBhelper and crypto already provide synchronized access (due to either lack of thread safety in those libraries or to preserve ram usage)
 		// Look into this!!
@@ -428,10 +471,10 @@ public class Resolver extends HttpServlet {
 
 		// Get the Hash and the salt from the server for the user
 		String[] saltHash = null;
-		boolean authenticationStatus;
 		try {
 			saltHash = dbHelper.getSaltAndHash(username,serverresponse);
 			if (saltHash == null){
+				serverresponse.status=false;
 				serverresponse.message="Authentication Failed";				// Hiding real reason of failure since it can expose a vulnerability
 				if(Globals.LOUD) System.out.println("INFO: AUTH FAIL");
 				sendResponse(response,serverresponse,null);	
@@ -465,7 +508,7 @@ public class Resolver extends HttpServlet {
 		String token = crypto.getSalt(32);
 
 		// Keep track of the access token until the user logs out
-		boolean status = serverinternaldata.addActiveUser(username,token, serverresponse);
+		boolean status = serverinternaldata.addLiveUser(username,token, serverresponse);
 
 		// Send the access token to the user.
 		if(status==true){
@@ -482,6 +525,72 @@ public class Resolver extends HttpServlet {
 		}
 	}
 
+
+	private boolean authenticateAdmin(String adminname, String password, HttpServletResponse response, ServerResponse serverresponse){
+		String[] cred = serverinternaldata.getAdminCredentials(adminname);
+		boolean status = false;
+		try{
+			String hash = crypto.getHash(password,cred[0]);
+			if(hash.equals(cred[1])){
+				// hashes matched
+				status=true;
+				String token = crypto.getSalt(32);		//acquire token
+				// Keep track of the access token until the admin logs out
+				serverinternaldata.addLiveAdmin(adminname,token, serverresponse);
+				sendResponse(response, serverresponse, new String[]{"token",token});
+			}
+			else{
+				serverresponse.status=false;
+				serverresponse.message="Admin Authentication Failed";				// Hiding real reason of failure since it can expose a vulnerability
+				sendResponse(response,serverresponse,null);
+				if(Globals.LOUD) System.out.println("INFO: ADMIN AUTH FAIL");
+			}
+		}catch(Exception e){
+			serverresponse.status=false;
+			serverresponse.message="Admin Authentication Exception";				// Hiding real reason of failure since it can expose a vulnerability
+			sendResponse(response,serverresponse,null);
+			if(Globals.LOUD) System.out.println("INFO: ADMIN AUTH Exception");
+		}
+
+		return status;
+	}
+
+
+	private boolean addAdmin(String adminname, String password, HttpServletResponse response, ServerResponse serverresponse){
+		String salt = null;
+		String hash = null;
+		if(serverinternaldata.getAdminCredentials(adminname) != null){
+			// there is already an entry for this adminname
+			serverresponse.status=false;
+			serverresponse.message="Admin exists for this username";
+			sendResponse(response, serverresponse, null);
+			return false;
+		}
+
+		try{
+			salt = crypto.getSalt(32);
+		}catch(Exception e){
+			serverresponse.status=false;
+			serverresponse.message="Crypto Exception";
+			sendResponse(response, serverresponse, null);
+		}
+		
+		if(salt==null || hash==null){
+			serverresponse.status=false;
+			serverresponse.message="Error in crypto";
+			sendResponse(response, serverresponse, null);
+			return false;
+		}
+
+		serverinternaldata.modifyAdminCredentials(adminname, salt, hash, 1);
+		serverresponse.status=true;
+		sendResponse(response, serverresponse, new String[]{"message","Admin Added"});
+		
+		return false;
+
+	}
+
+	
 	private boolean usersignup(String inputData,HttpServletResponse response, ServerResponse serverresponse){
 
 		JSONObject jObj = (JSONObject) JSONValue.parse(inputData);
@@ -598,6 +707,8 @@ public class Resolver extends HttpServlet {
 
 
 	public boolean tempinit(HttpServletResponse response, ServerResponse serverresponse){
+		//TODO This should be removed immediately after the development phase
+
 		boolean status = true;
 		//TODO debug call to initialize dummy maps and arenas
 		// this will bypass most of the hassles during the starting the server
@@ -623,17 +734,17 @@ public class Resolver extends HttpServlet {
 		status &= serverinternaldata.mapArenaServlet(arenaname, websocketUrl, serverresponse);
 		System.out.println("\tWARNING:mapArenaServlet:"+status);
 
-		// dummy add users to database
+		// dummy add users and admins to database
 		System.out.println("WARNING: Adding dummy passwords to table. Remove immediately!");//TODO
 		try {
 			// create a salt
 			// use that salt and the password to build the hash, then put that hash and the salt to the table
 			String salt=crypto.getSalt(32);
-			dbHelper.acquireUsername("malithr", crypto.getHash("pass1",salt), salt, serverresponse);
+			dbHelper.acquireUsername("usermalithr", crypto.getHash("pass1",salt), salt, serverresponse);
 			salt=crypto.getSalt(32);
-			dbHelper.acquireUsername("numalj", crypto.getHash("pass2",salt), salt, serverresponse);
+			dbHelper.acquireUsername("usernumalj", crypto.getHash("pass2",salt), salt, serverresponse);
 			salt=crypto.getSalt(32);
-			dbHelper.acquireUsername("harithay", crypto.getHash("pass3",salt), salt, serverresponse);
+			dbHelper.acquireUsername("userharithay", crypto.getHash("pass3",salt), salt, serverresponse);
 
 			dbHelper.addInstitute("UofT","utoronto.ca","./UofT.map");
 			dbHelper.addInstitute("Ryerson","ryerson.ca","./Ryerson.map");

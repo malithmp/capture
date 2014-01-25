@@ -12,7 +12,7 @@ public class Crypto {
 	// But if we do, make sure to create a cypto object for each user connection
 	
 	AbstractChecksum checksum=null;
-	char[] hexArray = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'}; // This has to be done. Faster way to build the hex representation of a byte stream is to do a bit operation and a lookup
+	char[] hexArray = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'}; // This has to be done. Faster way to build the hex representation of a byte stream is to do a bit operation and a lookup
 	
 	public Crypto() throws NoSuchAlgorithmException{
 		checksum = JacksumAPI.getChecksumInstance("whirlpool"); 
@@ -23,7 +23,7 @@ public class Crypto {
 		if(checksum!=null){
 			checksum.reset();
 			checksum.update((salt+password).getBytes());
-			checksum.format("HEX_UPPERCASE");				// format the hash into a hex string. So no escape characters will appear in the SQL string
+			checksum.format("hexup");												// format the hash into a hex string. So no escape characters will appear in the SQL string
 			String hash = checksum.getFormattedValue();
 			return hash;
 		}

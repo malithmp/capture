@@ -1,9 +1,8 @@
-package dataStore;
+package models;
 
 public class User {
 	// Object that represents a user
 	// Username
-	// Password Hash <We dont want to save the plaintext password here do we?>
 	// Other user related information..maybe needed for their profile
 	// User Level related stuff
 	//		Level
@@ -13,9 +12,7 @@ public class User {
 	
 	// A temporary/smalle version of a auser is declared in ServrInternalData.java as ActiveUser
 	// This is only a representation of a user who is logged int. These two have a little in common
-	
-	// THIS DATA IS STORED IN A DATABASE AND IS SHARED ACROSS ALL RESOLVER INSTANCES!
-	
+		
 	public String username;
 	public String email;
 	public int l1group;		// Level 1 is just a number

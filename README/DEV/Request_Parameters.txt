@@ -61,16 +61,29 @@ HTTP POST
 						RETURN : {
 						}
 					}
+
+					addadmin{					// Add another admin
+						*adminname*
+						*password*
+						RETURN : {
+							message: what happened
+						}
+					}
+				}
+			}
+		
+			false{
+				*request*{
+					signin{
+						*adminname*
+						*password*
+						RETURN: {
+							status
+						}
+					}
 				}
 			}
 		}
-			false{
-				*adminname*
-				*password*
-				RETURN: {
-					status{
-				}
-			}
 	}
 	
 	user{
