@@ -1,5 +1,5 @@
 SMARTFOX for realtime server?
-ii
+---ii
 
 - SALT is not being used!!! 
 - Create a standard function and a protocol for the return values from the server to the client/admin/general requests.
