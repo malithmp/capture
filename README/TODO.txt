@@ -1,4 +1,4 @@
-SMARTFOX for realtime server?
+qSMARTFOX for realtime server?
 ---i--ii
 
 - SALT is not being used!!! 
